@@ -342,3 +342,119 @@ def test_ach013_manifest_relative_paths_self_exclusion_and_git_dirty(tmp_path) -
     assert "C:" not in rec["relative_path"] and "\\" not in rec["relative_path"]
     assert "relatorios_execucao/run_manifest.json" in m["self_excluded_files"]
     assert "git_dirty" in m
+
+
+def test_ach014_provenance_git_dirty_policy_all_five_scenarios(tmp_path) -> None:
+    import subprocess
+    from scripts.common.provenance import build_run_manifest
+
+    # Cenário 5: execução fora de um repositório Git
+    outside_dir = tmp_path / "no_git"
+    outside_dir.mkdir()
+    f_out = outside_dir / "a.txt"
+    f_out.write_text("hello\n", encoding="utf-8")
+    m_out = build_run_manifest("RUN-NOGIT", [f_out], repo_root=outside_dir)
+    assert m_out["git_commit"] is None
+    assert m_out["git_dirty"] is None
+    assert m_out["git_state"]["in_git_repo"] is False
+    assert m_out["git_state"]["git_dirty_code"] is None
+
+    # Cria repositório Git temporário para cenários 1 a 4
+    repo = tmp_path / "git_repo"
+    repo.mkdir()
+    subprocess.run(["git", "init", "-b", "main"], cwd=repo, check=True, capture_output=True)
+    subprocess.run(["git", "config", "user.name", "Tester"], cwd=repo, check=True)
+    subprocess.run(["git", "config", "user.email", "tester@example.com"], cwd=repo, check=True)
+
+    src = repo / "src.py"
+    rep = repo / "relatorios_execucao" / "pytest_verbose.txt"
+    rep.parent.mkdir(parents=True)
+    src.write_text("x = 1\n", encoding="utf-8")
+    rep.write_text("ok\n", encoding="utf-8")
+    subprocess.run(["git", "add", "."], cwd=repo, check=True)
+    subprocess.run(["git", "commit", "-m", "init"], cwd=repo, check=True, capture_output=True)
+
+    # Cenário 1: árvore realmente limpa
+    m_clean = build_run_manifest("RUN-CLEAN", [src], repo_root=repo)
+    assert m_clean["git_dirty"] is False
+    assert m_clean["git_state"]["git_dirty_raw"] is False
+    assert m_clean["git_state"]["git_dirty_code"] is False
+
+    # Cenário 3: apenas relatório rastreado modificado -> git_dirty_raw=True (não falsificado!), git_dirty_code=False!
+    rep.write_text("ok updated\n", encoding="utf-8")
+    m_rep = build_run_manifest(
+        "RUN-REP",
+        [src, rep],
+        excluded_dirty_paths=["relatorios_execucao/pytest_verbose.txt"],
+        self_excluded_files=["relatorios_execucao/run_manifest.json"],
+        repo_root=repo,
+    )
+    assert m_rep["git_dirty"] is True
+    assert m_rep["git_state"]["git_dirty_raw"] is True
+    assert m_rep["git_state"]["git_dirty_code"] is False
+    assert "relatorios_execucao/pytest_verbose.txt" in m_rep["git_state"]["dirty_files_excluded"]
+    # Cenário 4: manifesto regenerado com autoexclusão explícita
+    assert "relatorios_execucao/run_manifest.json" in m_rep["self_excluded_files"]
+    assert all(r["relative_path"] != "relatorios_execucao/run_manifest.json" for r in m_rep["inspected_files"])
+
+    # Cenário 2: arquivo-fonte modificado -> git_dirty_raw=True E git_dirty_code=True!
+    src.write_text("x = 2\n", encoding="utf-8")
+    m_dirty = build_run_manifest(
+        "RUN-DIRTY",
+        [src, rep],
+        excluded_dirty_paths=["relatorios_execucao/pytest_verbose.txt"],
+        repo_root=repo,
+    )
+    assert m_dirty["git_dirty"] is True
+    assert m_dirty["git_state"]["git_dirty_raw"] is True
+    assert m_dirty["git_state"]["git_dirty_code"] is True
+    assert "src.py" in m_dirty["git_state"]["dirty_files_code"]
+
+
+def test_ach015_t_test_paired_degenerate_and_no_scipy_warnings() -> None:
+    import warnings
+
+    # 1. Diferenças constantes não nulas -> indefinido (dz=None, status != ok, ZERO warnings!)
+    with warnings.catch_warnings(record=True) as caught:
+        warnings.simplefilter("always")
+        res_const = motor_estatistico.t_test_paired([1.0, 2.0, 3.0], [3.0, 4.0, 5.0])
+    assert len(caught) == 0, f"Warnings inesperados: {[str(w.message) for w in caught]}"
+    assert res_const["statistic"] is None
+    assert res_const["p_value"] is None
+    assert res_const["cohens_dz"] is None
+    assert res_const["significant_at_alpha"] is None
+    assert res_const["status"] == "undefined_zero_variance"
+
+    # 2. Diferenças todas iguais a zero -> degenerado (distinto de não significativo, ZERO warnings!)
+    with warnings.catch_warnings(record=True) as caught_zero:
+        warnings.simplefilter("always")
+        res_zero = motor_estatistico.t_test_paired([5.0, 6.0, 7.0], [5.0, 6.0, 7.0])
+    assert len(caught_zero) == 0
+    assert res_zero["statistic"] is None
+    assert res_zero["p_value"] is None
+    assert res_zero["cohens_dz"] == 0.0
+    assert res_zero["significant_at_alpha"] is None
+    assert res_zero["status"] == "degenerate_zero_differences"
+
+    # 3. Variância positiva -> ok com estatística, p-valor e dz finitos
+    res_pos = motor_estatistico.t_test_paired([1.0, 2.0, 3.0, 4.0], [2.0, 3.0, 4.0, 6.0])
+    assert res_pos["status"] == "ok"
+    assert res_pos["statistic"] is not None and res_pos["p_value"] is not None and res_pos["cohens_dz"] is not None
+
+    # 4. Amostras não finitas rejeitadas
+    with pytest.raises(ValueError, match="não finitos"):
+        motor_estatistico.t_test_paired([1.0, float("nan")], [1.0, 2.0])
+
+    # 5. Tamanhos incompatíveis rejeitados
+    with pytest.raises(ValueError, match="mesmo tamanho"):
+        motor_estatistico.t_test_paired([1.0, 2.0], [1.0, 2.0, 3.0])
+
+
+def test_ach016_engine_versions_match_catalog() -> None:
+    import importlib
+    from scripts.common.profile_loader import load_engine_catalog
+
+    catalog = load_engine_catalog()
+    for engine_id in ("motor_estatistico", "motor_temporal", "motor_matematico"):
+        mod = importlib.import_module(f"scripts.engines.{engine_id}")
+        assert mod.MOTOR_VERSION == catalog[engine_id]["versao"]

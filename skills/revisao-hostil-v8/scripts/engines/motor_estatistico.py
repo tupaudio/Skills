@@ -39,7 +39,7 @@ from scripts.common.evidence import create_evidence, create_finding, utc_now_iso
 from scripts.common.validation import require_finite_array, require_finite_number, sanitize_for_json
 
 MOTOR_ID = "motor_estatistico"
-MOTOR_VERSION = "0.1.0-beta.3"
+MOTOR_VERSION = "0.2.0-beta.5.3"
 
 
 def _cohens_d_independent(a: np.ndarray, b: np.ndarray) -> tuple[float | None, float | None, str | None]:
@@ -104,26 +104,76 @@ def t_test_independent(
 
 
 def t_test_paired(sample_a: Any, sample_b: Any, *, alpha: float = 0.05, reported_p: float | None = None) -> dict[str, Any]:
+    """Teste t pareado com tratamento explícito de variância nula das diferenças antes do SciPy (ACH-015)."""
     a = require_finite_array(sample_a, name="sample_a", ndim=1)
     b = require_finite_array(sample_b, name="sample_b", ndim=1)
     if a.size != b.size or a.size < 2:
         raise ValueError("Teste pareado exige duas amostras de mesmo tamanho (>= 2).")
+
     diff = a - b
-    res = stats.ttest_rel(a, b)
+    mean_diff = float(np.mean(diff))
     sd = float(np.std(diff, ddof=1))
-    dz = float(np.mean(diff) / sd) if sd > 0 else 0.0
+
+    if sd == 0.0:
+        if abs(mean_diff) <= 1e-15:
+            return {
+                "operation": "t_test_paired",
+                "n_pairs": int(a.size),
+                "mean_diff": 0.0,
+                "sd_diff": 0.0,
+                "statistic": None,
+                "p_value": None,
+                "cohens_dz": 0.0,
+                "effect_size_note": (
+                    "degenerate_zero_differences: todas as diferenças são exatamente zero "
+                    "(variância nula; estatística t e valor-p indefinidos, distinto de resultado não significativo)."
+                ),
+                "significant_at_alpha": None,
+                "alpha": alpha,
+                "reported_p": reported_p,
+                "status": "degenerate_zero_differences",
+            }
+        return {
+            "operation": "t_test_paired",
+            "n_pairs": int(a.size),
+            "mean_diff": mean_diff,
+            "sd_diff": 0.0,
+            "statistic": None,
+            "p_value": None,
+            "cohens_dz": None,
+            "effect_size_note": (
+                "undefined_zero_diff_variance: diferenças constantes não nulas "
+                "(sd == 0; estatística t, valor-p e Cohen's dz indefinidos)."
+            ),
+            "significant_at_alpha": None,
+            "alpha": alpha,
+            "reported_p": reported_p,
+            "status": "undefined_zero_variance",
+        }
+
+    res = stats.ttest_rel(a, b)
+    stat_val = float(res.statistic)
     p_val = float(res.pvalue)
-    discrepancy = reported_p is not None and abs(p_val - require_finite_number(reported_p, "reported_p")) > 0.01
+    finite_test = math.isfinite(stat_val) and math.isfinite(p_val)
+    dz = float(mean_diff / sd)
+    discrepancy = (
+        finite_test
+        and reported_p is not None
+        and abs(p_val - require_finite_number(reported_p, "reported_p")) > 0.01
+    )
     return {
         "operation": "t_test_paired",
         "n_pairs": int(a.size),
-        "mean_diff": float(np.mean(diff)),
-        "statistic": float(res.statistic),
-        "p_value": p_val,
-        "cohens_dz": dz,
-        "significant_at_alpha": bool(p_val < alpha),
+        "mean_diff": mean_diff,
+        "sd_diff": sd,
+        "statistic": stat_val if math.isfinite(stat_val) else None,
+        "p_value": p_val if math.isfinite(p_val) else None,
+        "cohens_dz": dz if math.isfinite(dz) else None,
+        "effect_size_note": None,
+        "significant_at_alpha": bool(p_val < alpha) if math.isfinite(p_val) else None,
         "alpha": alpha,
-        "status": "discrepancy_detected" if discrepancy else "ok",
+        "reported_p": reported_p,
+        "status": "discrepancy_detected" if discrepancy else ("ok" if finite_test else "undefined_non_finite"),
     }
 
 

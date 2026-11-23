@@ -57,7 +57,7 @@ motores:
     perfil_obrigatorio: false
 
   - id: motor_estatistico
-    versao: "0.1.0-beta.3"
+    versao: "0.2.0-beta.5.3"
     categoria: cientifico_universal
     fase_alvo: beta.3
     status: implementado_beta3
@@ -310,7 +310,7 @@ motores:
     perfil_obrigatorio: true
 
   - id: motor_temporal
-    versao: "0.1.0-beta.5"
+    versao: "0.2.0-beta.5.2"
     categoria: integridade_cientifica
     fase_alvo: beta.5
     status: implementado_beta5
