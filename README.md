@@ -1,9 +1,9 @@
 # Skills do Antigravity — Tupã Audio & Academic Framework
 
 [![Status](https://img.shields.io/badge/Antigravity-Skills%20Repository-blue)](https://github.com/tupaudio/Skills)
-[![Revisão Hostil](https://img.shields.io/badge/Revis%C3%A3o%20Hostil-v6.0%20%7C%20v8.0--beta.5.1-orange)](./skills/revisao-hostil-v8)
-[![Alucinação-OFF](https://img.shields.io/badge/Alucina%C3%A7%C3%A3o--OFF-v1.0-green)](./skills/alucinacao-off)
-[![Tests](https://img.shields.io/badge/pytest-45%20passed-brightgreen)](./skills/revisao-hostil-v8/relatorios_execucao/pytest_verbose.txt)
+[![Revisão Hostil](https://img.shields.io/badge/Revis%C3%A3o%20Hostil-v6.0%20%7C%20v8.0--beta.5.2-orange)](./skills/revisao-hostil-v8)
+[![Alucinação-OFF](https://img.shields.io/badge/Alucina%C3%A7%C3%A3o--OFF-v2.0-green)](./skills/alucinacao-off)
+[![Tests](https://img.shields.io/badge/pytest-49%20passed-brightgreen)](./skills/revisao-hostil-v8/relatorios_execucao/pytest_verbose.txt)
 
 Repositório oficial de **Skills autorais para o Google Antigravity**, focadas em **rigor epistêmico radical**, **auditoria científica e técnica determinística** e **verificação orientada a evidências**.
 
@@ -13,9 +13,9 @@ Repositório oficial de **Skills autorais para o Google Antigravity**, focadas e
 
 | Skill | Versão | Pasta | Descrição |
 | :--- | :---: | :--- | :--- |
-| **`alucinacao-off`** | `v1.0` | [`skills/alucinacao-off/`](./skills/alucinacao-off) | Ativa postura de honestidade epistêmica radical e tolerância zero a chutes ou preenchimento arbitrário de parâmetros em engenharia, eletrônica, RF, física, matemática e pesquisa científica. |
+| **`alucinacao-off`** | `v2.0` | [`skills/alucinacao-off/`](./skills/alucinacao-off) | Honestidade epistêmica e rigor técnico (taxonomia de 5 status, protocolo de lacunas críticas, blindagem por tipo de dado, modo criativo explícito e módulo de eletrônica/hardware). |
 | **`revisao-hostil`** | `v6.0` | [`skills/revisao-hostil/`](./skills/revisao-hostil) | Versão estável de produção para revisão científica crítica e forense (`.tex`, `.docx`, `.pdf`, `.md`, `.txt`) com `auditor.py`, `motor_matematico.py` (*Zero-Trust Numerical Plug-In*) e 10 Portões de Qualidade. |
-| **`revisao-hostil-v8`** | `v8.0-beta.5` | [`skills/revisao-hostil-v8/`](./skills/revisao-hostil-v8) | Plataforma modular multidisciplinar em desenvolvimento incremental (Beta → RC → 8.0), orientada a contratos JSON, com **18 motores determinísticos**, rastreabilidade de evidências, máquina formal de 10 estados e **34 testes `pytest` aprovados**. |
+| **`revisao-hostil-v8`** | `v8.0-beta.5.2` | [`skills/revisao-hostil-v8/`](./skills/revisao-hostil-v8) | Plataforma modular multidisciplinar em desenvolvimento incremental (Beta → RC → 8.0), orientada a contratos JSON, com **18 motores determinísticos**, rastreabilidade de evidências, máquina formal de 10 estados e **49 testes `pytest` aprovados**. |
 
 ---
 
@@ -33,16 +33,17 @@ Skills/
     │   └── scripts/
     │       ├── auditor.py
     │       └── motor_matematico.py
-    └── revisao-hostil-v8/                # v8.0-beta.5 (Desenvolvimento Incremental)
+    └── revisao-hostil-v8/                # v8.0-beta.5.2 (Estabilização pós-reauditoria externa)
         ├── 00_diagnostico/               # Inventário, defeitos da v6.0 e SHA256SUMS
         ├── docs/                         # ARQUITETURA_V8.md e critérios de aceitação
         ├── references/                   # 7 JSON Schemas, catálogos de motores/agentes e matriz RACI
-        ├── relatorios_execucao/          # Saída do pytest -v, smoke tests CLI e run_manifest.json
+        ├── relatorios_execucao/          # Saída do pytest -v + pytest-cov, smoke tests CLI e run_manifest.json
         ├── scripts/
         │   ├── auditor.py                # Extrator e triador modular (v8.0-beta.2)
         │   ├── common/                   # Validador de schemas, estados, pontuação, manifesto e utilitários
-        │   └── engines/                  # 18 motores determinísticos (Fases 2 a 5)
-        ├── tests/                        # Suíte pytest (unitários, negativos, contratos e regressão)
+        │   ├── engines/                  # 18 motores determinísticos (Fases 2 a 5)
+        │   └── tools/                    # Gerador reproduzível de relatórios, cobertura e SHA256SUMS
+        ├── tests/                        # Suíte pytest (49 testes: unitários, negativos, adversariais e contratos)
         ├── versions/v6.0-legacy/         # Base legada congelada com SHA256SUMS
         ├── pytest.ini
         ├── requirements.txt
@@ -59,7 +60,8 @@ Skills/
 | **Fase 2 (`v8.0-beta.2`)** | 7 JSON Schemas, `scripts/common/`, correções do Core, 10 estados e `run_manifest.json` | Concluída |
 | **Fase 3 (`v8.0-beta.3`)** | Motores universais: dimensional, estatístico, geométrico, incerteza e integridade de dados | Concluída |
 | **Fase 4 (`v8.0-beta.4`)** | Linguagem, figuras + inventário visual, imagem forense e consistência cruzada | Concluída |
-| **Fase 5 (`v8.0-beta.5`)** | Ética, argumentação, evidência, temporal, nomenclatura, metadados, reprodutibilidade e qualitativo | Concluída |
+| **Fase 5 (`v8.0-beta.5`)** | Ética, argumentação, evidência, temporal, nomenclatura, metadados, reprodutibilidade e qualitativo (tag histórica) | Concluída |
+| **Estabilização (`v8.0-beta.5.1` → `v8.0-beta.5.2`)** | Remediação completa da auditoria externa (`ACH-001` a `ACH-013`), 49 testes, cobertura `pytest-cov` e manifesto portável | Concluída |
 | **Fase 6 (`v8.0-beta.6`)** | Perfis YAML multidisciplinares, `motor_normas` e motores especializados | Planejada |
 | **Fase 7 (`v8.0-beta.7`)** | Banca multiagente independente, Challenger, Adversarial e Adjudicador | Planejada |
 | **Fase 8 (`v8.0-beta.8`)** | `motor_integracao`, `motor_meta`, `orchestrator.py` e `SKILL.md` v8.0 | Planejada |
@@ -105,7 +107,7 @@ python scripts/auditor.py caminho/para/manuscrito.tex --out relatorio_auditor.js
 python scripts/engines/motor_matematico.py --input payload.json --out resultado_motor.json
 ```
 
-> **Nota sobre a `revisao-hostil-v8`:** até o marco `v8.0-beta.5`, os motores determinísticos, contratos JSON e o `auditor.py` já podem ser executados diretamente via Python/CLI; o `SKILL.md` orquestrador da v8.0 será integrado na **Fase 8**. Para uso imediato como skill completa em agentes hoje, utilize `skills/revisao-hostil/` (v6.0 estável) e `skills/alucinacao-off/`.
+> **Nota sobre a `revisao-hostil-v8`:** até o marco `v8.0-beta.5.2`, os 18 motores determinísticos, contratos JSON e o `auditor.py` já podem ser executados diretamente via Python/CLI; o `SKILL.md` orquestrador da v8.0 será integrado na **Fase 8**. Para uso imediato como skill completa em agentes hoje, utilize `skills/revisao-hostil/` (v6.0 estável) e `skills/alucinacao-off/` (v2.0).
 
 ---
 
