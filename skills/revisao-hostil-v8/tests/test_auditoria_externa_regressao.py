@@ -120,3 +120,121 @@ def test_ach007_argumentation_scope_accurately_documented() -> None:
     )
     validate_contract(out, "schema_motor.json")
     assert any("pré-estruturados" in lim or "já estruturados" in lim for lim in out["limitacoes"])
+
+
+def test_ach008_pillow_in_requirements_and_all_18_engines_importable() -> None:
+    import importlib
+    from pathlib import Path
+
+    root = Path(__file__).resolve().parents[1]
+    reqs = (root / "requirements.txt").read_text(encoding="utf-8")
+    assert "Pillow" in reqs
+
+    engine_names = [
+        "motor_matematico",
+        "motor_dimensional",
+        "motor_estatistico",
+        "motor_geometrico",
+        "motor_incerteza",
+        "motor_dados",
+        "motor_linguagem",
+        "motor_figuras",
+        "motor_imagem_forense",
+        "motor_consistencia_cruzada",
+        "motor_etica",
+        "motor_argumentacao",
+        "motor_evidencia",
+        "motor_temporal",
+        "motor_nomenclatura",
+        "motor_metadados",
+        "motor_reprodutibilidade",
+        "motor_qualitativo",
+    ]
+    assert len(engine_names) == 18
+    for name in engine_names:
+        mod = importlib.import_module(f"scripts.engines.{name}")
+        assert hasattr(mod, "run_motor"), f"{name} não expõe run_motor()"
+
+
+def test_ach009_temporal_timezone_ambiguity_and_policies() -> None:
+    # Mistura naive + UTC dentro de 26h sob política 'strict' -> NAO_VERIFICADO (nunca presume UTC!)
+    amb = motor_temporal.run_motor(
+        {
+            "events": {"aprovacao": "2025-05-01T10:00:00", "coleta": "2025-05-01T12:00:00Z"},
+            "precedence_rules": [["aprovacao", "coleta"]],
+            "naive_policy": "strict",
+        }
+    )
+    validate_contract(amb, "schema_motor.json")
+    assert amb["resultados"]["status"] == "unverified"
+    assert amb["achados"][0]["estado"] == "NAO_VERIFICADO"
+
+    # Mistura naive + UTC separados por 5 dias -> ordenação inequívoca!
+    clear = motor_temporal.check_chronology(
+        {"aprovacao": "2025-05-01T10:00:00", "coleta": "2025-05-06T12:00:00Z"},
+        [["aprovacao", "coleta"]],
+        naive_policy="strict",
+    )
+    assert clear["status"] == "ok"
+
+    # Política explícita utc_explicit permite comparar diretamente
+    expl = motor_temporal.check_chronology(
+        {"aprovacao": "2025-05-01T14:00:00", "coleta": "2025-05-01T12:00:00Z"},
+        [["aprovacao", "coleta"]],
+        naive_policy="utc_explicit",
+    )
+    assert expl["status"] == "discrepancy_detected"
+
+
+def test_ach010_manifest_records_pillow_pytest_cov_and_explicit_params(tmp_path) -> None:
+    from scripts.common.provenance import build_run_manifest
+
+    f = tmp_path / "a.txt"
+    f.write_text("ok", encoding="utf-8")
+    m = build_run_manifest("RUN-ACH010", [f])
+    deps = m["environment"]["dependencies"]
+    assert deps["Pillow"] is not None
+    assert deps["pytest-cov"] is not None
+    assert deps["coverage"] is not None
+    assert m["config"]["status"] == "no_custom_config_used"
+    assert m["seeds"]["status"] == "no_stochastic_seed_used"
+
+
+def test_geometric_and_data_extended_coverage() -> None:
+    import math
+    from scripts.engines import motor_dados, motor_geometrico
+
+    # Sólidos 3D: box, sphere, cylinder, cone + rejeição de dimensão negativa
+    assert math.isclose(motor_geometrico.solid_3d("box", {"lx": 2, "ly": 3, "lz": 4})["volume"], 24.0)
+    assert math.isclose(motor_geometrico.solid_3d("sphere", {"radius": 1})["volume"], 4 * math.pi / 3)
+    assert math.isclose(motor_geometrico.solid_3d("cylinder", {"radius": 1, "height": 2})["volume"], 2 * math.pi)
+    assert math.isclose(motor_geometrico.solid_3d("cone", {"radius": 1, "height": 3})["volume"], math.pi)
+    with pytest.raises(ValueError):
+        motor_geometrico.solid_3d("box", {"lx": -1, "ly": 2, "lz": 3})
+
+    # Colisão AABB 3D
+    col = motor_geometrico.aabb_collision_3d([0, 0, 0], [2, 2, 2], [1, 1, 1], [3, 3, 3])
+    assert col["collides"] is True and math.isclose(col["overlap_volume"], 1.0)
+    disj = motor_geometrico.aabb_collision_3d([0, 0, 0], [1, 1, 1], [5, 5, 5], [6, 6, 6])
+    assert disj["collides"] is False and disj["overlap_volume"] == 0.0
+
+    # Stackup de tolerâncias
+    stk = motor_geometrico.tolerance_stackup([10.0, 20.0], [0.3, 0.4])
+    assert math.isclose(stk["worst_case_tolerance"], 0.7)
+    assert math.isclose(stk["rss_tolerance"], 0.5)
+
+    # Qualidade de malha triangular (válida e degenerada)
+    mq_ok = motor_geometrico.mesh_quality_triangles([[0, 0], [1, 0], [0, 1]], [[0, 1, 2]])
+    assert mq_ok["status"] == "ok" and mq_ok["degenerate_count"] == 0
+    mq_deg = motor_geometrico.mesh_quality_triangles([[0, 0], [1, 0], [2, 0]], [[0, 1, 2]])
+    assert mq_deg["status"] == "discrepancy_detected" and mq_deg["degenerate_count"] == 1
+
+    # Polígono degenerado rejeitado
+    with pytest.raises(ValueError, match="degenerado"):
+        motor_geometrico.polygon_2d([[0, 0], [1, 0], [2, 0]])
+
+    # motor_dados: outliers e sample_vs_reported
+    out_iqr = motor_dados.detect_outliers([10, 11, 10, 12, 11, 10, 100])
+    assert 6 in out_iqr["iqr_outlier_indices"]
+    svr_bad = motor_dados.sample_vs_reported([10, 20, 30], {"mean": 99.0, "n": 3})
+    assert svr_bad["status"] == "discrepancy_detected"

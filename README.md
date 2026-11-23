@@ -1,9 +1,9 @@
 # Skills do Antigravity — Tupã Audio & Academic Framework
 
 [![Status](https://img.shields.io/badge/Antigravity-Skills%20Repository-blue)](https://github.com/tupaudio/Skills)
-[![Revisão Hostil](https://img.shields.io/badge/Revis%C3%A3o%20Hostil-v6.0%20%7C%20v8.0--beta.5-orange)](./skills/revisao-hostil-v8)
+[![Revisão Hostil](https://img.shields.io/badge/Revis%C3%A3o%20Hostil-v6.0%20%7C%20v8.0--beta.5.1-orange)](./skills/revisao-hostil-v8)
 [![Alucinação-OFF](https://img.shields.io/badge/Alucina%C3%A7%C3%A3o--OFF-v1.0-green)](./skills/alucinacao-off)
-[![Tests](https://img.shields.io/badge/pytest-41%20passed-brightgreen)](./skills/revisao-hostil-v8/relatorios_execucao/pytest_verbose.txt)
+[![Tests](https://img.shields.io/badge/pytest-45%20passed-brightgreen)](./skills/revisao-hostil-v8/relatorios_execucao/pytest_verbose.txt)
 
 Repositório oficial de **Skills autorais para o Google Antigravity**, focadas em **rigor epistêmico radical**, **auditoria científica e técnica determinística** e **verificação orientada a evidências**.
 
@@ -67,16 +67,45 @@ Skills/
 
 ---
 
-## Como Instalar no Antigravity
+## Como Instalar e Usar (Antigravity e Outras IAs)
 
-### Instalação Global (todos os projetos)
-Copie a pasta da skill desejada dentro de `skills/` para o diretório global de skills do Antigravity:
+Como as skills deste repositório seguem o padrão aberto **`SKILL.md` (YAML + Markdown) + scripts Python independentes**, elas funcionam no **Google Antigravity** e também em **outras IAs e agentes de código**.
 
-- **Windows:** `%USERPROFILE%\.gemini\config\skills\<nome-da-skill>\`
-- **Linux / macOS:** `~/.gemini/config/skills/<nome-da-skill>/`
+### 1. Clonar o repositório
+```bash
+git clone https://github.com/tupaudio/Skills.git
+```
 
-### Instalação por Workspace (projeto específico)
-Copie a pasta da skill desejada para `.agents/skills/<nome-da-skill>/` na raiz do seu repositório.
+### 2. Google Antigravity
+- **Global (todos os projetos):** copie a pasta desejada de `skills/` para:
+  - **Windows:** `%USERPROFILE%\.gemini\config\skills\<nome-da-skill>\`
+  - **Linux / macOS:** `~/.gemini/config/skills/<nome-da-skill>/`
+- **Por projeto (workspace):** copie para `.agents/skills/<nome-da-skill>/` na raiz do seu repositório.
+
+### 3. Claude Code / Claude Desktop (Anthropic)
+- **Claude Code:** copie a pasta da skill para `~/.claude/skills/<nome-da-skill>/` (global) ou `.claude/skills/<nome-da-skill>/` (no projeto).
+- **Claude Web / Desktop:** crie um *Project* e anexe o `SKILL.md` (e, quando quiser cálculos determinísticos, os scripts de `scripts/`) em *Project Knowledge*.
+
+### 4. OpenAI Codex CLI / ChatGPT
+- **Codex CLI:** copie para `.agents/skills/<nome-da-skill>/` no repositório ou referencie o `SKILL.md` no `AGENTS.md`.
+- **ChatGPT (Plus/Pro/Team):** crie um *Project* ou *Custom GPT*, adicione o `SKILL.md` nas instruções/arquivos de conhecimento e habilite o **Code Interpreter** para executar os scripts Python de `scripts/`.
+
+### 5. Cursor, Windsurf, Cline e GitHub Copilot
+- **Cursor:** copie ou referencie o conteúdo do `SKILL.md` em `.cursor/rules/<nome-da-skill>.mdc` (ou `.agents/skills/`).
+- **Windsurf / Cline:** coloque o `SKILL.md` em `.windsurf/rules/` ou `.clinerules/`.
+- **GitHub Copilot:** referencie as instruções em `.github/copilot-instructions.md` (ou `.github/instructions/`).
+
+### 6. Uso Independente via Terminal / CI (sem IA)
+Os motores determinísticos da `revisao-hostil-v8` e o `auditor.py` funcionam de forma 100% autônoma via CLI Python + JSON, sem depender de nenhuma plataforma de IA:
+
+```bash
+cd skills/revisao-hostil-v8
+pip install -r requirements.txt
+python scripts/auditor.py caminho/para/manuscrito.tex --out relatorio_auditor.json
+python scripts/engines/motor_matematico.py --input payload.json --out resultado_motor.json
+```
+
+> **Nota sobre a `revisao-hostil-v8`:** até o marco `v8.0-beta.5`, os motores determinísticos, contratos JSON e o `auditor.py` já podem ser executados diretamente via Python/CLI; o `SKILL.md` orquestrador da v8.0 será integrado na **Fase 8**. Para uso imediato como skill completa em agentes hoje, utilize `skills/revisao-hostil/` (v6.0 estável) e `skills/alucinacao-off/`.
 
 ---
 

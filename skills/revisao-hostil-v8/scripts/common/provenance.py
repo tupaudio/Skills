@@ -88,7 +88,20 @@ def build_run_manifest(
 
     root_path = Path(repo_root) if repo_root else Path(__file__).resolve().parents[2]
     deps = _installed_packages(
-        ("numpy", "scipy", "sympy", "python-docx", "pypdf", "PyYAML", "jsonschema", "pytest")
+        (
+            "numpy",
+            "scipy",
+            "sympy",
+            "python-docx",
+            "pypdf",
+            "Pillow",
+            "PyYAML",
+            "jsonschema",
+            "referencing",
+            "pytest",
+            "pytest-cov",
+            "coverage",
+        )
     )
 
     return {
@@ -104,8 +117,8 @@ def build_run_manifest(
             "platform": platform.platform(),
             "dependencies": deps,
         },
-        "config": dict(config or {}),
-        "seeds": dict(seeds or {}),
+        "config": dict(config) if config is not None else {"status": "no_custom_config_used"},
+        "seeds": dict(seeds) if seeds is not None else {"status": "no_stochastic_seed_used"},
         "inspected_files": file_records,
         "limitations": list(limitations or []),
     }

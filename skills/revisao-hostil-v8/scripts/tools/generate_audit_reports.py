@@ -67,9 +67,9 @@ def main() -> None:
     # 3. run_manifest.json (detecta git_commit automaticamente se estiver em repo git!)
     all_files = sorted(p for p in ROOT.rglob("*") if is_clean_file(p))
     manifest = build_run_manifest(
-        "BETA5-AUDIT-REMEDIATED-2026-11-23",
+        "BETA5.1-HOMOLOGATION-2026-11-23",
         all_files,
-        skill_version="8.0.0-beta.5",
+        skill_version="8.0.0-beta.5.1",
         engine_versions={
             "auditor_estrutural": "8.0.0-beta.2",
             "motor_matematico": "8.0.0-beta.2",
@@ -91,6 +91,8 @@ def main() -> None:
             "motor_reprodutibilidade": "0.1.0-beta.5",
             "motor_qualitativo": "0.1.0-beta.5",
         },
+        config={"pytest_args": ["-v", "--cov=scripts", "--cov-report=term-missing"], "naive_timezone_policy": "strict"},
+        seeds={"bootstrap_default": 42, "monte_carlo_default": 42},
         limitations=[
             "SKILL.md da v8.0 será integrado na Fase 8 (v6.0-legacy/SKILL.md preservado em versions/v6.0-legacy/)."
         ],

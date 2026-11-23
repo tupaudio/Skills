@@ -41,32 +41,55 @@ _DATETIME_RE = re.compile(r"^\d{4}-\d{2}-\d{2}[T ]\d{2}:\d{2}(?::\d{2}(?:\.\d+)?
 
 
 def _parse_iso_temporal(raw: str) -> tuple[datetime, str, bool]:
-    """Valida estritamente data (YYYY-MM-DD) ou data+hora ISO-8601 completa sem truncamento (ACH-005).
-    Retorna (datetime_utc_ou_naive, precision='day'|'datetime', has_timezone).
+    """Valida estritamente data (YYYY-MM-DD) ou data+hora ISO-8601 completa sem truncamento (ACH-005/ACH-009).
+    NUNCA presume UTC silenciosamente para horários sem fuso (mantém datetime naive com has_timezone=False).
     """
     if not isinstance(raw, str) or not raw.strip():
         raise ValueError(f"Marca temporal vazia ou inválida: {raw!r}")
     s = raw.strip()
     if _DATE_ONLY_RE.match(s):
         d = date.fromisoformat(s)
-        return datetime(d.year, d.month, d.day, tzinfo=timezone.utc), "day", False
+        return datetime(d.year, d.month, d.day), "day", False
     if _DATETIME_RE.match(s):
         normalized = s[:-1] + "+00:00" if s.endswith("Z") else s
         dt = datetime.fromisoformat(normalized)
         if dt.tzinfo is not None:
             return dt.astimezone(timezone.utc), "datetime", True
-        return dt.replace(tzinfo=timezone.utc), "datetime", False
+        return dt, "datetime", False
     raise ValueError(f"Formato ISO-8601 inválido (conteúdo extra ou sintaxe incorreta): {raw!r}")
 
 
-def _compare_events(a: tuple[datetime, str, bool], b: tuple[datetime, str, bool]) -> int:
-    """Compara dois marcos temporais respeitando precisão diária vs horária."""
-    dt_a, prec_a, _ = a
-    dt_b, prec_b, _ = b
+def _compare_events(
+    a: tuple[datetime, str, bool],
+    b: tuple[datetime, str, bool],
+    *,
+    naive_policy: str = "strict",
+) -> int | None:
+    """Compara dois marcos temporais sem presumir UTC silenciosamente (ACH-009).
+    Retorna -1 (a < b), 0 (a == b), 1 (a > b), ou None quando houver ambiguidade de fuso (NAO_VERIFICADO).
+    """
+    dt_a, prec_a, tz_a = a
+    dt_b, prec_b, tz_b = b
     if prec_a == "day" or prec_b == "day":
         da, db = dt_a.date(), dt_b.date()
         return -1 if da < db else (1 if da > db else 0)
-    return -1 if dt_a < dt_b else (1 if dt_a > dt_b else 0)
+
+    if tz_a == tz_b:
+        return -1 if dt_a < dt_b else (1 if dt_a > dt_b else 0)
+
+    # Mistura de datetime naive e datetime timezone-aware
+    if naive_policy == "utc_explicit":
+        ua = dt_a if tz_a else dt_a.replace(tzinfo=timezone.utc)
+        ub = dt_b if tz_b else dt_b.replace(tzinfo=timezone.utc)
+        return -1 if ua < ub else (1 if ua > ub else 0)
+
+    # Política estrita: fuso real de um naive pode variar em [-12h, +14h] (janela de ambiguidade = 26h)
+    naive_as_utc_a = dt_a if tz_a else dt_a.replace(tzinfo=timezone.utc)
+    naive_as_utc_b = dt_b if tz_b else dt_b.replace(tzinfo=timezone.utc)
+    diff_hours = abs((naive_as_utc_a - naive_as_utc_b).total_seconds()) / 3600.0
+    if diff_hours <= 26.0:
+        return None
+    return -1 if naive_as_utc_a < naive_as_utc_b else 1
 
 
 def check_chronology(
@@ -75,16 +98,35 @@ def check_chronology(
     *,
     validity_windows: list[dict[str, Any]] | None = None,
     reference_date: str | None = None,
+    naive_policy: str = "strict",
 ) -> dict[str, Any]:
+    if naive_policy not in ("strict", "utc_explicit"):
+        raise ValueError(f"naive_policy inválida: {naive_policy}. Use 'strict' ou 'utc_explicit'.")
     parsed_events = {k: _parse_iso_temporal(v) for k, v in events.items()}
     violations: list[dict[str, Any]] = []
+    ambiguities: list[dict[str, Any]] = []
 
     for rule in precedence_rules:
         if len(rule) != 2:
             raise ValueError(f"Regra de precedência deve conter [antes, depois]: {rule}")
         before, after = rule
         if before in parsed_events and after in parsed_events:
-            if _compare_events(parsed_events[before], parsed_events[after]) > 0:
+            cmp_res = _compare_events(parsed_events[before], parsed_events[after], naive_policy=naive_policy)
+            if cmp_res is None:
+                ambiguities.append(
+                    {
+                        "type": "ambiguous_timezone",
+                        "before": before,
+                        "before_timestamp": events[before],
+                        "after": after,
+                        "after_timestamp": events[after],
+                        "detail": (
+                            f"Ordenação ambígua entre '{before}' ({events[before]}) e '{after}' ({events[after]}): "
+                            "mistura de horário sem fuso e com fuso dentro da janela de 26h."
+                        ),
+                    }
+                )
+            elif cmp_res > 0:
                 violations.append(
                     {
                         "type": "precedence_violation",
@@ -102,18 +144,32 @@ def check_chronology(
         eff = _parse_iso_temporal(win["effective_from"]) if win.get("effective_from") else None
         rev = _parse_iso_temporal(win["revoked_on"]) if win.get("revoked_on") else None
         if ref_parsed:
-            if eff and _compare_events(ref_parsed, eff) < 0:
-                violations.append(
-                    {"type": "not_yet_effective", "id": item_id, "detail": f"'{item_id}' só entra em vigência em {win['effective_from']}, após referência {reference_date}."}
-                )
-            if rev and _compare_events(ref_parsed, rev) >= 0:
-                violations.append(
-                    {"type": "revoked_before_reference", "id": item_id, "detail": f"'{item_id}' foi revogada em {win['revoked_on']}, antes da referência {reference_date}."}
-                )
+            if eff:
+                c_eff = _compare_events(ref_parsed, eff, naive_policy=naive_policy)
+                if c_eff is None:
+                    ambiguities.append({"type": "ambiguous_timezone", "id": item_id, "detail": f"Ambiguidade de fuso ao checar início de vigência de '{item_id}'."})
+                elif c_eff < 0:
+                    violations.append(
+                        {"type": "not_yet_effective", "id": item_id, "detail": f"'{item_id}' só entra em vigência em {win['effective_from']}, após referência {reference_date}."}
+                    )
+            if rev:
+                c_rev = _compare_events(ref_parsed, rev, naive_policy=naive_policy)
+                if c_rev is None:
+                    ambiguities.append({"type": "ambiguous_timezone", "id": item_id, "detail": f"Ambiguidade de fuso ao checar revogação de '{item_id}'."})
+                elif c_rev >= 0:
+                    violations.append(
+                        {"type": "revoked_before_reference", "id": item_id, "detail": f"'{item_id}' foi revogada em {win['revoked_on']}, antes da referência {reference_date}."}
+                    )
 
     timeline = sorted(
         [
-            {"event": k, "timestamp": events[k], "precision": v[1], "has_timezone": v[2], "_sort": v[0]}
+            {
+                "event": k,
+                "timestamp": events[k],
+                "precision": v[1],
+                "has_timezone": v[2],
+                "_sort": v[0] if v[2] else v[0].replace(tzinfo=timezone.utc),
+            }
             for k, v in parsed_events.items()
         ],
         key=lambda x: x["_sort"],
@@ -121,12 +177,21 @@ def check_chronology(
     for item in timeline:
         item.pop("_sort", None)
 
+    if violations:
+        status = "discrepancy_detected"
+    elif ambiguities:
+        status = "unverified"
+    else:
+        status = "ok"
+
     return {
         "operation": "check_chronology",
+        "naive_policy": naive_policy,
         "timeline": timeline,
         "violations": violations,
+        "ambiguities": ambiguities,
         "infers_causality_from_order": False,
-        "status": "discrepancy_detected" if violations else "ok",
+        "status": status,
     }
 
 
@@ -137,11 +202,14 @@ def run_motor(payload: Any, *, run_id: str | None = None, artefato_alvo: str | N
         inner.get("precedence_rules", []),
         validity_windows=inner.get("validity_windows"),
         reference_date=inner.get("reference_date"),
+        naive_policy=inner.get("naive_policy", "strict"),
     )
     achados: list[dict[str, Any]] = []
-    for idx, v in enumerate(res["violations"], start=1):
+    seq = 0
+    for v in res["violations"]:
+        seq += 1
         ev = create_evidence(
-            f"EV-TMP-{idx:03d}",
+            f"EV-TMP-{seq:03d}",
             "textual",
             artefato_alvo or "cronologia",
             v.get("id") or f"{v.get('before')}->{v.get('after')}",
@@ -150,7 +218,7 @@ def run_motor(payload: Any, *, run_id: str | None = None, artefato_alvo: str | N
         )
         achados.append(
             create_finding(
-                f"ACH-TMP-{idx:03d}",
+                f"ACH-TMP-{seq:03d}",
                 f"Inconsistência temporal ({v['type']})",
                 f"temporal_{v['type']}",
                 "MAIOR",
@@ -159,6 +227,31 @@ def run_motor(payload: Any, *, run_id: str | None = None, artefato_alvo: str | N
                 v["detail"],
                 [ev],
                 estado="CONFIRMADO",
+                portao="G05",
+                origem_componente=MOTOR_ID,
+            )
+        )
+    for amb in res.get("ambiguities", []):
+        seq += 1
+        ev = create_evidence(
+            f"EV-TMP-{seq:03d}",
+            "textual",
+            artefato_alvo or "cronologia",
+            amb.get("id") or f"{amb.get('before')}->{amb.get('after')}",
+            amb["detail"],
+            motor_origem=MOTOR_ID,
+        )
+        achados.append(
+            create_finding(
+                f"ACH-TMP-{seq:03d}",
+                "Ambiguidade de fuso horário na ordenação temporal",
+                "temporal_ambiguous_timezone",
+                "MODERADO",
+                "MEDIA",
+                amb.get("id") or "cronologia",
+                amb["detail"],
+                [ev],
+                estado="NAO_VERIFICADO",
                 portao="G05",
                 origem_componente=MOTOR_ID,
             )
