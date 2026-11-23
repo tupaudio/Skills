@@ -2,7 +2,7 @@
 
 [![Status](https://img.shields.io/badge/Antigravity-Skills%20Repository-blue)](https://github.com/tupaudio/Skills)
 [![Revisão Hostil](https://img.shields.io/badge/Revis%C3%A3o%20Hostil-v6.0%20%7C%20v8.0--beta.5.3-orange)](./skills/revisao-hostil-v8)
-[![Alucinação-OFF](https://img.shields.io/badge/Alucina%C3%A7%C3%A3o--OFF-v2.0-green)](./skills/alucinacao-off)
+[![Alucinação-OFF](https://img.shields.io/badge/Alucina%C3%A7%C3%A3o--OFF-v2.1.0-green)](./skills/alucinacao-off)
 [![Tests](https://img.shields.io/badge/pytest-52%20passed-brightgreen)](./skills/revisao-hostil-v8/relatorios_execucao/pytest_verbose.txt)
 
 Repositório oficial de **Skills autorais para o Google Antigravity**, focadas em **rigor epistêmico radical**, **auditoria científica e técnica determinística** e **verificação orientada a evidências**.
@@ -13,7 +13,7 @@ Repositório oficial de **Skills autorais para o Google Antigravity**, focadas e
 
 | Skill | Versão | Pasta | Descrição |
 | :--- | :---: | :--- | :--- |
-| **`alucinacao-off`** | `v2.0` | [`skills/alucinacao-off/`](./skills/alucinacao-off) | Honestidade epistêmica e rigor técnico (taxonomia de 5 status, protocolo de lacunas críticas, blindagem por tipo de dado, modo criativo explícito e módulo de eletrônica/hardware). |
+| **`alucinacao-off`** | `v2.1.0` | [`skills/alucinacao-off/`](./skills/alucinacao-off) | Honestidade epistêmica e rigor técnico (taxonomia de 8 categorias, protocolo de lacunas críticas, 9 módulos disciplinares, modo criativo explícito e homologação comportamental 18/18 em [`homologacao_v2.1.md`](./skills/alucinacao-off/homologacao_v2.1.md)). |
 | **`revisao-hostil`** | `v6.0` | [`skills/revisao-hostil/`](./skills/revisao-hostil) | Versão estável de produção para revisão científica crítica e forense (`.tex`, `.docx`, `.pdf`, `.md`, `.txt`) com `auditor.py`, `motor_matematico.py` (*Zero-Trust Numerical Plug-In*) e 10 Portões de Qualidade. |
 | **`revisao-hostil-v8`** | `v8.0-beta.5.3` | [`skills/revisao-hostil-v8/`](./skills/revisao-hostil-v8) | Plataforma modular multidisciplinar em desenvolvimento incremental (Beta → RC → 8.0), orientada a contratos JSON, com **18 motores determinísticos**, rastreabilidade de evidências, máquina formal de 10 estados e **52 testes `pytest` aprovados**. |
 
@@ -107,7 +107,7 @@ python scripts/auditor.py caminho/para/manuscrito.tex --out relatorio_auditor.js
 python scripts/engines/motor_matematico.py --input payload.json --out resultado_motor.json
 ```
 
-> **Nota sobre a `revisao-hostil-v8`:** até o marco `v8.0-beta.5.2`, os 18 motores determinísticos, contratos JSON e o `auditor.py` já podem ser executados diretamente via Python/CLI; o `SKILL.md` orquestrador da v8.0 será integrado na **Fase 8**. Para uso imediato como skill completa em agentes hoje, utilize `skills/revisao-hostil/` (v6.0 estável) e `skills/alucinacao-off/` (v2.0).
+> **Nota sobre a `revisao-hostil-v8`:** até o marco `v8.0-beta.5.3`, os 18 motores determinísticos, contratos JSON e o `auditor.py` já podem ser executados diretamente via Python/CLI; o `SKILL.md` orquestrador da v8.0 será integrado na **Fase 8**. Para uso imediato como skill completa em agentes hoje, utilize `skills/revisao-hostil/` (v6.0 estável) e `skills/alucinacao-off/` (v2.1.0 homologada).
 
 ---
 

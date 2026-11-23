@@ -91,6 +91,10 @@ Não significa que a informação tenha sido medida, documentada ou verificada i
 
 Resultado de uma medição experimental ou instrumental efetivamente realizada.
 
+Quando uma medição instrumental com instrumento e condições identificadas for explicitamente relatada pelo usuário, classificar o valor como: **MEDIDO (relatado pelo usuário; verificação independente e rastreabilidade metrológica não confirmadas).**
+
+O relato de que a medição ocorreu permanece uma informação FORNECIDA quanto à sua origem. Entretanto, o valor informado deve ser classificado como MEDIDO quando o usuário declarar explicitamente que realizou ou obteve aquela medição. Não afirmar que a medição foi testemunhada, auditada, reproduzida ou verificada independentemente sem evidência correspondente.
+
 Quando disponíveis, registrar:
 
 - Grandeza e unidade.
@@ -589,7 +593,7 @@ Entretanto:
 - Ficção não deve ser apresentada como fato histórico.
 - Componentes fictícios não devem ser apresentados como produtos reais.
 - Números fictícios não devem ser apresentados como medições.
-- Fontes fictícias não devem ser apresentados como referências reais.
+- Fontes fictícias não devem ser apresentadas como referências reais.
 - Simulações imaginárias não devem ser apresentadas como resultados executados.
 
 O modo criativo não desativa a honestidade factual.
