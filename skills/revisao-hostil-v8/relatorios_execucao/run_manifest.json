@@ -1,8 +1,8 @@
 {
   "schema_version": "1.0.0",
-  "run_id": "BETA5-AUDIT-REMEDIATED-2026-11-23",
-  "timestamp_utc": "2026-11-23T20:45:23+00:00",
-  "skill_version": "8.0.0-beta.5",
+  "run_id": "BETA5.1-HOMOLOGATION-2026-11-23",
+  "timestamp_utc": "2026-11-23T20:53:47+00:00",
+  "skill_version": "8.0.0-beta.5.1",
   "engine_versions": {
     "auditor_estrutural": "8.0.0-beta.2",
     "motor_matematico": "8.0.0-beta.2",
@@ -25,7 +25,7 @@
     "motor_qualitativo": "0.1.0-beta.5"
   },
   "profile_versions": {},
-  "git_commit": "60033a794d4623ef7153b678b2679a9f53e1c861",
+  "git_commit": "c468ff9664deac427532c6b243a9bda5fd0435d4",
   "environment": {
     "python_version": "3.14.6",
     "platform": "Windows-11-10.0.26300-SP0",
@@ -35,13 +35,27 @@
       "sympy": "1.14.0",
       "python-docx": "1.2.0",
       "pypdf": "6.19.0",
+      "Pillow": "12.3.0",
       "PyYAML": "6.0.4",
       "jsonschema": "4.26.0",
-      "pytest": "9.2.0"
+      "referencing": "0.37.0",
+      "pytest": "9.2.0",
+      "pytest-cov": "7.1.0",
+      "coverage": "7.17.5"
     }
   },
-  "config": {},
-  "seeds": {},
+  "config": {
+    "pytest_args": [
+      "-v",
+      "--cov=scripts",
+      "--cov-report=term-missing"
+    ],
+    "naive_timezone_policy": "strict"
+  },
+  "seeds": {
+    "bootstrap_default": 42,
+    "monte_carlo_default": 42
+  },
   "inspected_files": [
     {
       "path": "C:\\ZZ - Antigravity\\tupaudio-Skills\\skills\\revisao-hostil-v8\\00_diagnostico\\arvore_atual.txt",
@@ -154,14 +168,14 @@
     {
       "path": "C:\\ZZ - Antigravity\\tupaudio-Skills\\skills\\revisao-hostil-v8\\relatorios_execucao\\pytest_verbose.txt",
       "name": "pytest_verbose.txt",
-      "bytes": 9261,
-      "sha256": "0a14b5ca5fb32cc6462bd610a209907efd50baea3bb3ff199d55b049f2937743"
+      "bytes": 9729,
+      "sha256": "d99295fea0e3bad4fb1286b975d6a6ca6b5e2753f9df3d11cf482bca275b77be"
     },
     {
       "path": "C:\\ZZ - Antigravity\\tupaudio-Skills\\skills\\revisao-hostil-v8\\relatorios_execucao\\run_manifest.json",
       "name": "run_manifest.json",
-      "bytes": 17127,
-      "sha256": "baa5d10f61e82a0aa1cec1eff5b51e4c112a0041199017ab13e203f7f9736b06"
+      "bytes": 19433,
+      "sha256": "b327f300d93dc613af7ae7708698f45989e122c6ddcfb42d98d61e2a5366ee32"
     },
     {
       "path": "C:\\ZZ - Antigravity\\tupaudio-Skills\\skills\\revisao-hostil-v8\\relatorios_execucao\\smoke_tests.txt",
@@ -172,8 +186,8 @@
     {
       "path": "C:\\ZZ - Antigravity\\tupaudio-Skills\\skills\\revisao-hostil-v8\\requirements.txt",
       "name": "requirements.txt",
-      "bytes": 198,
-      "sha256": "e13b651ed44e3fcc68d12472cf7e69bfcc5f73defb478dae6e337e3509290ab6"
+      "bytes": 215,
+      "sha256": "e3b70f56bad338399d6c0856e6d6ab83d8bd3e87f2a838ea30d4d37e9bdfd815"
     },
     {
       "path": "C:\\ZZ - Antigravity\\tupaudio-Skills\\skills\\revisao-hostil-v8\\scripts\\__init__.py",
@@ -214,8 +228,8 @@
     {
       "path": "C:\\ZZ - Antigravity\\tupaudio-Skills\\skills\\revisao-hostil-v8\\scripts\\common\\provenance.py",
       "name": "provenance.py",
-      "bytes": 3606,
-      "sha256": "673e0e8d75ad433b02d66b6fe837b2ba70b2381da59d9a0062ae37e6b2e0d62a"
+      "bytes": 3927,
+      "sha256": "7bb2ce4387561f47b5aaff412de74236e1ab12f8927de476877b4fa36279b062"
     },
     {
       "path": "C:\\ZZ - Antigravity\\tupaudio-Skills\\skills\\revisao-hostil-v8\\scripts\\common\\schema_validator.py",
@@ -358,14 +372,14 @@
     {
       "path": "C:\\ZZ - Antigravity\\tupaudio-Skills\\skills\\revisao-hostil-v8\\scripts\\engines\\motor_temporal.py",
       "name": "motor_temporal.py",
-      "bytes": 7904,
-      "sha256": "543afbb3083fb417efac24ee03ba653f29219a7dcfdcd197b22a68f8cf01251f"
+      "bytes": 11556,
+      "sha256": "5b4b67931f0cfc6297eab4cf6fe9a8b0a470d51c9a8542af383a8e84daaa8a46"
     },
     {
       "path": "C:\\ZZ - Antigravity\\tupaudio-Skills\\skills\\revisao-hostil-v8\\scripts\\tools\\generate_audit_reports.py",
       "name": "generate_audit_reports.py",
-      "bytes": 5217,
-      "sha256": "9f2e7b65e037c2f4f7e77c1b9b92b6e8e0d37f05ea1078cee035fa94589d0201"
+      "bytes": 5406,
+      "sha256": "45339292f47df2c9283582eab4182b780b272087ed6a229635af36fc114f297d"
     },
     {
       "path": "C:\\ZZ - Antigravity\\tupaudio-Skills\\skills\\revisao-hostil-v8\\tests\\test_auditor.py",
@@ -376,8 +390,8 @@
     {
       "path": "C:\\ZZ - Antigravity\\tupaudio-Skills\\skills\\revisao-hostil-v8\\tests\\test_auditoria_externa_regressao.py",
       "name": "test_auditoria_externa_regressao.py",
-      "bytes": 5840,
-      "sha256": "b386d1feb10099f78c7d640582670db7e1180c2ecdaa363da40b173bfb76953a"
+      "bytes": 10819,
+      "sha256": "61dabd01c2764f096e42c4eade82092c65957e565c3846d4cfb08aeb6b6ec843"
     },
     {
       "path": "C:\\ZZ - Antigravity\\tupaudio-Skills\\skills\\revisao-hostil-v8\\tests\\test_beta4_visual_consistencia.py",
