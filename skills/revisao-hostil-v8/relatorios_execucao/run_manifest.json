@@ -1,8 +1,8 @@
 {
   "schema_version": "1.0.0",
-  "run_id": "BETA6-HOMOLOGATION-2026-11-23",
-  "timestamp_utc": "2026-11-23T23:02:53+00:00",
-  "skill_version": "8.0.0-beta.6",
+  "run_id": "BETA6.1-HOMOLOGATION-2026-11-23",
+  "timestamp_utc": "2026-11-23T23:37:04+00:00",
+  "skill_version": "8.0.0-beta.6.1",
   "engine_versions": {
     "auditor_estrutural": "8.0.0-beta.2",
     "motor_matematico": "8.0.0-beta.2",
@@ -36,8 +36,8 @@
     "seguranca_trabalho": "1.0.0",
     "sistemas_espaciais": "1.0.0"
   },
-  "git_commit": "20728a52b4fb1e8f83dcf50f7aa5230e798a66c7",
-  "audited_code_commit": "20728a52b4fb1e8f83dcf50f7aa5230e798a66c7",
+  "git_commit": "30c43a4894e1fa56255b04ad7539d35c4682f984",
+  "audited_code_commit": "30c43a4894e1fa56255b04ad7539d35c4682f984",
   "artifact_commit_note": "O commit que publica os artefatos de relatório (pytest_verbose.txt, smoke_tests.txt, run_manifest.json e SHA256SUMS) é criado após esta geração tendo audited_code_commit como pai direto.",
   "git_dirty": true,
   "git_state": {
@@ -45,13 +45,11 @@
     "git_dirty_raw": true,
     "git_dirty_code": false,
     "dirty_files_all": [
-      "skills/revisao-hostil-v8/relatorios_execucao/pytest_verbose.txt",
-      "skills/revisao-hostil-v8/relatorios_execucao/smoke_tests.txt"
+      "skills/revisao-hostil-v8/relatorios_execucao/pytest_verbose.txt"
     ],
     "dirty_files_code": [],
     "dirty_files_excluded": [
-      "skills/revisao-hostil-v8/relatorios_execucao/pytest_verbose.txt",
-      "skills/revisao-hostil-v8/relatorios_execucao/smoke_tests.txt"
+      "skills/revisao-hostil-v8/relatorios_execucao/pytest_verbose.txt"
     ],
     "dirty_exclusion_policy": "Arquivos de relatório gerados na própria execução de auditoria são listados em dirty_files_excluded e excluídos apenas de git_dirty_code; git_dirty_raw reflete sempre o estado real não filtrado da árvore Git."
   },
@@ -80,6 +78,38 @@
       "--cov-report=term-missing"
     ],
     "naive_timezone_policy": "strict",
+    "profile_schema_enforced": "references/schemas/schema_profile.json",
+    "profile_dependencies_verified": {
+      "Pillow": {
+        "distribution": "Pillow",
+        "status": "disponivel",
+        "installed_version": "12.3.0"
+      },
+      "numpy": {
+        "distribution": "numpy",
+        "status": "disponivel",
+        "installed_version": "2.5.4"
+      },
+      "_summary": {
+        "status": "disponivel",
+        "all_available": true
+      },
+      "pyyaml": {
+        "distribution": "PyYAML",
+        "status": "disponivel",
+        "installed_version": "6.0.4"
+      },
+      "scipy": {
+        "distribution": "scipy",
+        "status": "disponivel",
+        "installed_version": "1.18.1"
+      },
+      "sympy": {
+        "distribution": "sympy",
+        "status": "disponivel",
+        "installed_version": "1.14.0"
+      }
+    },
     "engines_cataloged": 23,
     "engines_implemented": 21,
     "engines_planned_phase8": 2
@@ -291,6 +321,12 @@
       "sha256": "7dcd08aa43e8e33bd3bf74e2e20e4bb9d2120bd3fa943754970f85c96d45bbff"
     },
     {
+      "relative_path": "references/schemas/schema_profile.json",
+      "name": "schema_profile.json",
+      "bytes": 3711,
+      "sha256": "705d14f83838b73eef229d3da07f01b003c800e55d02103f74c67d41c479c7f6"
+    },
+    {
       "relative_path": "references/schemas/schema_relatorio_final.json",
       "name": "schema_relatorio_final.json",
       "bytes": 2294,
@@ -311,8 +347,8 @@
     {
       "relative_path": "relatorios_execucao/pytest_verbose.txt",
       "name": "pytest_verbose.txt",
-      "bytes": 10769,
-      "sha256": "31929e640005d08a819aeaeafdaad29f994c68ea919de5b0d579295d7ccc0fcc"
+      "bytes": 11183,
+      "sha256": "a3887072cbe445763aabe29a1f52da4b31f884798ba1c0d40e372663c0986de9"
     },
     {
       "relative_path": "relatorios_execucao/smoke_tests.txt",
@@ -323,8 +359,8 @@
     {
       "relative_path": "requirements.txt",
       "name": "requirements.txt",
-      "bytes": 213,
-      "sha256": "9af06213a0cacb676d2fa29e07e4c84de0e0d5a34f48d2c1725ea50acc1a9c7a"
+      "bytes": 215,
+      "sha256": "c676032f83150630222955d9b0449b4db6561382f0b17990a17e7cc0a58481f3"
     },
     {
       "relative_path": "scripts/__init__.py",
@@ -359,8 +395,8 @@
     {
       "relative_path": "scripts/common/profile_loader.py",
       "name": "profile_loader.py",
-      "bytes": 5732,
-      "sha256": "6bb8bf5966e6ecb2eeffe402ea08eeba78e44e1d5f333954b33585a62f50c1ac"
+      "bytes": 9255,
+      "sha256": "6d896a1bd77865191f706aa25d9d0cdf57290dc726cdfdb2ed12bae345c66317"
     },
     {
       "relative_path": "scripts/common/provenance.py",
@@ -533,8 +569,8 @@
     {
       "relative_path": "scripts/tools/generate_audit_reports.py",
       "name": "generate_audit_reports.py",
-      "bytes": 10895,
-      "sha256": "e76f07de0e9502453323a9162a62b09e51b209c09380802b55b1910edd324b07"
+      "bytes": 11261,
+      "sha256": "543cd6cbfd63580b1a0920574108af17c1a75644ac3770529bd4abe2ed69d021"
     },
     {
       "relative_path": "tests/test_auditor.py",
@@ -563,14 +599,14 @@
     {
       "relative_path": "tests/test_beta6_perfis_e_normas.py",
       "name": "test_beta6_perfis_e_normas.py",
-      "bytes": 9004,
-      "sha256": "fed19463e43840f890d2c9f99b3939c1978a66a69f16c56dbb767c6d95f26584"
+      "bytes": 12839,
+      "sha256": "79dfb2054e7303ebb575e4d6ebad31cd7f6f77fdefdc05b5fadcd5f32ceed8ef"
     },
     {
       "relative_path": "tests/test_contracts_and_common.py",
       "name": "test_contracts_and_common.py",
-      "bytes": 5416,
-      "sha256": "4da5d3af1f63799f65499f87f1943ad7c599fbb1a21741fdf75f42d7b5eb40ef"
+      "bytes": 5591,
+      "sha256": "687147cf60ad838ed1aa47719456054a527bdad73cc4329fb2f9ae1301a18f68"
     },
     {
       "relative_path": "tests/test_motor_matematico.py",
