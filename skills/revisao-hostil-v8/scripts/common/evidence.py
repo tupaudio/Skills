@@ -5,6 +5,8 @@ from __future__ import annotations
 from datetime import datetime, timezone
 from typing import Any
 
+from .validation import require_finite_number
+
 ESTADOS_ACHADO = (
     "ABERTO",
     "EM_ANALISE",
@@ -166,8 +168,8 @@ def transition_finding_state(
 
 
 def normalize_score(nota_0_10: float, incluir_escala_100: bool = True) -> dict[str, float | None]:
-    """Unifica pontuação na escala canônica 0–10 com exibição opcional em 0–100."""
-    val = float(nota_0_10)
+    """Unifica pontuação na escala canônica 0–10 com exibição opcional em 0–100 (rejeita NaN/Inf)."""
+    val = require_finite_number(nota_0_10, name="nota_0_10")
     if val < 0.0 or val > 10.0:
         raise ValueError(f"Nota fora do intervalo canônico [0, 10]: {val}")
     val_round = round(val, 2)
@@ -183,7 +185,20 @@ def evaluate_freeze_gate(
     achados: list[dict[str, Any]],
     regressao_aprovada: bool,
 ) -> dict[str, Any]:
-    """Avalia o critério de congelamento da v8.0 (>=9.5 global, >=8.5/eixo, 0 críticos/maiores abertos)."""
+    """Avalia o critério de congelamento da v8.0 (>=9.5 global, >=8.5/eixo, 0 críticos/maiores abertos).
+    Rejeita explicitamente qualquer nota NaN, Inf ou fora de [0, 10] antes das comparações (ACH-001).
+    """
+    nota_global = require_finite_number(nota_global_0_10, name="nota_global_0_10")
+    if nota_global < 0.0 or nota_global > 10.0:
+        raise ValueError(f"nota_global_0_10 fora do intervalo [0, 10]: {nota_global}")
+
+    eixos_validados: dict[str, float] = {}
+    for eixo, raw_val in notas_por_eixo.items():
+        v = require_finite_number(raw_val, name=f"notas_por_eixo.{eixo}")
+        if v < 0.0 or v > 10.0:
+            raise ValueError(f"Nota do eixo '{eixo}' fora do intervalo [0, 10]: {v}")
+        eixos_validados[eixo] = v
+
     criticos_abertos = sum(
         1 for a in achados if a["gravidade"] == "CRITICO" and a["estado"] in ESTADOS_ABERTOS
     )
@@ -195,11 +210,11 @@ def evaluate_freeze_gate(
         for a in achados
         if a["gravidade"] == "CRITICO" and a["estado"] == "NAO_VERIFICADO"
     )
-    eixos_abaixo = {k: v for k, v in notas_por_eixo.items() if v < 8.5}
+    eixos_abaixo = {k: v for k, v in eixos_validados.items() if v < 8.5}
 
     bloqueios: list[str] = []
-    if nota_global_0_10 < 9.5:
-        bloqueios.append(f"Nota global {nota_global_0_10:.2f} < 9.50")
+    if nota_global < 9.5:
+        bloqueios.append(f"Nota global {nota_global:.2f} < 9.50")
     if eixos_abaixo:
         bloqueios.append(f"Eixos abaixo de 8.50: {eixos_abaixo}")
     if criticos_abertos > 0:

@@ -85,7 +85,8 @@ def evaluate_evidence_framework(
             "study_design": study_design,
             "classification": "NAO_MAPEADO_NO_FRAMEWORK",
             "overclaim_warning": False,
-            "status": "ok",
+            "requires_human_review": True,
+            "status": "unverified",
         }
 
     classification = mapping[design_key]
@@ -134,6 +135,31 @@ def run_motor(payload: Any, *, run_id: str | None = None, artefato_alvo: str | N
                 "A força da conclusão excede o nível suportado pelo desenho no framework selecionado.",
                 [ev],
                 estado="CONFIRMADO",
+                portao="G02",
+                origem_componente=MOTOR_ID,
+            )
+        )
+
+    elif res["status"] == "unverified":
+        ev = create_evidence(
+            "EV-EVI-001",
+            "textual",
+            artefato_alvo or "desenho_estudo",
+            res["framework"],
+            f"Desenho '{res['study_design']}' não mapeado no framework '{res['framework']}'.",
+            motor_origem=MOTOR_ID,
+        )
+        achados.append(
+            create_finding(
+                "ACH-EVI-001",
+                f"Desenho de estudo não mapeado no framework {res['framework']}",
+                "desenho_nao_verificado",
+                "MODERADO",
+                "MEDIA",
+                res["framework"],
+                f"O desenho '{res['study_design']}' não pôde ser classificado automaticamente; encaminhar ao auditor_metodologia.",
+                [ev],
+                estado="NAO_VERIFICADO",
                 portao="G02",
                 origem_componente=MOTOR_ID,
             )

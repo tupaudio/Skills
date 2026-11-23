@@ -42,15 +42,22 @@ MOTOR_ID = "motor_estatistico"
 MOTOR_VERSION = "0.1.0-beta.3"
 
 
-def _cohens_d_independent(a: np.ndarray, b: np.ndarray) -> tuple[float, float]:
+def _cohens_d_independent(a: np.ndarray, b: np.ndarray) -> tuple[float | None, float | None, str | None]:
     n1, n2 = len(a), len(b)
-    v1, v2 = np.var(a, ddof=1), np.var(b, ddof=1)
+    v1, v2 = float(np.var(a, ddof=1)), float(np.var(b, ddof=1))
     pooled = math.sqrt(((n1 - 1) * v1 + (n2 - 1) * v2) / (n1 + n2 - 2))
+    diff = float(np.mean(a) - np.mean(b))
     if pooled == 0.0:
-        return 0.0, 0.0
-    d = float((np.mean(a) - np.mean(b)) / pooled)
+        if abs(diff) <= 1e-15:
+            return 0.0, 0.0, "zero_variance_equal_means"
+        return (
+            None,
+            None,
+            "undefined_zero_pooled_variance: variância agrupada nula com médias distintas (limite não finito).",
+        )
+    d = float(diff / pooled)
     j = 1.0 - 3.0 / (4.0 * (n1 + n2 - 2) - 1.0) if (n1 + n2) > 3 else 1.0
-    return d, float(d * j)
+    return d, float(d * j), None
 
 
 def t_test_independent(
@@ -62,9 +69,15 @@ def t_test_independent(
         raise ValueError("Cada amostra deve ter pelo menos 2 observações.")
 
     res = stats.ttest_ind(a, b, equal_var=equal_var)
-    d, g = _cohens_d_independent(a, b)
+    d, g, eff_note = _cohens_d_independent(a, b)
+    stat_val = float(res.statistic)
     p_val = float(res.pvalue)
-    discrepancy = reported_p is not None and abs(p_val - require_finite_number(reported_p, "reported_p")) > 0.01
+    finite_test = math.isfinite(stat_val) and math.isfinite(p_val)
+    discrepancy = (
+        finite_test
+        and reported_p is not None
+        and abs(p_val - require_finite_number(reported_p, "reported_p")) > 0.01
+    )
     return {
         "operation": "t_test_independent",
         "welch": not equal_var,
@@ -72,14 +85,15 @@ def t_test_independent(
         "n_b": int(b.size),
         "mean_a": float(np.mean(a)),
         "mean_b": float(np.mean(b)),
-        "statistic": float(res.statistic),
-        "p_value": p_val,
+        "statistic": stat_val if math.isfinite(stat_val) else None,
+        "p_value": p_val if math.isfinite(p_val) else None,
         "cohens_d": d,
         "hedges_g": g,
-        "significant_at_alpha": bool(p_val < alpha),
+        "effect_size_note": eff_note,
+        "significant_at_alpha": bool(p_val < alpha) if math.isfinite(p_val) else None,
         "alpha": alpha,
         "reported_p": reported_p,
-        "status": "discrepancy_detected" if discrepancy else "ok",
+        "status": "discrepancy_detected" if discrepancy else ("ok" if finite_test else "undefined_zero_variance"),
     }
 
 
@@ -171,6 +185,8 @@ def tost_equivalence(sample_a: Any, sample_b: Any, low_bound: float, high_bound:
     """Two One-Sided Tests (TOST) para equivalência de duas amostras independentes (Welch)."""
     a = require_finite_array(sample_a, name="sample_a", ndim=1)
     b = require_finite_array(sample_b, name="sample_b", ndim=1)
+    if a.size < 2 or b.size < 2:
+        raise ValueError("TOST requer pelo menos 2 observações em cada amostra.")
     lo = require_finite_number(low_bound, "low_bound")
     hi = require_finite_number(high_bound, "high_bound")
     if lo >= hi:
@@ -179,18 +195,26 @@ def tost_equivalence(sample_a: Any, sample_b: Any, low_bound: float, high_bound:
     va, vb = float(np.var(a, ddof=1)), float(np.var(b, ddof=1))
     na, nb = a.size, b.size
     se = math.sqrt(va / na + vb / nb)
-    if se == 0.0:
-        raise ValueError("Erro padrão nulo; não é possível executar TOST.")
-    df = (va / na + vb / nb) ** 2 / ((va / na) ** 2 / (na - 1) + (vb / nb) ** 2 / (nb - 1))
+    if not math.isfinite(se) or se == 0.0:
+        raise ValueError("Erro padrão nulo ou não finito; não é possível executar TOST.")
+    denom_df = (va / na) ** 2 / (na - 1) + (vb / nb) ** 2 / (nb - 1)
+    if not math.isfinite(denom_df) or denom_df <= 0.0:
+        raise ValueError("Graus de liberdade indefinidos para TOST.")
+    df = (va / na + vb / nb) ** 2 / denom_df
+    if not math.isfinite(df) or df <= 0.0:
+        raise ValueError("Graus de liberdade inválidos para TOST.")
     t1 = (diff - lo) / se
     t2 = (diff - hi) / se
     p1 = float(1.0 - stats.t.cdf(t1, df))
     p2 = float(stats.t.cdf(t2, df))
     p_tost = max(p1, p2)
+    if not (math.isfinite(p1) and math.isfinite(p2) and math.isfinite(p_tost)):
+        raise ValueError("TOST produziu valor-p não finito.")
     return {
         "operation": "tost_equivalence",
         "mean_diff": diff,
         "bounds": [lo, hi],
+        "df": float(df),
         "p_lower": p1,
         "p_upper": p2,
         "p_tost": p_tost,

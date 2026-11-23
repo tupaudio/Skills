@@ -39,9 +39,10 @@ MOTOR_ID = "motor_etica"
 MOTOR_VERSION = "0.1.0-beta.5"
 
 DECLARATION_PATTERNS: dict[str, re.Pattern[str]] = {
-    "aprovacao_etica": re.compile(r"\b(CEP|CAAE|IRB|CEUA|comit[êe]\s+de\s+[ée]tica|ethics\s+committee|ethical\s+approval)\b", re.IGNORECASE),
-    "consentimento_informado": re.compile(r"\b(TCLE|consentimento\s+(?:livre\s+e\s+)?esclarecido|informed\s+consent)\b", re.IGNORECASE),
-    "conflito_interesse": re.compile(r"\b(conflito\s+de\s+interess|competing\s+interests?|conflict\s+of\s+interest|declaram\s+n[ãa]o\s+haver)\b", re.IGNORECASE),
+    "aprovacao_etica": re.compile(r"\b(CEP|CAAE|IRB|comit[êe]\s+de\s+[ée]tica|ethics\s+committee|ethical\s+approval)\b", re.IGNORECASE),
+    "aprovacao_etica_animal": re.compile(r"\b(CEUA|IACUC|comiss[ãa]o\s+de\s+[ée]tica\s+no\s+uso\s+de\s+animais|animal\s+ethics)\b", re.IGNORECASE),
+    "consentimento_informado": re.compile(r"\b(TCLE|consentimento\s+(?:livre\s+e\s+)?esclarecido|informed\s+consent|dispensa\s+de\s+TCLE|waiver\s+of\s+consent)\b", re.IGNORECASE),
+    "conflito_interesse": re.compile(r"\b(conflito\s+de\s+interess\w*|competing\s+interests?|conflict\s+of\s+interest\w*|declaram\s+n[ãa]o\s+haver)\b", re.IGNORECASE),
     "financiamento": re.compile(r"\b(financiamento|fomento|CNPq|CAPES|FAPESP|FINEP|funding|grant\s+number|supported\s+by)\b", re.IGNORECASE),
     "protecao_dados": re.compile(r"\b(LGPD|GDPR|anonimiza[çc][ãa]o|pseudonimiza[çc][ãa]o|data\s+protection|privacy)\b", re.IGNORECASE),
     "autoria": re.compile(r"\b(contribui[çc][ãa]o\s+dos\s+autores|author\s+contributions?|CRediT)\b", re.IGNORECASE),
@@ -51,27 +52,52 @@ DECLARATION_PATTERNS: dict[str, re.Pattern[str]] = {
 def screen_ethics_declarations(
     text: str,
     *,
+    involves_humans: bool = False,
+    involves_animals: bool = False,
     involves_humans_or_animals: bool = False,
+    consent_waiver_documented: bool = False,
+    not_applicable: list[str] | None = None,
     required_declarations: list[str] | None = None,
 ) -> dict[str, Any]:
+    """Triagem de declarações éticas separando pesquisa com humanos e pesquisa com animais (ACH-004).
+    Permite dispensa de TCLE regulamentada e exclusões explícitas em not_applicable.
+    """
     found: dict[str, bool] = {}
     for key, pattern in DECLARATION_PATTERNS.items():
         found[key] = bool(pattern.search(text))
 
-    req = list(required_declarations or ["conflito_interesse", "financiamento"])
-    if involves_humans_or_animals:
-        for k in ("aprovacao_etica", "consentimento_informado", "protecao_dados"):
-            if k not in req:
-                req.append(k)
+    if involves_humans_or_animals and not involves_humans and not involves_animals:
+        involves_humans = True
 
+    na_set = set(not_applicable or [])
+    req = list(required_declarations or ["conflito_interesse", "financiamento"])
+    if involves_humans:
+        for k in ("aprovacao_etica", "protecao_dados"):
+            if k not in req and k not in na_set:
+                req.append(k)
+        if not consent_waiver_documented and "consentimento_informado" not in na_set and "consentimento_informado" not in req:
+            req.append("consentimento_informado")
+    if involves_animals:
+        if "aprovacao_etica_animal" not in req and "aprovacao_etica_animal" not in na_set:
+            req.append("aprovacao_etica_animal")
+
+    req = [k for k in req if k not in na_set]
     missing = [k for k in req if not found.get(k, False)]
     return {
         "operation": "screen_ethics_declarations",
+        "involves_humans": involves_humans,
+        "involves_animals": involves_animals,
+        "consent_waiver_documented": consent_waiver_documented,
+        "not_applicable": sorted(na_set),
         "declarations_detected": found,
         "required_declarations": req,
         "missing_declarations": missing,
         "certifies_compliance": False,
         "declares_fraud": False,
+        "methodological_note": (
+            "Sinaliza ausência textual de declarações para revisão pelo auditor_etico; "
+            "não presume irregularidade automática nem substitui análise de dispensa regulamentada."
+        ),
         "status": "discrepancy_detected" if missing else "ok",
     }
 
@@ -118,7 +144,11 @@ def execute_single_operation(request: dict[str, Any]) -> dict[str, Any]:
     if op == "screen_ethics_declarations":
         return screen_ethics_declarations(
             request["text"],
+            involves_humans=request.get("involves_humans", False),
+            involves_animals=request.get("involves_animals", False),
             involves_humans_or_animals=request.get("involves_humans_or_animals", False),
+            consent_waiver_documented=request.get("consent_waiver_documented", False),
+            not_applicable=request.get("not_applicable"),
             required_declarations=request.get("required_declarations"),
         )
     if op == "check_text_similarity":

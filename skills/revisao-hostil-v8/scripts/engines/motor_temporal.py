@@ -16,8 +16,9 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import sys
-from datetime import date
+from datetime import date, datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -35,9 +36,37 @@ from scripts.common.validation import sanitize_for_json
 MOTOR_ID = "motor_temporal"
 MOTOR_VERSION = "0.1.0-beta.5"
 
+_DATE_ONLY_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
+_DATETIME_RE = re.compile(r"^\d{4}-\d{2}-\d{2}[T ]\d{2}:\d{2}(?::\d{2}(?:\.\d+)?)?(?:Z|[+-]\d{2}:\d{2})?$")
 
-def _parse_iso_date(raw: str) -> date:
-    return date.fromisoformat(raw.strip()[:10])
+
+def _parse_iso_temporal(raw: str) -> tuple[datetime, str, bool]:
+    """Valida estritamente data (YYYY-MM-DD) ou data+hora ISO-8601 completa sem truncamento (ACH-005).
+    Retorna (datetime_utc_ou_naive, precision='day'|'datetime', has_timezone).
+    """
+    if not isinstance(raw, str) or not raw.strip():
+        raise ValueError(f"Marca temporal vazia ou inválida: {raw!r}")
+    s = raw.strip()
+    if _DATE_ONLY_RE.match(s):
+        d = date.fromisoformat(s)
+        return datetime(d.year, d.month, d.day, tzinfo=timezone.utc), "day", False
+    if _DATETIME_RE.match(s):
+        normalized = s[:-1] + "+00:00" if s.endswith("Z") else s
+        dt = datetime.fromisoformat(normalized)
+        if dt.tzinfo is not None:
+            return dt.astimezone(timezone.utc), "datetime", True
+        return dt.replace(tzinfo=timezone.utc), "datetime", False
+    raise ValueError(f"Formato ISO-8601 inválido (conteúdo extra ou sintaxe incorreta): {raw!r}")
+
+
+def _compare_events(a: tuple[datetime, str, bool], b: tuple[datetime, str, bool]) -> int:
+    """Compara dois marcos temporais respeitando precisão diária vs horária."""
+    dt_a, prec_a, _ = a
+    dt_b, prec_b, _ = b
+    if prec_a == "day" or prec_b == "day":
+        da, db = dt_a.date(), dt_b.date()
+        return -1 if da < db else (1 if da > db else 0)
+    return -1 if dt_a < dt_b else (1 if dt_a > dt_b else 0)
 
 
 def check_chronology(
@@ -47,7 +76,7 @@ def check_chronology(
     validity_windows: list[dict[str, Any]] | None = None,
     reference_date: str | None = None,
 ) -> dict[str, Any]:
-    parsed_events = {k: _parse_iso_date(v) for k, v in events.items()}
+    parsed_events = {k: _parse_iso_temporal(v) for k, v in events.items()}
     violations: list[dict[str, Any]] = []
 
     for rule in precedence_rules:
@@ -55,37 +84,43 @@ def check_chronology(
             raise ValueError(f"Regra de precedência deve conter [antes, depois]: {rule}")
         before, after = rule
         if before in parsed_events and after in parsed_events:
-            if parsed_events[before] > parsed_events[after]:
+            if _compare_events(parsed_events[before], parsed_events[after]) > 0:
                 violations.append(
                     {
                         "type": "precedence_violation",
                         "before": before,
-                        "before_date": parsed_events[before].isoformat(),
+                        "before_timestamp": events[before],
                         "after": after,
-                        "after_date": parsed_events[after].isoformat(),
-                        "detail": f"'{before}' ({parsed_events[before]}) ocorreu após '{after}' ({parsed_events[after]}).",
+                        "after_timestamp": events[after],
+                        "detail": f"'{before}' ({events[before]}) ocorreu após '{after}' ({events[after]}).",
                     }
                 )
 
-    ref_dt = _parse_iso_date(reference_date) if reference_date else None
+    ref_parsed = _parse_iso_temporal(reference_date) if reference_date else None
     for win in validity_windows or []:
         item_id = win.get("id", "norma")
-        eff = _parse_iso_date(win["effective_from"]) if win.get("effective_from") else None
-        rev = _parse_iso_date(win["revoked_on"]) if win.get("revoked_on") else None
-        if ref_dt:
-            if eff and ref_dt < eff:
+        eff = _parse_iso_temporal(win["effective_from"]) if win.get("effective_from") else None
+        rev = _parse_iso_temporal(win["revoked_on"]) if win.get("revoked_on") else None
+        if ref_parsed:
+            if eff and _compare_events(ref_parsed, eff) < 0:
                 violations.append(
-                    {"type": "not_yet_effective", "id": item_id, "detail": f"'{item_id}' só entra em vigência em {eff}, após referência {ref_dt}."}
+                    {"type": "not_yet_effective", "id": item_id, "detail": f"'{item_id}' só entra em vigência em {win['effective_from']}, após referência {reference_date}."}
                 )
-            if rev and ref_dt >= rev:
+            if rev and _compare_events(ref_parsed, rev) >= 0:
                 violations.append(
-                    {"type": "revoked_before_reference", "id": item_id, "detail": f"'{item_id}' foi revogada em {rev}, antes da referência {ref_dt}."}
+                    {"type": "revoked_before_reference", "id": item_id, "detail": f"'{item_id}' foi revogada em {win['revoked_on']}, antes da referência {reference_date}."}
                 )
 
     timeline = sorted(
-        [{"event": k, "date": d.isoformat()} for k, d in parsed_events.items()],
-        key=lambda x: x["date"],
+        [
+            {"event": k, "timestamp": events[k], "precision": v[1], "has_timezone": v[2], "_sort": v[0]}
+            for k, v in parsed_events.items()
+        ],
+        key=lambda x: x["_sort"],
     )
+    for item in timeline:
+        item.pop("_sort", None)
+
     return {
         "operation": "check_chronology",
         "timeline": timeline,

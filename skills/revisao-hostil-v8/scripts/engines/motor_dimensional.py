@@ -318,50 +318,83 @@ def convert_unit(value: float, from_unit: str, to_unit: str) -> dict[str, Any]:
 
 
 def analyze_expression_dimension(expression: str, variable_units: dict[str, str]) -> dict[str, Any]:
-    """Inferência dimensional determinística de uma expressão algébrica."""
-    var_dims: dict[str, DimVec] = {}
+    """Inferência dimensional determinística separando dimensão física e natureza de temperatura
+    ('absolute' vs 'interval' vs 'standard') — correção ACH-003.
+    """
+    var_info: dict[str, tuple[DimVec, str]] = {}
     for var, u in variable_units.items():
-        _, dim, is_affine = parse_unit(u)
+        u_clean = u.strip().replace("°C", "degC").replace("°F", "degF").replace("Δ°C", "delta_degC").replace("ΔK", "delta_K")
+        _, dim, is_affine = parse_unit(u_clean)
         if is_affine:
             raise ValueError(
                 f"Variável '{var}' usa temperatura afim '{u}'. Converta para 'K' ou 'delta_degC' antes de usar em equações."
             )
-        var_dims[var] = dim
+        if u_clean in ABSOLUTE_TEMP_UNITS:
+            kind = "absolute"
+        elif u_clean in DELTA_TEMP_UNITS:
+            kind = "interval"
+        else:
+            kind = "standard"
+        var_info[var] = (dim, kind)
 
     cleaned = expression.strip().replace("^", "**")
     tree = ast.parse(cleaned, mode="eval")
     incompatibilities: list[str] = []
 
-    def _infer(node: ast.AST) -> DimVec:
+    def _infer(node: ast.AST) -> tuple[DimVec, str]:
         if isinstance(node, ast.Constant) and isinstance(node.value, (int, float)):
-            return DIM_ONE
+            return DIM_ONE, "standard"
         if isinstance(node, ast.Name):
             if node.id in ("pi", "E"):
-                return DIM_ONE
-            if node.id not in var_dims:
+                return DIM_ONE, "standard"
+            if node.id not in var_info:
                 raise ValueError(f"Unidade não informada para a variável '{node.id}'.")
-            return var_dims[node.id]
+            return var_info[node.id]
         if isinstance(node, ast.UnaryOp) and isinstance(node.op, (ast.UAdd, ast.USub)):
             return _infer(node.operand)
         if isinstance(node, ast.BinOp):
-            d_left = _infer(node.left)
-            d_right = _infer(node.right)
+            d_left, k_left = _infer(node.left)
+            d_right, k_right = _infer(node.right)
             if isinstance(node.op, (ast.Add, ast.Sub)):
                 if not _dim_equal(d_left, d_right):
                     incompatibilities.append(
                         f"Soma/subtração entre dimensões incompatíveis: [{format_dim(d_left)}] e [{format_dim(d_right)}]."
                     )
-                return d_left
+                    return d_left, k_left
+                # Regras algébricas para temperatura absoluta vs intervalo (ACH-003)
+                if _dim_equal(d_left, DIM_TEMP):
+                    if isinstance(node.op, ast.Add):
+                        if k_left == "absolute" and k_right == "absolute":
+                            incompatibilities.append(
+                                "Soma de duas temperaturas absolutas (K + K) é fisicamente inválida; "
+                                "use temperatura absoluta + diferença de temperatura (delta_K/delta_degC)."
+                            )
+                            return d_left, "absolute"
+                        if "absolute" in (k_left, k_right):
+                            return d_left, "absolute"
+                        return d_left, "interval"
+                    # Subtração
+                    if k_left == "absolute" and k_right == "absolute":
+                        return d_left, "interval"
+                    if k_left == "absolute" and k_right == "interval":
+                        return d_left, "absolute"
+                    if k_left == "interval" and k_right == "absolute":
+                        incompatibilities.append(
+                            "Subtração (diferença de temperatura - temperatura absoluta) é fisicamente inválida."
+                        )
+                        return d_left, "absolute"
+                    return d_left, "interval"
+                return d_left, "standard"
             if isinstance(node.op, ast.Mult):
-                return _dim_add(d_left, d_right)
+                return _dim_add(d_left, d_right), "standard"
             if isinstance(node.op, ast.Div):
-                return _dim_sub(d_left, d_right)
+                return _dim_sub(d_left, d_right), "standard"
             if isinstance(node.op, ast.Pow):
                 if not _dim_equal(d_right, DIM_ONE):
                     incompatibilities.append(
                         f"Expoente deve ser adimensional, recebido [{format_dim(d_right)}]."
                     )
-                    return d_left
+                    return d_left, "standard"
                 if isinstance(node.right, ast.Constant) and isinstance(node.right.value, (int, float)):
                     exp = float(node.right.value)
                 elif (
@@ -372,28 +405,29 @@ def analyze_expression_dimension(expression: str, variable_units: dict[str, str]
                     exp = -float(node.right.operand.value)
                 else:
                     raise ValueError("Expoente em análise dimensional deve ser constante numérica.")
-                return _dim_scale(d_left, exp)
+                return _dim_scale(d_left, exp), "standard"
         if isinstance(node, ast.Call) and isinstance(node.func, ast.Name):
             fname = node.func.id
-            arg_dims = [_infer(a) for a in node.args]
-            if fname == "sqrt" and len(arg_dims) == 1:
-                return _dim_scale(arg_dims[0], 0.5)
-            if fname in ("abs", "Abs") and len(arg_dims) == 1:
-                return arg_dims[0]
+            arg_results = [_infer(a) for a in node.args]
+            if fname == "sqrt" and len(arg_results) == 1:
+                return _dim_scale(arg_results[0][0], 0.5), "standard"
+            if fname in ("abs", "Abs") and len(arg_results) == 1:
+                return arg_results[0]
             if fname in ("sin", "cos", "tan", "exp", "log", "ln", "log10", "sinh", "cosh", "tanh"):
-                if len(arg_dims) == 1 and not _dim_equal(arg_dims[0], DIM_ONE):
+                if len(arg_results) == 1 and not _dim_equal(arg_results[0][0], DIM_ONE):
                     incompatibilities.append(
-                        f"Função transcendental '{fname}' recebeu argumento com dimensão [{format_dim(arg_dims[0])}]."
+                        f"Função transcendental '{fname}' recebeu argumento com dimensão [{format_dim(arg_results[0][0])}]."
                     )
-                return DIM_ONE
+                return DIM_ONE, "standard"
         raise ValueError(f"Construção não suportada na análise dimensional: {ast.dump(node)}")
 
-    dim = _infer(tree.body)
+    dim, temp_kind = _infer(tree.body)
     return {
         "operation": "expression_dimension",
         "expression": expression,
         "dimension_vector": list(dim),
         "dimension": format_dim(dim),
+        "quantity_nature": temp_kind,
         "homogeneous": len(incompatibilities) == 0,
         "incompatibilities": incompatibilities,
         "status": "ok" if not incompatibilities else "discrepancy_detected",
@@ -409,6 +443,11 @@ def check_equation_homogeneity(lhs: str, rhs: str, variable_units: dict[str, str
     sides_match = _dim_equal(d_l, d_r)  # type: ignore[arg-type]
     if not sides_match:
         incompat.append(f"LHS [{l_res['dimension']}] != RHS [{r_res['dimension']}].")
+    elif _dim_equal(d_l, DIM_TEMP) and l_res["quantity_nature"] != r_res["quantity_nature"]:  # type: ignore[arg-type]
+        if {l_res["quantity_nature"], r_res["quantity_nature"]} == {"absolute", "interval"}:
+            incompat.append(
+                f"Incompatibilidade de natureza térmica: LHS ({l_res['quantity_nature']}) != RHS ({r_res['quantity_nature']})."
+            )
     homogeneous = len(incompat) == 0
     return {
         "operation": "equation_homogeneity",
@@ -416,6 +455,8 @@ def check_equation_homogeneity(lhs: str, rhs: str, variable_units: dict[str, str
         "rhs": rhs,
         "lhs_dimension": l_res["dimension"],
         "rhs_dimension": r_res["dimension"],
+        "lhs_nature": l_res["quantity_nature"],
+        "rhs_nature": r_res["quantity_nature"],
         "homogeneous": homogeneous,
         "incompatibilities": incompat,
         "status": "ok" if homogeneous else "discrepancy_detected",

@@ -7,3 +7,4 @@ pypdf>=5.0.0
 PyYAML>=6.0.0
 jsonschema>=4.20.0
 pytest>=8.0.0
+pytest-cov>=5.0.0

@@ -2,14 +2,16 @@
 # -*- coding: utf-8 -*-
 
 """
-Motor de estruturação argumentativa (Revisão Hostil v8.0-beta.5).
+Motor de auditoria de mapas argumentativos estruturados (Revisão Hostil v8.0-beta.5).
 
-Extrai e organiza (Passo 5.2):
-- Alegações centrais, premissas, evidências, inferências e conclusões;
-- Candidatos a argumentos sem sustentação, circularidade e generalização indevida.
+Escopo real (ACH-007):
+- Recebe mapas argumentativos pré-estruturados em JSON ({id, claim, premises, evidence, conclusion})
+  e sinaliza candidatos determinísticos a argumentos sem sustentação, circularidade lexical
+  e generalização indevida;
+- NÃO realiza extração automática de argumentos a partir de texto livre (essa etapa é realizada
+  pelo orquestrador/agente ou futuro extrator dedicado).
 
-RESTRIÇÃO OBRIGATÓRIA: não é classificador definitivo de falácias (`is_definitive_fallacy_classifier: False`);
-apenas gera candidatos estruturados para avaliação pelos auditores.
+RESTRIÇÃO OBRIGATÓRIA: não é classificador definitivo de falácias (`is_definitive_fallacy_classifier: False`).
 """
 
 from __future__ import annotations
@@ -139,7 +141,8 @@ def run_motor(payload: Any, *, run_id: str | None = None, artefato_alvo: str | N
             "resultados": res,
             "achados": achados,
             "limitacoes": [
-                "O motor não classifica falácias de forma definitiva; os candidatos exigem julgamento do auditor_metodologia ou auditor_adversarial."
+                "Este motor audita mapas argumentativos já estruturados em JSON; não realiza extração automática de argumentos a partir de prosa livre.",
+                "O motor não classifica falácias de forma definitiva; os candidatos exigem julgamento do auditor_metodologia ou auditor_adversarial.",
             ],
         }
     )
