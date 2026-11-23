@@ -1,5 +1,36 @@
-[OK] motor_matematico CLI -> status=OK, achados=0, schema_motor.json=VALID
-[OK] motor_dimensional CLI -> status=OK, achados=0, schema_motor.json=VALID
-[OK] motor_consistencia_cruzada CLI -> status=COM_ACHADOS, achados=1, schema_motor.json=VALID
-[OK] motor_etica CLI -> status=OK, achados=0, schema_motor.json=VALID
-[OK] auditor.py CLI -> status=COM_ACHADOS, pistas=16, schema_motor.json=VALID
+[IMPORT OK] motor_matematico==8.0.0-beta.2
+[IMPORT OK] motor_dimensional==0.1.0-beta.3
+[IMPORT OK] motor_estatistico==0.2.0-beta.5.3
+[IMPORT OK] motor_geometrico==0.1.0-beta.3
+[IMPORT OK] motor_incerteza==0.1.0-beta.3
+[IMPORT OK] motor_dados==0.1.0-beta.3
+[IMPORT OK] motor_linguagem==0.1.0-beta.4
+[IMPORT OK] motor_figuras==0.1.0-beta.4
+[IMPORT OK] motor_imagem_forense==0.1.0-beta.4
+[IMPORT OK] motor_consistencia_cruzada==0.1.0-beta.4
+[IMPORT OK] motor_etica==0.1.0-beta.5
+[IMPORT OK] motor_argumentacao==0.1.0-beta.5
+[IMPORT OK] motor_evidencia==0.1.0-beta.5
+[IMPORT OK] motor_temporal==0.2.0-beta.5.2
+[IMPORT OK] motor_nomenclatura==0.1.0-beta.5
+[IMPORT OK] motor_metadados==0.1.0-beta.5
+[IMPORT OK] motor_reprodutibilidade==0.1.0-beta.5
+[IMPORT OK] motor_qualitativo==0.1.0-beta.5
+[CLI OK] motor_matematico -> status=OK, achados=0, schema_motor.json=VALID
+[CLI OK] motor_dimensional -> status=OK, achados=0, schema_motor.json=VALID
+[CLI OK] motor_estatistico -> status=OK, achados=0, schema_motor.json=VALID
+[CLI OK] motor_geometrico -> status=OK, achados=0, schema_motor.json=VALID
+[CLI OK] motor_incerteza -> status=OK, achados=0, schema_motor.json=VALID
+[CLI OK] motor_dados -> status=OK, achados=0, schema_motor.json=VALID
+[CLI OK] motor_linguagem -> status=OK, achados=0, schema_motor.json=VALID
+[CLI OK] motor_consistencia_cruzada -> status=COM_ACHADOS, achados=1, schema_motor.json=VALID
+[CLI OK] motor_etica -> status=OK, achados=0, schema_motor.json=VALID
+[CLI OK] motor_argumentacao -> status=OK, achados=0, schema_motor.json=VALID
+[CLI OK] motor_evidencia -> status=OK, achados=0, schema_motor.json=VALID
+[CLI OK] motor_temporal -> status=OK, achados=0, schema_motor.json=VALID
+[CLI OK] motor_nomenclatura -> status=OK, achados=0, schema_motor.json=VALID
+[CLI OK] motor_metadados -> status=OK, achados=0, schema_motor.json=VALID
+[CLI OK] motor_reprodutibilidade -> status=OK, achados=0, schema_motor.json=VALID
+[CLI OK] motor_qualitativo -> status=OK, achados=0, schema_motor.json=VALID
+[API OK] motor_figuras -> status=OK, schema_motor.json=VALID
+[CLI OK] auditor.py -> status=COM_ACHADOS, pistas=16, schema_motor.json=VALID
