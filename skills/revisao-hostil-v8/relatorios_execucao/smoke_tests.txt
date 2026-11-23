@@ -1,5 +1,5 @@
 [OK] motor_matematico CLI -> status=OK, achados=0, schema_motor.json=VALID
 [OK] motor_dimensional CLI -> status=OK, achados=0, schema_motor.json=VALID
 [OK] motor_consistencia_cruzada CLI -> status=COM_ACHADOS, achados=1, schema_motor.json=VALID
-[OK] motor_etica CLI -> status=COM_ACHADOS, achados=1, schema_motor.json=VALID
+[OK] motor_etica CLI -> status=OK, achados=0, schema_motor.json=VALID
 [OK] auditor.py CLI -> status=COM_ACHADOS, pistas=16, schema_motor.json=VALID
