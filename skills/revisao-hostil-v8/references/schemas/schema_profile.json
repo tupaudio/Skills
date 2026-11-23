@@ -1,0 +1,141 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://revisao-hostil.v8/schemas/schema_profile.json",
+  "title": "PerfilMultidisciplinar",
+  "type": "object",
+  "required": [
+    "profile_id",
+    "profile_version",
+    "profile_status",
+    "effective_date",
+    "domain",
+    "reasoning_modes",
+    "engines",
+    "gates"
+  ],
+  "properties": {
+    "profile_id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_]{1,63}$"
+    },
+    "profile_version": {
+      "type": "string",
+      "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$"
+    },
+    "profile_status": {
+      "type": "string",
+      "enum": ["active", "draft", "deprecated"]
+    },
+    "effective_date": {
+      "type": "string",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+    },
+    "domain": {
+      "type": "object",
+      "required": ["name", "epistemological_family"],
+      "properties": {
+        "name": { "type": "string", "minLength": 2 },
+        "parent": { "type": ["string", "null"] },
+        "epistemological_family": {
+          "type": "string",
+          "enum": [
+            "exatas_engenharia",
+            "normativo_juridico",
+            "seguranca_risco",
+            "qualitativo_social",
+            "artes_humanidades"
+          ]
+        }
+      }
+    },
+    "reasoning_modes": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "enum": [
+          "engineering",
+          "empirical",
+          "quantitative",
+          "normative",
+          "legal",
+          "risk_analysis",
+          "qualitative",
+          "hermeneutic",
+          "aesthetic",
+          "formal_musical"
+        ]
+      }
+    },
+    "evidence_framework": {
+      "type": ["string", "null"],
+      "enum": [
+        "GRADE",
+        "OXFORD_CEBM",
+        "PRISMA",
+        "ENGENHARIA_EMPIRICA",
+        "QUALITATIVO_DOCUMENTAL",
+        null
+      ]
+    },
+    "engines": {
+      "type": "object",
+      "required": ["required"],
+      "properties": {
+        "required": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string", "minLength": 2 }
+        },
+        "optional": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 2 }
+        }
+      }
+    },
+    "gates": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "pattern": "^G(0[1-9]|1[0-2])$"
+      }
+    },
+    "normative_sources": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "jurisdiction"],
+        "properties": {
+          "id": { "type": "string", "minLength": 2 },
+          "jurisdiction": { "type": "string", "enum": ["BR", "US", "EU", "INTERNATIONAL"] },
+          "official_source_required": { "type": "boolean" },
+          "verification_date_required": { "type": "boolean" }
+        }
+      }
+    },
+    "vocabulary": {
+      "type": ["object", "null"],
+      "properties": {
+        "canonical_file": { "type": "string", "minLength": 1 }
+      }
+    },
+    "checklists": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "domain_rules": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["category", "portao", "pattern", "prompt"],
+        "properties": {
+          "category": { "type": "string" },
+          "portao": { "type": "string", "pattern": "^G(0[1-9]|1[0-2])$" },
+          "pattern": { "type": "string" },
+          "prompt": { "type": "string" }
+        }
+      }
+    }
+  }
+}

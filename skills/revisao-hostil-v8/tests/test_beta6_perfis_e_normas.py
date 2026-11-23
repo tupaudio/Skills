@@ -174,7 +174,11 @@ def test_ach_b6_002_profile_loader_rejects_planned_required_engines_and_negative
     bad_prof = tmp_path / "planned_req.yaml"
     bad_prof.write_text(
         "profile_id: teste_planejado\nprofile_version: '1.0.0'\nprofile_status: active\n"
-        "domain: {name: Teste}\nengines:\n  required: [motor_integracao]\n",
+        "effective_date: '2026-11-23'\n"
+        "domain:\n  name: Teste\n  epistemological_family: exatas_engenharia\n"
+        "reasoning_modes: [engineering]\n"
+        "gates: [G01]\n"
+        "engines:\n  required: [motor_integracao]\n",
         encoding="utf-8",
     )
     with pytest.raises(ValueError, match="ainda não implementados"):
@@ -187,3 +191,86 @@ def test_ach_b6_002_profile_loader_rejects_planned_required_engines_and_negative
         motor_risco.evaluate_exposure_index([{"name": "Ruído", "measured": 80.0, "limit": 0.0}])
     with pytest.raises(FileNotFoundError):
         motor_estetico.analyze_composition(tmp_path / "nao_existe.png")
+
+
+def test_ach_b6_005_profile_schema_enforced_for_all_required_fields(tmp_path: Path) -> None:
+    from scripts.common.schema_validator import SchemaValidationError
+    import yaml
+
+    base = {
+        "profile_id": "perfil_teste",
+        "profile_version": "1.0.0",
+        "profile_status": "active",
+        "effective_date": "2026-11-23",
+        "domain": {"name": "Teste", "epistemological_family": "exatas_engenharia"},
+        "reasoning_modes": ["engineering"],
+        "engines": {"required": ["motor_matematico"]},
+        "gates": ["G01"],
+    }
+
+    # Cada campo obrigatório ausente deve falhar na validação contra schema_profile.json
+    for field in ("profile_id", "profile_version", "profile_status", "effective_date", "domain", "reasoning_modes", "engines", "gates"):
+        broken = dict(base)
+        broken.pop(field)
+        p = tmp_path / f"missing_{field}.yaml"
+        p.write_text(yaml.safe_dump(broken), encoding="utf-8")
+        with pytest.raises(SchemaValidationError):
+            load_profile(p)
+
+    # Data de calendário impossível (2026-02-30) deve falhar
+    bad_date = dict(base, effective_date="2026-02-30")
+    p_dt = tmp_path / "bad_date.yaml"
+    p_dt.write_text(yaml.safe_dump(bad_date), encoding="utf-8")
+    with pytest.raises(ValueError, match="effective_date inválida"):
+        load_profile(p_dt)
+
+
+def test_ach_b6_006_strict_semver_2_0_0() -> None:
+    from scripts.common.profile_loader import is_valid_semver
+
+    for valid in ("0.1.0", "1.0.0", "2.1.3-alpha.1", "1.0.0+20130313144700", "1.0.0-beta.1+exp.sha.5114f85"):
+        assert is_valid_semver(valid) is True, f"Deveria aceitar SemVer válido: {valid}"
+    for invalid in ("01.02.03", "1.0", "1.0.0-01", "1.0.0-", "1.0.0+", "v1.0.0"):
+        assert is_valid_semver(invalid) is False, f"Deveria rejeitar SemVer inválido: {invalid}"
+
+
+def test_ach_b6_007_draft_and_deprecated_blocked_unless_explicit_override(tmp_path: Path) -> None:
+    import yaml
+
+    for st in ("draft", "deprecated"):
+        prof = {
+            "profile_id": f"perfil_{st}",
+            "profile_version": "1.0.0",
+            "profile_status": st,
+            "effective_date": "2026-11-23",
+            "domain": {"name": "Teste", "epistemological_family": "exatas_engenharia"},
+            "reasoning_modes": ["engineering"],
+            "engines": {"required": ["motor_matematico"]},
+            "gates": ["G01"],
+        }
+        p = tmp_path / f"{st}.yaml"
+        p.write_text(yaml.safe_dump(prof), encoding="utf-8")
+
+        with pytest.raises(ValueError, match="não é elegível para execução normal"):
+            load_profile(p)
+
+        loaded = load_profile(p, allow_non_active=True)
+        assert loaded["_resolved"]["execution_eligible"] is False
+        assert loaded["_resolved"]["non_active_override"] is True
+        assert loaded["_resolved"]["manifest_entry"][f"perfil_{st}"]["non_active_override"] is True
+
+
+def test_ach_b6_008_environment_dependencies_verified() -> None:
+    from scripts.common.profile_loader import verify_environment_dependencies
+
+    ok = verify_environment_dependencies({"motor_normas": ["pyyaml"], "motor_matematico": ["numpy"]})
+    assert ok["_summary"]["all_available"] is True
+    assert ok["pyyaml"]["status"] == "disponivel"
+    assert ok["numpy"]["installed_version"] is not None
+
+    missing = verify_environment_dependencies({"motor_x": ["pacote_inexistente_xyz_999"]})
+    assert missing["_summary"]["all_available"] is False
+    assert missing["pacote_inexistente_xyz_999"]["status"] == "ausente"
+
+    na = verify_environment_dependencies({"motor_linguagem": []})
+    assert na["_summary"]["status"] == "nao_aplicavel"

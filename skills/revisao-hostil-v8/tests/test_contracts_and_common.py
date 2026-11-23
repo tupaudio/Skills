@@ -116,8 +116,12 @@ def test_profile_loader_and_catalog(tmp_path: Path) -> None:
 
     bad_profile = tmp_path / "bad.yaml"
     bad_profile.write_text(
-        "profile_id: test\nprofile_version: '1.0.0'\nprofile_status: active\n"
-        "domain: {name: Teste}\nengines:\n  required: [motor_inexistente]\n",
+        "profile_id: test_invalido\nprofile_version: '1.0.0'\nprofile_status: active\n"
+        "effective_date: '2026-11-23'\n"
+        "domain:\n  name: Teste\n  epistemological_family: exatas_engenharia\n"
+        "reasoning_modes: [engineering]\n"
+        "gates: [G01]\n"
+        "engines:\n  required: [motor_inexistente]\n",
         encoding="utf-8",
     )
     with pytest.raises(ValueError, match="não catalogados"):

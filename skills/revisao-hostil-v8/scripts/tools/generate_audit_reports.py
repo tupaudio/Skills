@@ -153,12 +153,15 @@ def main() -> None:
     smoke_lines.append(f"[CLI OK] auditor.py -> status={aud_out['status']}, pistas={len(aud_out['achados'])}, schema_motor.json=VALID")
     (rep_dir / "smoke_tests.txt").write_text("\n".join(smoke_lines) + "\n", encoding="utf-8", newline="\n")
 
-    # 3. Carrega versões de todos os perfis-piloto ativos para o manifesto
+    # 3. Carrega versões e dependências verificadas de todos os perfis-piloto ativos para o manifesto
     from scripts.common.profile_loader import list_available_profiles, load_profile
     profile_versions = {}
+    profile_deps_summary = {}
     for pid in list_available_profiles():
         prof = load_profile(pid)
         profile_versions[pid] = str(prof["profile_version"])
+        for dep_name, dep_info in prof.get("_resolved", {}).get("verified_dependencies", {}).items():
+            profile_deps_summary[dep_name] = dep_info
 
     # 4. run_manifest.json (caminhos relativos, autoexclusão e política transparente de git_dirty)
     manifest_rel = "relatorios_execucao/run_manifest.json"
@@ -166,14 +169,16 @@ def main() -> None:
         p for p in ROOT.rglob("*") if is_clean_file(p) and p.relative_to(ROOT).as_posix() != manifest_rel
     )
     manifest = build_run_manifest(
-        "BETA6-HOMOLOGATION-2026-11-23",
+        "BETA6.1-HOMOLOGATION-2026-11-23",
         all_files,
-        skill_version="8.0.0-beta.6",
+        skill_version="8.0.0-beta.6.1",
         engine_versions=live_versions,
         profile_versions=profile_versions,
         config={
             "pytest_args": ["-v", "--cov=scripts", "--cov-report=term-missing"],
             "naive_timezone_policy": "strict",
+            "profile_schema_enforced": "references/schemas/schema_profile.json",
+            "profile_dependencies_verified": profile_deps_summary,
             "engines_cataloged": 23,
             "engines_implemented": len(ALL_ENGINE_NAMES),
             "engines_planned_phase8": 2,
