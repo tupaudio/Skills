@@ -1,8 +1,8 @@
 {
   "schema_version": "1.0.0",
-  "run_id": "BETA5.3-HOMOLOGATION-2026-11-23",
-  "timestamp_utc": "2026-11-23T22:07:07+00:00",
-  "skill_version": "8.0.0-beta.5.3",
+  "run_id": "BETA6-HOMOLOGATION-2026-11-23",
+  "timestamp_utc": "2026-11-23T23:02:53+00:00",
+  "skill_version": "8.0.0-beta.6",
   "engine_versions": {
     "auditor_estrutural": "8.0.0-beta.2",
     "motor_matematico": "8.0.0-beta.2",
@@ -22,11 +22,22 @@
     "motor_nomenclatura": "0.1.0-beta.5",
     "motor_metadados": "0.1.0-beta.5",
     "motor_reprodutibilidade": "0.1.0-beta.5",
-    "motor_qualitativo": "0.1.0-beta.5"
+    "motor_qualitativo": "0.1.0-beta.5",
+    "motor_normas": "0.1.0-beta.6",
+    "motor_risco": "0.1.0-beta.6",
+    "motor_estetico": "0.1.0-beta.6"
   },
-  "profile_versions": {},
-  "git_commit": "2effd02702851f91b5063cd031eaf436b6de1da3",
-  "audited_code_commit": "2effd02702851f91b5063cd031eaf436b6de1da3",
+  "profile_versions": {
+    "artes": "1.0.0",
+    "direito": "1.0.0",
+    "engenharia_geral": "1.0.0",
+    "musica_acustica": "1.0.0",
+    "pesquisa_qualitativa": "1.0.0",
+    "seguranca_trabalho": "1.0.0",
+    "sistemas_espaciais": "1.0.0"
+  },
+  "git_commit": "20728a52b4fb1e8f83dcf50f7aa5230e798a66c7",
+  "audited_code_commit": "20728a52b4fb1e8f83dcf50f7aa5230e798a66c7",
   "artifact_commit_note": "O commit que publica os artefatos de relatório (pytest_verbose.txt, smoke_tests.txt, run_manifest.json e SHA256SUMS) é criado após esta geração tendo audited_code_commit como pai direto.",
   "git_dirty": true,
   "git_state": {
@@ -68,7 +79,10 @@
       "--cov=scripts",
       "--cov-report=term-missing"
     ],
-    "naive_timezone_policy": "strict"
+    "naive_timezone_policy": "strict",
+    "engines_cataloged": 23,
+    "engines_implemented": 21,
+    "engines_planned_phase8": 2
   },
   "seeds": {
     "bootstrap_default": 42,
@@ -121,6 +135,12 @@
       "sha256": "b8d04897288771bf9556101b8be882528d7aed2d004e841ecf6c670212f0d62f"
     },
     {
+      "relative_path": "LICENSE",
+      "name": "LICENSE",
+      "bytes": 1115,
+      "sha256": "386b1259b349d52286347003e4f4767bd6f00c0ca3ee4f3d93bc6f656f67eacf"
+    },
+    {
       "relative_path": "pytest.ini",
       "name": "pytest.ini",
       "bytes": 55,
@@ -135,14 +155,104 @@
     {
       "relative_path": "references/catalogo_motores.yaml",
       "name": "catalogo_motores.yaml",
-      "bytes": 14365,
-      "sha256": "c7c5b21e942fcc13fc217e993bf73953ac81070a3d47324ed2c04b7ee35e9aef"
+      "bytes": 14402,
+      "sha256": "c3067b2975ae870ccc9e341f7c6798614f2c6a0918b83ce4e8a16df05f23ddc1"
+    },
+    {
+      "relative_path": "references/checklists/direito.yaml",
+      "name": "direito.yaml",
+      "bytes": 294,
+      "sha256": "a4e798196c40e9cd9f606613d43dbf3798108f2e0a0cd0c28f8f379a77f068a5"
+    },
+    {
+      "relative_path": "references/checklists/engenharia_geral.yaml",
+      "name": "engenharia_geral.yaml",
+      "bytes": 371,
+      "sha256": "5cb331fe89a5dc6af9dc3372ffbbb6214fad0d8a5be869082d599cd81a5f2867"
+    },
+    {
+      "relative_path": "references/checklists/pesquisa_qualitativa.yaml",
+      "name": "pesquisa_qualitativa.yaml",
+      "bytes": 311,
+      "sha256": "dec679ea45f47d005e4903d21302946ddd49aec1848321a5f299682dbaa6b2ee"
+    },
+    {
+      "relative_path": "references/checklists/seguranca_trabalho.yaml",
+      "name": "seguranca_trabalho.yaml",
+      "bytes": 408,
+      "sha256": "3f95112140b6ce93ca7f26c1ed99f0cc8f27ec52d076cfb23512f8ef4ecefef1"
     },
     {
       "relative_path": "references/matriz_responsabilidades.md",
       "name": "matriz_responsabilidades.md",
       "bytes": 5548,
       "sha256": "2b21acdea6a3684dfc9c85d9d77f86836dac92602980e84086e77b775c101a1d"
+    },
+    {
+      "relative_path": "references/norms/BR/ABNT/nbr5410.yaml",
+      "name": "nbr5410.yaml",
+      "bytes": 716,
+      "sha256": "f80deeb00635da4aa51ee21b106bddc85cc31b451add82e2f1ec14a096e5d27d"
+    },
+    {
+      "relative_path": "references/norms/BR/NR/nr15.yaml",
+      "name": "nr15.yaml",
+      "bytes": 951,
+      "sha256": "96bb6eeedd05c90e07dcf8a51d40dd3ed285df2968011dd8977e8414d6f22a37"
+    },
+    {
+      "relative_path": "references/norms/INTERNATIONAL/ISO/iso17025.yaml",
+      "name": "iso17025.yaml",
+      "bytes": 784,
+      "sha256": "ac806aa83885edb467253ca52953aa3a51b63b88fb986b1f1ba4b39c52060256"
+    },
+    {
+      "relative_path": "references/profiles/artes.yaml",
+      "name": "artes.yaml",
+      "bytes": 561,
+      "sha256": "234034a06ab3514884f60a9b0046ee6929ff8c632ff89ff4fa6bb493bef5425c"
+    },
+    {
+      "relative_path": "references/profiles/direito.yaml",
+      "name": "direito.yaml",
+      "bytes": 755,
+      "sha256": "276df13588d9767b719ff92f546d6eff2de6283f05d36d7e7387bf0bdcc57e83"
+    },
+    {
+      "relative_path": "references/profiles/engenharia_geral.yaml",
+      "name": "engenharia_geral.yaml",
+      "bytes": 1172,
+      "sha256": "b8c9ae11a4003c8fdb9246ad818da2c6b6f2cd1be921f5ec56776cc7b4f950bb"
+    },
+    {
+      "relative_path": "references/profiles/musica_acustica.yaml",
+      "name": "musica_acustica.yaml",
+      "bytes": 636,
+      "sha256": "d02e8044d61ed18ff66ac2f1c2a8070c41d7b3f35a650e00c01a40e35b6bbc96"
+    },
+    {
+      "relative_path": "references/profiles/pesquisa_qualitativa.yaml",
+      "name": "pesquisa_qualitativa.yaml",
+      "bytes": 617,
+      "sha256": "6d2901d004f2355e37f6d5a6606128ab00e27c9246a4a48a746c82315092e055"
+    },
+    {
+      "relative_path": "references/profiles/schema_profile.yaml",
+      "name": "schema_profile.yaml",
+      "bytes": 1606,
+      "sha256": "a9f8f6b4c2d9ec0501044ee07d7472ed4fe3fff1038544e4acbb45c215a11906"
+    },
+    {
+      "relative_path": "references/profiles/seguranca_trabalho.yaml",
+      "name": "seguranca_trabalho.yaml",
+      "bytes": 869,
+      "sha256": "02c4228ce23c9e2a79df9912dfa6e54bc0b767a303294b4cf4b1c7d796ba1562"
+    },
+    {
+      "relative_path": "references/profiles/sistemas_espaciais.yaml",
+      "name": "sistemas_espaciais.yaml",
+      "bytes": 990,
+      "sha256": "c942da428cda8ee2416cc7086cc7ce297cb05146ff2815fe491da966f99e470b"
     },
     {
       "relative_path": "references/schemas/schema_achado.json",
@@ -187,22 +297,34 @@
       "sha256": "028a25bf6f8e37dd87c9c9714149b47f1534a7a621ad7a3ce954c289639b4bcf"
     },
     {
+      "relative_path": "references/vocabulario/engenharia_geral.yaml",
+      "name": "engenharia_geral.yaml",
+      "bytes": 236,
+      "sha256": "006dd64b64f42d0d4f2c9fc877399ea6634cea07713a7deb8e2fb348cf48583a"
+    },
+    {
+      "relative_path": "references/vocabulario/seguranca_trabalho.yaml",
+      "name": "seguranca_trabalho.yaml",
+      "bytes": 274,
+      "sha256": "bbd3b9fe96bf17a244db0e561fd0111b97972832ddeddd33ce76d10f9156b96d"
+    },
+    {
       "relative_path": "relatorios_execucao/pytest_verbose.txt",
       "name": "pytest_verbose.txt",
-      "bytes": 9877,
-      "sha256": "1d697c6f6d458d0426e8bd6edc1a040bda3bb702594fff55cbfdeba3aa06f9b7"
+      "bytes": 10769,
+      "sha256": "31929e640005d08a819aeaeafdaad29f994c68ea919de5b0d579295d7ccc0fcc"
     },
     {
       "relative_path": "relatorios_execucao/smoke_tests.txt",
       "name": "smoke_tests.txt",
-      "bytes": 2143,
-      "sha256": "44d1cf57c5b5bf50785c091a9a1f813b5c3c449fe0e6a41785f47ca3ae11b819"
+      "bytes": 2532,
+      "sha256": "0b22f7cd4de4e3ce7c7392c4c90858029c496f8bca4d95242b63528205ab108a"
     },
     {
       "relative_path": "requirements.txt",
       "name": "requirements.txt",
-      "bytes": 215,
-      "sha256": "73dc11e4e638f9fb5a2d90ff8184f20e04466febd7dabe34a8a195c347064332"
+      "bytes": 213,
+      "sha256": "9af06213a0cacb676d2fa29e07e4c84de0e0d5a34f48d2c1725ea50acc1a9c7a"
     },
     {
       "relative_path": "scripts/__init__.py",
@@ -237,8 +359,8 @@
     {
       "relative_path": "scripts/common/profile_loader.py",
       "name": "profile_loader.py",
-      "bytes": 2092,
-      "sha256": "6781c596ec038223e2dbff2a2e0b6e60852a0555bbeec16b5ec318cf3c30373a"
+      "bytes": 5732,
+      "sha256": "6bb8bf5966e6ecb2eeffe402ea08eeba78e44e1d5f333954b33585a62f50c1ac"
     },
     {
       "relative_path": "scripts/common/provenance.py",
@@ -313,6 +435,12 @@
       "sha256": "2d239c7f75eeca06fc9fc07605e5b6a2a913162508329d4d8d6b3c156bd50954"
     },
     {
+      "relative_path": "scripts/engines/motor_estetico.py",
+      "name": "motor_estetico.py",
+      "bytes": 4454,
+      "sha256": "8e8f7a2fa122b58f57d847d4ec06f6d93d6924874eab7afbbd4bd476da7db032"
+    },
+    {
       "relative_path": "scripts/engines/motor_etica.py",
       "name": "motor_etica.py",
       "bytes": 10698,
@@ -373,6 +501,12 @@
       "sha256": "bb39b00f5a74278120a36aae875c781013ad43d5d82063f6b49d0f3ae768e879"
     },
     {
+      "relative_path": "scripts/engines/motor_normas.py",
+      "name": "motor_normas.py",
+      "bytes": 10581,
+      "sha256": "26b51b78062fbb9919a056990549f417a64267e257068b686e320a15fa4407c4"
+    },
+    {
       "relative_path": "scripts/engines/motor_qualitativo.py",
       "name": "motor_qualitativo.py",
       "bytes": 8429,
@@ -385,6 +519,12 @@
       "sha256": "b2623e7a92c0356f8825b359441e3e908665ccde549e0b64a3ff1695c3157505"
     },
     {
+      "relative_path": "scripts/engines/motor_risco.py",
+      "name": "motor_risco.py",
+      "bytes": 8052,
+      "sha256": "ecb7f11f004b3c3d63950e6fd386a8e56f9d2d4952ea04f70dddaef48154275d"
+    },
+    {
       "relative_path": "scripts/engines/motor_temporal.py",
       "name": "motor_temporal.py",
       "bytes": 16334,
@@ -393,8 +533,8 @@
     {
       "relative_path": "scripts/tools/generate_audit_reports.py",
       "name": "generate_audit_reports.py",
-      "bytes": 9083,
-      "sha256": "342b9445deb9066d7d9fe000fd6fdf875ba338074adbdc8f41d7873510fc5aa8"
+      "bytes": 10895,
+      "sha256": "e76f07de0e9502453323a9162a62b09e51b209c09380802b55b1910edd324b07"
     },
     {
       "relative_path": "tests/test_auditor.py",
@@ -419,6 +559,12 @@
       "name": "test_beta5_integridade.py",
       "bytes": 6149,
       "sha256": "2911a8b0e34aa7e044cb6c2bd5a7e6bc4572449f0018a9ce9fa3beccccf966fe"
+    },
+    {
+      "relative_path": "tests/test_beta6_perfis_e_normas.py",
+      "name": "test_beta6_perfis_e_normas.py",
+      "bytes": 9004,
+      "sha256": "fed19463e43840f890d2c9f99b3939c1978a66a69f16c56dbb767c6d95f26584"
     },
     {
       "relative_path": "tests/test_contracts_and_common.py",
@@ -458,6 +604,6 @@
     }
   ],
   "limitations": [
-    "SKILL.md da v8.0 será integrado na Fase 8 (v6.0-legacy/SKILL.md preservado em versions/v6.0-legacy/)."
+    "SKILL.md da v8.0, motor_integracao e motor_meta serão integrados na Fase 8 (v6.0-legacy/SKILL.md preservado em versions/v6.0-legacy/)."
   ]
 }

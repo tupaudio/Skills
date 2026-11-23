@@ -16,6 +16,9 @@
 [IMPORT OK] motor_metadados==0.1.0-beta.5
 [IMPORT OK] motor_reprodutibilidade==0.1.0-beta.5
 [IMPORT OK] motor_qualitativo==0.1.0-beta.5
+[IMPORT OK] motor_normas==0.1.0-beta.6
+[IMPORT OK] motor_risco==0.1.0-beta.6
+[IMPORT OK] motor_estetico==0.1.0-beta.6
 [CLI OK] motor_matematico -> status=OK, achados=0, schema_motor.json=VALID
 [CLI OK] motor_dimensional -> status=OK, achados=0, schema_motor.json=VALID
 [CLI OK] motor_estatistico -> status=OK, achados=0, schema_motor.json=VALID
@@ -32,5 +35,9 @@
 [CLI OK] motor_metadados -> status=OK, achados=0, schema_motor.json=VALID
 [CLI OK] motor_reprodutibilidade -> status=OK, achados=0, schema_motor.json=VALID
 [CLI OK] motor_qualitativo -> status=OK, achados=0, schema_motor.json=VALID
+[CLI OK] motor_normas -> status=OK, achados=0, schema_motor.json=VALID
+[CLI OK] motor_risco -> status=OK, achados=0, schema_motor.json=VALID
 [API OK] motor_figuras -> status=OK, schema_motor.json=VALID
+[API OK] motor_imagem_forense -> status=OK, schema_motor.json=VALID
+[API OK] motor_estetico -> status=OK, schema_motor.json=VALID
 [CLI OK] auditor.py -> status=COM_ACHADOS, pistas=16, schema_motor.json=VALID
