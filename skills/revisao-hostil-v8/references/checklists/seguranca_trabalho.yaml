@@ -1,0 +1,9 @@
+checklist_id: seguranca_trabalho
+version: "1.0.0"
+items:
+  - id: SST-01
+    description: "Perigo, exposição e risco são distinguidos corretamente."
+  - id: SST-02
+    description: "Normas NR citadas possuem edição, vigência e jurisdição verificadas em fonte oficial."
+  - id: SST-03
+    description: "Hierarquia de controles (eliminação, substituição, engenharia, administrativo, EPI) aplicada."

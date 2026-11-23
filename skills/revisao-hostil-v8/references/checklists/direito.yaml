@@ -1,0 +1,7 @@
+checklist_id: direito
+version: "1.0.0"
+items:
+  - id: DIR-01
+    description: "Vigência e eventual revogação das normas citadas foram verificadas para a data de referência."
+  - id: DIR-02
+    description: "Hierarquia normativa, jurisdição e precedentes citados têm fonte verificável."

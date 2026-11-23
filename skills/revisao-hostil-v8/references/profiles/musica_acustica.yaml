@@ -1,0 +1,39 @@
+profile_id: musica_acustica
+profile_version: "1.0.0"
+profile_status: active
+effective_date: "2026-11-23"
+
+domain:
+  name: Música e Acústica
+  parent: null
+  epistemological_family: artes_humanidades
+
+reasoning_modes:
+  - formal_musical
+  - empirical
+  - quantitative
+  - aesthetic
+
+evidence_framework: ENGENHARIA_EMPIRICA
+
+engines:
+  required:
+    - motor_matematico
+    - motor_dimensional
+    - motor_estatistico
+    - motor_nomenclatura
+    - motor_figuras
+  optional:
+    - motor_incerteza
+    - motor_consistencia_cruzada
+    - motor_linguagem
+    - motor_estetico
+
+gates:
+  - G01
+  - G02
+  - G03
+  - G04
+  - G05
+  - G07
+  - G09

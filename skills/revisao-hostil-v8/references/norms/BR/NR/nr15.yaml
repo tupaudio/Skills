@@ -1,0 +1,17 @@
+# Modelo de registro normativo versionado (Passo 6.4)
+# ATENÇÃO: official_source_verified deve ser true apenas após confirmação na fonte oficial do MTE.
+norm_id: NR-15
+title: "Atividades e Operações Insalubres"
+jurisdiction: BR
+category: NR
+official_source: "Ministério do Trabalho e Emprego (gov.br/trabalho-e-emprego)"
+edition: "Portaria MTb nº 3.214/1978 e alterações posteriores"
+published_date: "1978-06-08"
+effective_from: "1978-06-08"
+revoked_on: null
+replaced_by: null
+official_source_verified: false
+scope: "Estabelece limites de tolerância e critérios técnicos para caracterização de insalubridade no Brasil."
+exceptions: "Anexos possuem datas de atualização independentes; verificar anexo específico aplicável."
+verification_method: "Conferência direta no portal oficial do MTE na data da auditoria."
+limitations: "Registro de referência estrutural; não substitui conferência do texto vigente do anexo específico."

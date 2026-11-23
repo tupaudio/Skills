@@ -412,10 +412,10 @@ motores:
   # FASE 6 — NORMAS E MOTORES ESPECIALIZADOS POR DOMÍNIO
   # =========================================================================
   - id: motor_normas
-    versao: "0.1.0"
+    versao: "0.1.0-beta.6"
     categoria: normativo
     fase_alvo: beta.6
-    status: planejado
+    status: implementado_beta6
     responsabilidade:
       - verificacao_normas_versionadas_por_jurisdicao
       - checagem_vigencia_revogacao_e_excecoes
@@ -435,10 +435,10 @@ motores:
       - "Se versão vigente ou aplicabilidade não puder ser confirmada, retornar NAO_VERIFICADO."
 
   - id: motor_risco
-    versao: "0.1.0"
+    versao: "0.1.0-beta.6"
     categoria: especializado_perfil
     fase_alvo: beta.6
-    status: planejado
+    status: implementado_beta6
     responsabilidade:
       - matrizes_risco_severidade_probabilidade
       - verificacao_limites_exposicao_e_ergonomia
@@ -449,16 +449,15 @@ motores:
       - resultados
       - achados
       - limitacoes
-    dependencias:
-      - numpy
+    dependencias: []
     deterministico: true
     perfil_obrigatorio: true
 
   - id: motor_estetico
-    versao: "0.1.0"
+    versao: "0.1.0-beta.6"
     categoria: especializado_perfil
     fase_alvo: beta.6
-    status: planejado
+    status: implementado_beta6
     responsabilidade:
       - analise_composicional_e_estetica_para_perfil_artes
     entradas:

@@ -1,0 +1,9 @@
+vocabulary_id: seguranca_trabalho
+version: "1.0.0"
+terms:
+  perigo:
+    canonical: "Perigo (fonte com potencial de dano)"
+    variants: ["risco sinônimo de perigo"]
+  epi:
+    canonical: "Equipamento de Proteção Individual (EPI)"
+    variants: ["equipamento individual"]

@@ -1,0 +1,50 @@
+profile_id: seguranca_trabalho
+profile_version: "1.0.0"
+profile_status: active
+effective_date: "2026-11-23"
+
+domain:
+  name: Segurança do Trabalho
+  parent: Engenharia Geral
+  epistemological_family: seguranca_risco
+
+reasoning_modes:
+  - engineering
+  - empirical
+  - normative
+  - risk_analysis
+
+evidence_framework: ENGENHARIA_EMPIRICA
+
+engines:
+  required:
+    - motor_estatistico
+    - motor_dados
+    - motor_normas
+    - motor_risco
+    - motor_temporal
+  optional:
+    - motor_etica
+    - motor_incerteza
+    - motor_linguagem
+    - motor_consistencia_cruzada
+
+gates:
+  - G01
+  - G02
+  - G04
+  - G05
+  - G10
+  - G12
+
+normative_sources:
+  - id: NR-15
+    jurisdiction: BR
+    official_source_required: true
+    verification_date_required: true
+
+vocabulary:
+  canonical_file: vocabulario/seguranca_trabalho.yaml
+
+checklists:
+  - checklists/seguranca_trabalho.yaml

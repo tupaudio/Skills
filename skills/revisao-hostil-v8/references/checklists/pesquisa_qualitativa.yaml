@@ -1,0 +1,7 @@
+checklist_id: pesquisa_qualitativa
+version: "1.0.0"
+items:
+  - id: QUA-01
+    description: "Estrutura de codificação, triangulação e trilha de auditoria estão documentadas."
+  - id: QUA-02
+    description: "Concordância entre codificadores (Kappa/Alpha) e evidências de saturação estão explicitadas."

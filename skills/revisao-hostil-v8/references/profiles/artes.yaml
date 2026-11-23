@@ -1,0 +1,35 @@
+profile_id: artes
+profile_version: "1.0.0"
+profile_status: active
+effective_date: "2026-11-23"
+
+domain:
+  name: Artes e Estudos Visuais
+  parent: null
+  epistemological_family: artes_humanidades
+
+reasoning_modes:
+  - aesthetic
+  - hermeneutic
+  - qualitative
+
+evidence_framework: QUALITATIVO_DOCUMENTAL
+
+engines:
+  required:
+    - motor_figuras
+    - motor_imagem_forense
+    - motor_estetico
+    - motor_linguagem
+    - motor_temporal
+  optional:
+    - motor_etica
+    - motor_argumentacao
+    - motor_metadados
+
+gates:
+  - G01
+  - G05
+  - G07
+  - G09
+  - G10

@@ -1,0 +1,9 @@
+checklist_id: engenharia_geral
+version: "1.0.0"
+items:
+  - id: ENG-01
+    description: "Todas as equações numeradas foram submetidas ao Zero-Trust Numerical Plug-In."
+  - id: ENG-02
+    description: "Homogeneidade dimensional e unidades SI verificadas."
+  - id: ENG-03
+    description: "Balanços de massa, potência e energia incluem todos os subsistemas principais."

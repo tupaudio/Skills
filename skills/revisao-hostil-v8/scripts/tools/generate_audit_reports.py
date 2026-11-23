@@ -38,6 +38,9 @@ ALL_ENGINE_NAMES = (
     "motor_metadados",
     "motor_reprodutibilidade",
     "motor_qualitativo",
+    "motor_normas",
+    "motor_risco",
+    "motor_estetico",
 )
 
 REPORT_ARTIFACTS_REL = [
@@ -111,6 +114,8 @@ def main() -> None:
         ("motor_metadados", ["scripts/engines/motor_metadados.py"], {"files": ["requirements.txt"]}),
         ("motor_reprodutibilidade", ["scripts/engines/motor_reprodutibilidade.py"], {"has_data": True, "has_scripts": True, "has_environment_spec": True}),
         ("motor_qualitativo", ["scripts/engines/motor_qualitativo.py"], {"operation": "cohens_kappa", "coder_a": ["A", "B", "A"], "coder_b": ["A", "B", "A"]}),
+        ("motor_normas", ["scripts/engines/motor_normas.py"], {"citations": [{"norm_id": "ISO-IEC-17025", "jurisdiction": "INTERNATIONAL", "reference_date": "2026-11-23"}]}),
+        ("motor_risco", ["scripts/engines/motor_risco.py"], {"operation": "evaluate_risk_matrix", "hazard": "Ruído", "severity": 2, "probability": 2, "controls": ["engenharia"]}),
     ]
     for name, cmd, payload in smoke_cli_cases:
         proc = subprocess.run([sys.executable] + cmd, cwd=ROOT, input=json.dumps(payload), text=True, capture_output=True)
@@ -119,11 +124,27 @@ def main() -> None:
         validate_contract(out, "schema_motor.json")
         smoke_lines.append(f"[CLI OK] {name} -> status={out['status']}, achados={len(out['achados'])}, schema_motor.json=VALID")
 
-    # Smoke tests de motor_figuras e motor_imagem_forense (via inventário / inspeção in-process)
+    # Smoke tests de motor_figuras, motor_imagem_forense e motor_estetico
+    import tempfile
+    import numpy as np
+    from PIL import Image
     import scripts.engines.motor_figuras as mfig
+    import scripts.engines.motor_imagem_forense as mimf
+    import scripts.engines.motor_estetico as mest
+
     fig_out = mfig.run_motor({"operation": "build_visual_inventory", "items": [{"kind": "figure", "source_file": "f1.png"}]})
     validate_contract(fig_out, "schema_motor.json")
     smoke_lines.append(f"[API OK] motor_figuras -> status={fig_out['status']}, schema_motor.json=VALID")
+
+    with tempfile.TemporaryDirectory() as td:
+        tmp_img = pathlib.Path(td) / "smoke.png"
+        Image.fromarray(np.tile(np.linspace(0, 255, 64, dtype=np.uint8), (64, 1))).save(tmp_img)
+        imf_out = mimf.run_motor({"operation": "inspect_image_forensics", "file_path": str(tmp_img)})
+        validate_contract(imf_out, "schema_motor.json")
+        smoke_lines.append(f"[API OK] motor_imagem_forense -> status={imf_out['status']}, schema_motor.json=VALID")
+        est_out = mest.run_motor({"file_path": str(tmp_img)})
+        validate_contract(est_out, "schema_motor.json")
+        smoke_lines.append(f"[API OK] motor_estetico -> status={est_out['status']}, schema_motor.json=VALID")
 
     p_aud = subprocess.run([sys.executable, "scripts/auditor.py", "docs/ARQUITETURA_V8.md"], cwd=ROOT, text=True, capture_output=True)
     assert p_aud.returncode == 0, p_aud.stderr
@@ -132,22 +153,36 @@ def main() -> None:
     smoke_lines.append(f"[CLI OK] auditor.py -> status={aud_out['status']}, pistas={len(aud_out['achados'])}, schema_motor.json=VALID")
     (rep_dir / "smoke_tests.txt").write_text("\n".join(smoke_lines) + "\n", encoding="utf-8", newline="\n")
 
-    # 3. run_manifest.json (caminhos relativos, autoexclusão e política transparente de git_dirty — ACH-013/014)
+    # 3. Carrega versões de todos os perfis-piloto ativos para o manifesto
+    from scripts.common.profile_loader import list_available_profiles, load_profile
+    profile_versions = {}
+    for pid in list_available_profiles():
+        prof = load_profile(pid)
+        profile_versions[pid] = str(prof["profile_version"])
+
+    # 4. run_manifest.json (caminhos relativos, autoexclusão e política transparente de git_dirty)
     manifest_rel = "relatorios_execucao/run_manifest.json"
     all_files = sorted(
         p for p in ROOT.rglob("*") if is_clean_file(p) and p.relative_to(ROOT).as_posix() != manifest_rel
     )
     manifest = build_run_manifest(
-        "BETA5.3-HOMOLOGATION-2026-11-23",
+        "BETA6-HOMOLOGATION-2026-11-23",
         all_files,
-        skill_version="8.0.0-beta.5.3",
+        skill_version="8.0.0-beta.6",
         engine_versions=live_versions,
-        config={"pytest_args": ["-v", "--cov=scripts", "--cov-report=term-missing"], "naive_timezone_policy": "strict"},
+        profile_versions=profile_versions,
+        config={
+            "pytest_args": ["-v", "--cov=scripts", "--cov-report=term-missing"],
+            "naive_timezone_policy": "strict",
+            "engines_cataloged": 23,
+            "engines_implemented": len(ALL_ENGINE_NAMES),
+            "engines_planned_phase8": 2,
+        },
         seeds={"bootstrap_default": 42, "monte_carlo_default": 42},
         self_excluded_files=[manifest_rel],
         excluded_dirty_paths=REPORT_ARTIFACTS_REL,
         limitations=[
-            "SKILL.md da v8.0 será integrado na Fase 8 (v6.0-legacy/SKILL.md preservado em versions/v6.0-legacy/)."
+            "SKILL.md da v8.0, motor_integracao e motor_meta serão integrados na Fase 8 (v6.0-legacy/SKILL.md preservado em versions/v6.0-legacy/)."
         ],
         repo_root=ROOT,
     )

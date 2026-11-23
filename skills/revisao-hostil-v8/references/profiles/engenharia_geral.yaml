@@ -1,0 +1,56 @@
+profile_id: engenharia_geral
+profile_version: "1.0.0"
+profile_status: active
+effective_date: "2026-11-23"
+
+domain:
+  name: Engenharia Geral
+  parent: null
+  epistemological_family: exatas_engenharia
+
+reasoning_modes:
+  - engineering
+  - empirical
+  - quantitative
+
+evidence_framework: ENGENHARIA_EMPIRICA
+
+engines:
+  required:
+    - motor_matematico
+    - motor_dimensional
+    - motor_estatistico
+    - motor_incerteza
+    - motor_consistencia_cruzada
+    - motor_reprodutibilidade
+  optional:
+    - motor_geometrico
+    - motor_dados
+    - motor_figuras
+    - motor_linguagem
+    - motor_nomenclatura
+    - motor_normas
+
+gates:
+  - G01
+  - G02
+  - G03
+  - G04
+  - G05
+  - G06
+  - G07
+  - G08
+  - G09
+  - G10
+
+vocabulary:
+  canonical_file: vocabulario/engenharia_geral.yaml
+
+checklists:
+  - checklists/engenharia_geral.yaml
+
+domain_rules:
+  - category: power_energy_confusion
+    portao: G03
+    pattern: "\\b(energia|energy)\\s+(?:de\\s+|of\\s+)?\\d+(?:[.,]\\d+)?\\s*(W|kW|MW|GW)\\b|\\b(pot[êe]ncia|power)\\s+(?:de\\s+|of\\s+)?\\d+(?:[.,]\\d+)?\\s*(Wh|kWh|MWh|GWh)\\b"
+    prompt: "Possível confusão entre potência (W) e energia (Wh). Validar no motor_dimensional."

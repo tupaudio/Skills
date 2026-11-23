@@ -1,0 +1,45 @@
+profile_id: direito
+profile_version: "1.0.0"
+profile_status: active
+effective_date: "2026-11-23"
+
+domain:
+  name: Direito e Pesquisa Jurídica
+  parent: null
+  epistemological_family: normativo_juridico
+
+reasoning_modes:
+  - normative
+  - legal
+  - hermeneutic
+
+evidence_framework: QUALITATIVO_DOCUMENTAL
+
+engines:
+  required:
+    - motor_normas
+    - motor_temporal
+    - motor_argumentacao
+    - motor_evidencia
+    - motor_linguagem
+  optional:
+    - motor_etica
+    - motor_nomenclatura
+    - motor_metadados
+
+gates:
+  - G01
+  - G02
+  - G05
+  - G07
+  - G10
+  - G12
+
+normative_sources:
+  - id: CONSTITUICAO_FEDERAL_BR
+    jurisdiction: BR
+    official_source_required: true
+    verification_date_required: true
+
+checklists:
+  - checklists/direito.yaml

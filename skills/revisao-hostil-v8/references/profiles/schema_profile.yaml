@@ -1,0 +1,59 @@
+# Esquema Universal de Perfil Multidisciplinar — Revisão Hostil v8.0 (v8.0-beta.6)
+schema_version: "1.0.0"
+
+required_fields:
+  - profile_id
+  - profile_version
+  - profile_status
+  - effective_date
+  - domain
+  - reasoning_modes
+  - engines
+  - gates
+
+allowed_status:
+  - active
+  - draft
+  - deprecated
+
+allowed_reasoning_modes:
+  - engineering
+  - empirical
+  - quantitative
+  - normative
+  - legal
+  - risk_analysis
+  - qualitative
+  - hermeneutic
+  - aesthetic
+  - formal_musical
+
+structure:
+  profile_id: "string (snake_case único)"
+  profile_version: "semver MAJOR.MINOR.PATCH"
+  profile_status: "active | draft | deprecated"
+  effective_date: "YYYY-MM-DD"
+  domain:
+    name: "string"
+    parent: "string | null"
+    epistemological_family: "exatas_engenharia | normativo_juridico | seguranca_risco | qualitativo_social | artes_humanidades"
+  reasoning_modes: ["lista de modos permitidos"]
+  engines:
+    required: ["lista de motor_id existentes em catalogo_motores.yaml"]
+    optional: ["lista de motor_id existentes em catalogo_motores.yaml"]
+  gates: ["G01..G12"]
+  evidence_framework: "GRADE | OXFORD_CEBM | PRISMA | ENGENHARIA_EMPIRICA | QUALITATIVO_DOCUMENTAL | null"
+  normative_sources:
+    - id: "string"
+      jurisdiction: "BR | US | EU | INTERNATIONAL"
+      official_source_required: true
+      verification_date_required: true
+  vocabulary:
+    canonical_file: "caminho relativo a references/ (opcional)"
+  checklists:
+    - "caminho relativo a references/ (opcional)"
+  domain_rules:
+    - category: "string"
+      portao: "G01..G12"
+      pattern: "regex"
+      prompt: "string"

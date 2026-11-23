@@ -1,0 +1,9 @@
+vocabulary_id: engenharia_geral
+version: "1.0.0"
+terms:
+  potencia:
+    canonical: "Potência (W)"
+    variants: ["energia instantânea"]
+  eficiencia:
+    canonical: "Eficiência energética"
+    variants: ["rendimento absoluto 100%"]

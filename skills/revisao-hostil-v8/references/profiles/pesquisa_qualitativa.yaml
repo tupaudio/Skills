@@ -1,0 +1,37 @@
+profile_id: pesquisa_qualitativa
+profile_version: "1.0.0"
+profile_status: active
+effective_date: "2026-11-23"
+
+domain:
+  name: Pesquisa Qualitativa
+  parent: null
+  epistemological_family: qualitativo_social
+
+reasoning_modes:
+  - qualitative
+  - hermeneutic
+
+evidence_framework: QUALITATIVO_DOCUMENTAL
+
+engines:
+  required:
+    - motor_qualitativo
+    - motor_etica
+    - motor_argumentacao
+    - motor_evidencia
+    - motor_linguagem
+  optional:
+    - motor_temporal
+    - motor_nomenclatura
+    - motor_metadados
+
+gates:
+  - G01
+  - G02
+  - G04
+  - G07
+  - G10
+
+checklists:
+  - checklists/pesquisa_qualitativa.yaml

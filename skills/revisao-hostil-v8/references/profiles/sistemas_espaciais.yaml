@@ -1,0 +1,48 @@
+profile_id: sistemas_espaciais
+profile_version: "1.0.0"
+profile_status: active
+effective_date: "2026-11-23"
+
+domain:
+  name: Sistemas Espaciais e Modelagem Física
+  parent: Engenharia Geral
+  epistemological_family: exatas_engenharia
+
+reasoning_modes:
+  - engineering
+  - quantitative
+  - empirical
+
+evidence_framework: ENGENHARIA_EMPIRICA
+
+engines:
+  required:
+    - motor_matematico
+    - motor_dimensional
+    - motor_geometrico
+    - motor_incerteza
+    - motor_consistencia_cruzada
+    - motor_nomenclatura
+    - motor_reprodutibilidade
+  optional:
+    - motor_estatistico
+    - motor_figuras
+    - motor_dados
+    - motor_linguagem
+
+gates:
+  - G01
+  - G02
+  - G03
+  - G05
+  - G06
+  - G07
+  - G08
+  - G09
+  - G10
+
+domain_rules:
+  - category: absolute_claim_orbital
+    portao: G01
+    pattern: "\\b(zero\\s+eclipse|eclipse\\s+zero|isot[ée]rmic[oa]\\s+perfeit[oa])\\b"
+    prompt: "Condição extrema orbital/térmica declarada: testar solstícios, equinócios e pior caso térmico."
