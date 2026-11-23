@@ -1,9 +1,9 @@
 # Skills do Antigravity — Tupã Audio & Academic Framework
 
 [![Status](https://img.shields.io/badge/Antigravity-Skills%20Repository-blue)](https://github.com/tupaudio/Skills)
-[![Revisão Hostil](https://img.shields.io/badge/Revis%C3%A3o%20Hostil-v6.0%20%7C%20v8.0--beta.5.2-orange)](./skills/revisao-hostil-v8)
+[![Revisão Hostil](https://img.shields.io/badge/Revis%C3%A3o%20Hostil-v6.0%20%7C%20v8.0--beta.5.3-orange)](./skills/revisao-hostil-v8)
 [![Alucinação-OFF](https://img.shields.io/badge/Alucina%C3%A7%C3%A3o--OFF-v2.0-green)](./skills/alucinacao-off)
-[![Tests](https://img.shields.io/badge/pytest-49%20passed-brightgreen)](./skills/revisao-hostil-v8/relatorios_execucao/pytest_verbose.txt)
+[![Tests](https://img.shields.io/badge/pytest-52%20passed-brightgreen)](./skills/revisao-hostil-v8/relatorios_execucao/pytest_verbose.txt)
 
 Repositório oficial de **Skills autorais para o Google Antigravity**, focadas em **rigor epistêmico radical**, **auditoria científica e técnica determinística** e **verificação orientada a evidências**.
 
@@ -15,7 +15,7 @@ Repositório oficial de **Skills autorais para o Google Antigravity**, focadas e
 | :--- | :---: | :--- | :--- |
 | **`alucinacao-off`** | `v2.0` | [`skills/alucinacao-off/`](./skills/alucinacao-off) | Honestidade epistêmica e rigor técnico (taxonomia de 5 status, protocolo de lacunas críticas, blindagem por tipo de dado, modo criativo explícito e módulo de eletrônica/hardware). |
 | **`revisao-hostil`** | `v6.0` | [`skills/revisao-hostil/`](./skills/revisao-hostil) | Versão estável de produção para revisão científica crítica e forense (`.tex`, `.docx`, `.pdf`, `.md`, `.txt`) com `auditor.py`, `motor_matematico.py` (*Zero-Trust Numerical Plug-In*) e 10 Portões de Qualidade. |
-| **`revisao-hostil-v8`** | `v8.0-beta.5.2` | [`skills/revisao-hostil-v8/`](./skills/revisao-hostil-v8) | Plataforma modular multidisciplinar em desenvolvimento incremental (Beta → RC → 8.0), orientada a contratos JSON, com **18 motores determinísticos**, rastreabilidade de evidências, máquina formal de 10 estados e **49 testes `pytest` aprovados**. |
+| **`revisao-hostil-v8`** | `v8.0-beta.5.3` | [`skills/revisao-hostil-v8/`](./skills/revisao-hostil-v8) | Plataforma modular multidisciplinar em desenvolvimento incremental (Beta → RC → 8.0), orientada a contratos JSON, com **18 motores determinísticos**, rastreabilidade de evidências, máquina formal de 10 estados e **52 testes `pytest` aprovados**. |
 
 ---
 
@@ -33,7 +33,7 @@ Skills/
     │   └── scripts/
     │       ├── auditor.py
     │       └── motor_matematico.py
-    └── revisao-hostil-v8/                # v8.0-beta.5.2 (Estabilização pós-reauditoria externa)
+    └── revisao-hostil-v8/                # v8.0-beta.5.3 (Homologação Beta 5)
         ├── 00_diagnostico/               # Inventário, defeitos da v6.0 e SHA256SUMS
         ├── docs/                         # ARQUITETURA_V8.md e critérios de aceitação
         ├── references/                   # 7 JSON Schemas, catálogos de motores/agentes e matriz RACI
@@ -43,7 +43,7 @@ Skills/
         │   ├── common/                   # Validador de schemas, estados, pontuação, manifesto e utilitários
         │   ├── engines/                  # 18 motores determinísticos (Fases 2 a 5)
         │   └── tools/                    # Gerador reproduzível de relatórios, cobertura e SHA256SUMS
-        ├── tests/                        # Suíte pytest (49 testes: unitários, negativos, adversariais e contratos)
+        ├── tests/                        # Suíte pytest (52 testes: unitários, negativos, adversariais e contratos)
         ├── versions/v6.0-legacy/         # Base legada congelada com SHA256SUMS
         ├── pytest.ini
         ├── requirements.txt
@@ -61,7 +61,7 @@ Skills/
 | **Fase 3 (`v8.0-beta.3`)** | Motores universais: dimensional, estatístico, geométrico, incerteza e integridade de dados | Concluída |
 | **Fase 4 (`v8.0-beta.4`)** | Linguagem, figuras + inventário visual, imagem forense e consistência cruzada | Concluída |
 | **Fase 5 (`v8.0-beta.5`)** | Ética, argumentação, evidência, temporal, nomenclatura, metadados, reprodutibilidade e qualitativo (tag histórica) | Concluída |
-| **Estabilização (`v8.0-beta.5.1` → `v8.0-beta.5.2`)** | Remediação completa da auditoria externa (`ACH-001` a `ACH-013`), 49 testes, cobertura `pytest-cov` e manifesto portável | Concluída |
+| **Estabilização (`v8.0-beta.5.1` → `v8.0-beta.5.3`)** | Remediação completa da auditoria externa (`ACH-001` a `ACH-017`), 52 testes (0 warnings), cobertura `pytest-cov`, venv limpo validado e manifesto portável | Concluída |
 | **Fase 6 (`v8.0-beta.6`)** | Perfis YAML multidisciplinares, `motor_normas` e motores especializados | Planejada |
 | **Fase 7 (`v8.0-beta.7`)** | Banca multiagente independente, Challenger, Adversarial e Adjudicador | Planejada |
 | **Fase 8 (`v8.0-beta.8`)** | `motor_integracao`, `motor_meta`, `orchestrator.py` e `SKILL.md` v8.0 | Planejada |
