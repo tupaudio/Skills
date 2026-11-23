@@ -40,6 +40,22 @@ def _detect_git_commit(cwd: Path | None = None) -> str | None:
     return None
 
 
+def _detect_git_dirty(cwd: Path | None = None) -> bool | None:
+    try:
+        proc = subprocess.run(
+            ["git", "status", "--porcelain"],
+            cwd=str(cwd) if cwd else None,
+            capture_output=True,
+            text=True,
+            timeout=3,
+        )
+        if proc.returncode == 0:
+            return bool(proc.stdout.strip())
+    except Exception:
+        pass
+    return None
+
+
 def _installed_packages(names: tuple[str, ...]) -> dict[str, str | None]:
     versions: dict[str, str | None] = {}
     for pkg in names:
@@ -60,16 +76,23 @@ def build_run_manifest(
     config: dict[str, Any] | None = None,
     seeds: dict[str, int] | None = None,
     limitations: list[str] | None = None,
+    self_excluded_files: list[str] | None = None,
     repo_root: str | Path | None = None,
 ) -> dict[str, Any]:
-    """Cria o manifesto determinístico de execução (run_manifest.json)."""
+    """Cria o manifesto determinístico de execução (run_manifest.json) com caminhos relativos portáveis (ACH-013)."""
+    root_path = (Path(repo_root) if repo_root else Path(__file__).resolve().parents[2]).resolve()
     file_records: list[dict[str, Any]] = []
     for item in inspected_files:
         p = Path(item)
         if p.exists() and p.is_file():
+            resolved = p.resolve()
+            try:
+                rel_path = resolved.relative_to(root_path).as_posix()
+            except ValueError:
+                rel_path = p.name
             file_records.append(
                 {
-                    "path": str(p.resolve()),
+                    "relative_path": rel_path,
                     "name": p.name,
                     "bytes": p.stat().st_size,
                     "sha256": sha256_file(p),
@@ -78,7 +101,7 @@ def build_run_manifest(
         else:
             file_records.append(
                 {
-                    "path": str(p),
+                    "relative_path": p.as_posix(),
                     "name": p.name,
                     "bytes": None,
                     "sha256": None,
@@ -86,7 +109,6 @@ def build_run_manifest(
                 }
             )
 
-    root_path = Path(repo_root) if repo_root else Path(__file__).resolve().parents[2]
     deps = _installed_packages(
         (
             "numpy",
@@ -112,6 +134,7 @@ def build_run_manifest(
         "engine_versions": dict(engine_versions or {}),
         "profile_versions": dict(profile_versions or {}),
         "git_commit": _detect_git_commit(root_path),
+        "git_dirty": _detect_git_dirty(root_path),
         "environment": {
             "python_version": sys.version.split()[0],
             "platform": platform.platform(),
@@ -119,6 +142,7 @@ def build_run_manifest(
         },
         "config": dict(config) if config is not None else {"status": "no_custom_config_used"},
         "seeds": dict(seeds) if seeds is not None else {"status": "no_stochastic_seed_used"},
+        "self_excluded_files": list(self_excluded_files or []),
         "inspected_files": file_records,
         "limitations": list(limitations or []),
     }

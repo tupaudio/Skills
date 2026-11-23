@@ -64,12 +64,15 @@ def main() -> None:
     smoke_lines.append(f"[OK] auditor.py CLI -> status={aud_out['status']}, pistas={len(aud_out['achados'])}, schema_motor.json=VALID")
     (rep_dir / "smoke_tests.txt").write_text("\n".join(smoke_lines) + "\n", encoding="utf-8")
 
-    # 3. run_manifest.json (detecta git_commit automaticamente se estiver em repo git!)
-    all_files = sorted(p for p in ROOT.rglob("*") if is_clean_file(p))
+    # 3. run_manifest.json (exclui a si mesmo para evitar autorreferência defasada — ACH-013)
+    manifest_rel = "relatorios_execucao/run_manifest.json"
+    all_files = sorted(
+        p for p in ROOT.rglob("*") if is_clean_file(p) and p.relative_to(ROOT).as_posix() != manifest_rel
+    )
     manifest = build_run_manifest(
-        "BETA5.1-HOMOLOGATION-2026-11-23",
+        "BETA5.2-HOMOLOGATION-2026-11-23",
         all_files,
-        skill_version="8.0.0-beta.5.1",
+        skill_version="8.0.0-beta.5.2",
         engine_versions={
             "auditor_estrutural": "8.0.0-beta.2",
             "motor_matematico": "8.0.0-beta.2",
@@ -85,7 +88,7 @@ def main() -> None:
             "motor_etica": "0.1.0-beta.5",
             "motor_argumentacao": "0.1.0-beta.5",
             "motor_evidencia": "0.1.0-beta.5",
-            "motor_temporal": "0.1.0-beta.5",
+            "motor_temporal": "0.2.0-beta.5.2",
             "motor_nomenclatura": "0.1.0-beta.5",
             "motor_metadados": "0.1.0-beta.5",
             "motor_reprodutibilidade": "0.1.0-beta.5",
@@ -93,6 +96,7 @@ def main() -> None:
         },
         config={"pytest_args": ["-v", "--cov=scripts", "--cov-report=term-missing"], "naive_timezone_policy": "strict"},
         seeds={"bootstrap_default": 42, "monte_carlo_default": 42},
+        self_excluded_files=[manifest_rel],
         limitations=[
             "SKILL.md da v8.0 será integrado na Fase 8 (v6.0-legacy/SKILL.md preservado em versions/v6.0-legacy/)."
         ],
@@ -100,12 +104,18 @@ def main() -> None:
     )
     save_run_manifest(manifest, rep_dir / "run_manifest.json")
 
-    # 4. SHA256SUMS na raiz (LF garantido)
+    # 4. SHA256SUMS na raiz (LF garantido) + verificação automática pós-geração (ACH-013)
     final_files = sorted(p for p in ROOT.rglob("*") if is_clean_file(p))
     sha_lines = [f"{hashlib.sha256(p.read_bytes()).hexdigest()}  {p.relative_to(ROOT).as_posix()}" for p in final_files]
-    (ROOT / "SHA256SUMS").write_text("\n".join(sha_lines) + "\n", encoding="utf-8", newline="\n")
+    sha_file = ROOT / "SHA256SUMS"
+    sha_file.write_text("\n".join(sha_lines) + "\n", encoding="utf-8", newline="\n")
 
-    print("AUDIT_REPORTS_OK | git_commit:", manifest.get("git_commit"), "| files:", len(final_files))
+    for line in sha_file.read_text(encoding="utf-8").splitlines():
+        expected, rel = line.split("  ", 1)
+        actual = hashlib.sha256((ROOT / rel).read_bytes()).hexdigest()
+        assert actual == expected, f"Divergência de hash pós-geração em {rel}"
+
+    print("AUDIT_REPORTS_OK | git_commit:", manifest.get("git_commit"), "| git_dirty:", manifest.get("git_dirty"), "| files:", len(final_files))
 
 
 if __name__ == "__main__":
