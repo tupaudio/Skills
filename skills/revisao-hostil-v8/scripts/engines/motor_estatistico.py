@@ -1,0 +1,468 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+"""
+Motor estatístico determinístico (Revisão Hostil v8.0-beta.3).
+
+Implementa:
+- Testes paramétricos (t independente/pareado, ANOVA one-way, Pearson) e não paramétricos (Mann-Whitney, Wilcoxon, Kruskal-Wallis, Spearman);
+- Intervalos de confiança e tamanhos de efeito (Cohen's d, Hedges' g, eta^2);
+- Equivalência / não inferioridade (TOST);
+- Comparações múltiplas (Bonferroni, Holm-Bonferroni, Benjamini-Hochberg FDR);
+- Bootstrap e teste de permutação com semente explícita;
+- Poder estatístico (aproximação analítica para duas médias);
+- Diagnóstico de pressupostos (Shapiro-Wilk, Levene);
+- Autocorrelação e dependência temporal (ACF lag-k, Durbin-Watson).
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+import math
+import sys
+from pathlib import Path
+from typing import Any
+
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8")
+
+_REPO_ROOT = Path(__file__).resolve().parents[2]
+if str(_REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(_REPO_ROOT))
+
+import numpy as np
+from scipy import stats
+
+from scripts.common import SCHEMA_VERSION
+from scripts.common.evidence import create_evidence, create_finding, utc_now_iso
+from scripts.common.validation import require_finite_array, require_finite_number, sanitize_for_json
+
+MOTOR_ID = "motor_estatistico"
+MOTOR_VERSION = "0.1.0-beta.3"
+
+
+def _cohens_d_independent(a: np.ndarray, b: np.ndarray) -> tuple[float, float]:
+    n1, n2 = len(a), len(b)
+    v1, v2 = np.var(a, ddof=1), np.var(b, ddof=1)
+    pooled = math.sqrt(((n1 - 1) * v1 + (n2 - 1) * v2) / (n1 + n2 - 2))
+    if pooled == 0.0:
+        return 0.0, 0.0
+    d = float((np.mean(a) - np.mean(b)) / pooled)
+    j = 1.0 - 3.0 / (4.0 * (n1 + n2 - 2) - 1.0) if (n1 + n2) > 3 else 1.0
+    return d, float(d * j)
+
+
+def t_test_independent(
+    sample_a: Any, sample_b: Any, *, equal_var: bool = False, alpha: float = 0.05, reported_p: float | None = None
+) -> dict[str, Any]:
+    a = require_finite_array(sample_a, name="sample_a", ndim=1)
+    b = require_finite_array(sample_b, name="sample_b", ndim=1)
+    if a.size < 2 or b.size < 2:
+        raise ValueError("Cada amostra deve ter pelo menos 2 observações.")
+
+    res = stats.ttest_ind(a, b, equal_var=equal_var)
+    d, g = _cohens_d_independent(a, b)
+    p_val = float(res.pvalue)
+    discrepancy = reported_p is not None and abs(p_val - require_finite_number(reported_p, "reported_p")) > 0.01
+    return {
+        "operation": "t_test_independent",
+        "welch": not equal_var,
+        "n_a": int(a.size),
+        "n_b": int(b.size),
+        "mean_a": float(np.mean(a)),
+        "mean_b": float(np.mean(b)),
+        "statistic": float(res.statistic),
+        "p_value": p_val,
+        "cohens_d": d,
+        "hedges_g": g,
+        "significant_at_alpha": bool(p_val < alpha),
+        "alpha": alpha,
+        "reported_p": reported_p,
+        "status": "discrepancy_detected" if discrepancy else "ok",
+    }
+
+
+def t_test_paired(sample_a: Any, sample_b: Any, *, alpha: float = 0.05, reported_p: float | None = None) -> dict[str, Any]:
+    a = require_finite_array(sample_a, name="sample_a", ndim=1)
+    b = require_finite_array(sample_b, name="sample_b", ndim=1)
+    if a.size != b.size or a.size < 2:
+        raise ValueError("Teste pareado exige duas amostras de mesmo tamanho (>= 2).")
+    diff = a - b
+    res = stats.ttest_rel(a, b)
+    sd = float(np.std(diff, ddof=1))
+    dz = float(np.mean(diff) / sd) if sd > 0 else 0.0
+    p_val = float(res.pvalue)
+    discrepancy = reported_p is not None and abs(p_val - require_finite_number(reported_p, "reported_p")) > 0.01
+    return {
+        "operation": "t_test_paired",
+        "n_pairs": int(a.size),
+        "mean_diff": float(np.mean(diff)),
+        "statistic": float(res.statistic),
+        "p_value": p_val,
+        "cohens_dz": dz,
+        "significant_at_alpha": bool(p_val < alpha),
+        "alpha": alpha,
+        "status": "discrepancy_detected" if discrepancy else "ok",
+    }
+
+
+def mann_whitney(sample_a: Any, sample_b: Any, *, alpha: float = 0.05) -> dict[str, Any]:
+    a = require_finite_array(sample_a, name="sample_a", ndim=1)
+    b = require_finite_array(sample_b, name="sample_b", ndim=1)
+    res = stats.mannwhitneyu(a, b, alternative="two-sided")
+    u = float(res.statistic)
+    r_rb = 1.0 - (2.0 * u) / (a.size * b.size)
+    return {
+        "operation": "mann_whitney",
+        "statistic_U": u,
+        "p_value": float(res.pvalue),
+        "rank_biserial_r": float(r_rb),
+        "significant_at_alpha": bool(res.pvalue < alpha),
+        "status": "ok",
+    }
+
+
+def anova_oneway(groups: list[Any], *, alpha: float = 0.05) -> dict[str, Any]:
+    if len(groups) < 2:
+        raise ValueError("ANOVA requer pelo menos 2 grupos.")
+    arrs = [require_finite_array(g, name=f"group_{i}", ndim=1) for i, g in enumerate(groups)]
+    if any(a.size < 2 for a in arrs):
+        raise ValueError("Cada grupo da ANOVA deve ter >= 2 observações.")
+    res = stats.f_oneway(*arrs)
+    all_vals = np.concatenate(arrs)
+    grand_mean = float(np.mean(all_vals))
+    ss_between = sum(len(a) * (float(np.mean(a)) - grand_mean) ** 2 for a in arrs)
+    ss_total = float(np.sum((all_vals - grand_mean) ** 2))
+    eta_sq = float(ss_between / ss_total) if ss_total > 0 else 0.0
+    return {
+        "operation": "anova_oneway",
+        "k_groups": len(arrs),
+        "F_statistic": float(res.statistic),
+        "p_value": float(res.pvalue),
+        "eta_squared": eta_sq,
+        "significant_at_alpha": bool(res.pvalue < alpha),
+        "status": "ok",
+    }
+
+
+def confidence_interval(sample: Any, *, confidence: float = 0.95) -> dict[str, Any]:
+    arr = require_finite_array(sample, name="sample", ndim=1)
+    if arr.size < 2:
+        raise ValueError("Intervalo de confiança requer >= 2 observações.")
+    if not (0.0 < confidence < 1.0):
+        raise ValueError("confidence deve estar estritamente entre 0 e 1.")
+    mean = float(np.mean(arr))
+    se = float(stats.sem(arr))
+    low, high = stats.t.interval(confidence, df=arr.size - 1, loc=mean, scale=se)
+    return {
+        "operation": "confidence_interval",
+        "n": int(arr.size),
+        "mean": mean,
+        "sem": se,
+        "confidence": confidence,
+        "lower": float(low),
+        "upper": float(high),
+        "status": "ok",
+    }
+
+
+def tost_equivalence(sample_a: Any, sample_b: Any, low_bound: float, high_bound: float, *, alpha: float = 0.05) -> dict[str, Any]:
+    """Two One-Sided Tests (TOST) para equivalência de duas amostras independentes (Welch)."""
+    a = require_finite_array(sample_a, name="sample_a", ndim=1)
+    b = require_finite_array(sample_b, name="sample_b", ndim=1)
+    lo = require_finite_number(low_bound, "low_bound")
+    hi = require_finite_number(high_bound, "high_bound")
+    if lo >= hi:
+        raise ValueError("low_bound deve ser menor que high_bound.")
+    diff = float(np.mean(a) - np.mean(b))
+    va, vb = float(np.var(a, ddof=1)), float(np.var(b, ddof=1))
+    na, nb = a.size, b.size
+    se = math.sqrt(va / na + vb / nb)
+    if se == 0.0:
+        raise ValueError("Erro padrão nulo; não é possível executar TOST.")
+    df = (va / na + vb / nb) ** 2 / ((va / na) ** 2 / (na - 1) + (vb / nb) ** 2 / (nb - 1))
+    t1 = (diff - lo) / se
+    t2 = (diff - hi) / se
+    p1 = float(1.0 - stats.t.cdf(t1, df))
+    p2 = float(stats.t.cdf(t2, df))
+    p_tost = max(p1, p2)
+    return {
+        "operation": "tost_equivalence",
+        "mean_diff": diff,
+        "bounds": [lo, hi],
+        "p_lower": p1,
+        "p_upper": p2,
+        "p_tost": p_tost,
+        "equivalent": bool(p_tost < alpha),
+        "alpha": alpha,
+        "status": "ok",
+    }
+
+
+def multiple_comparisons(p_values: Any, *, method: str = "holm", alpha: float = 0.05) -> dict[str, Any]:
+    ps = require_finite_array(p_values, name="p_values", ndim=1)
+    if np.any((ps < 0) | (ps > 1)):
+        raise ValueError("Todos os valores-p devem estar em [0, 1].")
+    m = ps.size
+    if method == "bonferroni":
+        adj = np.minimum(ps * m, 1.0)
+    elif method == "holm":
+        order = np.argsort(ps)
+        adj = np.empty(m, dtype=float)
+        running = 0.0
+        for rank, idx in enumerate(order):
+            val = min(1.0, ps[idx] * (m - rank))
+            running = max(running, val)
+            adj[idx] = running
+    elif method in ("bh", "fdr_bh"):
+        order = np.argsort(ps)[::-1]
+        adj = np.empty(m, dtype=float)
+        running = 1.0
+        for rev_rank, idx in enumerate(order):
+            rank = m - rev_rank
+            val = min(1.0, ps[idx] * m / rank)
+            running = min(running, val)
+            adj[idx] = running
+    else:
+        raise ValueError(f"Método de correção desconhecido: {method}")
+    return {
+        "operation": "multiple_comparisons",
+        "method": method,
+        "alpha": alpha,
+        "raw_p_values": ps.tolist(),
+        "adjusted_p_values": adj.tolist(),
+        "rejected": [bool(p < alpha) for p in adj],
+        "status": "ok",
+    }
+
+
+def bootstrap_ci(sample: Any, *, n_resamples: int = 2000, confidence: float = 0.95, seed: int = 42) -> dict[str, Any]:
+    arr = require_finite_array(sample, name="sample", ndim=1)
+    if arr.size < 2:
+        raise ValueError("Bootstrap requer >= 2 observações.")
+    rng = np.random.default_rng(seed)
+    idx = rng.integers(0, arr.size, size=(n_resamples, arr.size))
+    means = np.mean(arr[idx], axis=1)
+    alpha = 1.0 - confidence
+    low, high = np.percentile(means, [100 * alpha / 2, 100 * (1 - alpha / 2)])
+    return {
+        "operation": "bootstrap_ci",
+        "n": int(arr.size),
+        "n_resamples": n_resamples,
+        "seed": seed,
+        "observed_mean": float(np.mean(arr)),
+        "ci_lower": float(low),
+        "ci_upper": float(high),
+        "status": "ok",
+    }
+
+
+def permutation_test(sample_a: Any, sample_b: Any, *, n_permutations: int = 2000, seed: int = 42) -> dict[str, Any]:
+    a = require_finite_array(sample_a, name="sample_a", ndim=1)
+    b = require_finite_array(sample_b, name="sample_b", ndim=1)
+    obs = abs(float(np.mean(a) - np.mean(b)))
+    combined = np.concatenate([a, b])
+    na = a.size
+    rng = np.random.default_rng(seed)
+    exceed = 0
+    for _ in range(n_permutations):
+        perm = rng.permutation(combined)
+        if abs(float(np.mean(perm[:na]) - np.mean(perm[na:]))) >= obs:
+            exceed += 1
+    p_val = (exceed + 1) / (n_permutations + 1)
+    return {
+        "operation": "permutation_test",
+        "observed_abs_diff": obs,
+        "n_permutations": n_permutations,
+        "seed": seed,
+        "p_value": float(p_val),
+        "status": "ok",
+    }
+
+
+def statistical_power_two_means(effect_size_d: float, n_per_group: int, *, alpha: float = 0.05) -> dict[str, Any]:
+    d = abs(require_finite_number(effect_size_d, "effect_size_d"))
+    if n_per_group < 2:
+        raise ValueError("n_per_group deve ser >= 2.")
+    z_alpha = float(stats.norm.ppf(1.0 - alpha / 2.0))
+    ncp = d * math.sqrt(n_per_group / 2.0)
+    power = float(1.0 - stats.norm.cdf(z_alpha - ncp) + stats.norm.cdf(-z_alpha - ncp))
+    return {
+        "operation": "statistical_power",
+        "effect_size_d": d,
+        "n_per_group": n_per_group,
+        "alpha": alpha,
+        "power": power,
+        "adequate_80pct": bool(power >= 0.80),
+        "status": "ok",
+    }
+
+
+def assumptions_check(groups: list[Any], *, alpha: float = 0.05) -> dict[str, Any]:
+    arrs = [require_finite_array(g, name=f"group_{i}", ndim=1) for i, g in enumerate(groups)]
+    normality = []
+    for idx, a in enumerate(arrs):
+        if a.size < 3:
+            normality.append({"group": idx, "n": int(a.size), "shapiro_p": None, "normal_at_alpha": None})
+        else:
+            _, p = stats.shapiro(a)
+            normality.append({"group": idx, "n": int(a.size), "shapiro_p": float(p), "normal_at_alpha": bool(p >= alpha)})
+    levene_res = None
+    if len(arrs) >= 2 and all(a.size >= 2 for a in arrs):
+        stat, p_lev = stats.levene(*arrs)
+        levene_res = {"statistic": float(stat), "p_value": float(p_lev), "equal_variance_at_alpha": bool(p_lev >= alpha)}
+    return {
+        "operation": "assumptions_check",
+        "alpha": alpha,
+        "normality": normality,
+        "levene_homogeneity": levene_res,
+        "status": "ok",
+    }
+
+
+def autocorrelation_check(series: Any, *, max_lag: int = 5) -> dict[str, Any]:
+    arr = require_finite_array(series, name="series", ndim=1)
+    n = arr.size
+    if n < 4:
+        raise ValueError("Série temporal requer >= 4 pontos para autocorrelação.")
+    centered = arr - np.mean(arr)
+    denom = float(np.dot(centered, centered))
+    lags: dict[str, float] = {}
+    for k in range(1, min(max_lag, n - 1) + 1):
+        lags[str(k)] = float(np.dot(centered[:-k], centered[k:]) / denom) if denom > 0 else 0.0
+    diff_sq = float(np.sum(np.diff(arr) ** 2))
+    dw = float(diff_sq / denom) if denom > 0 else 2.0
+    return {
+        "operation": "autocorrelation",
+        "n": int(n),
+        "acf": lags,
+        "durbin_watson": dw,
+        "status": "ok",
+    }
+
+
+def execute_single_operation(request: dict[str, Any]) -> dict[str, Any]:
+    op = request.get("operation")
+    if op == "t_test_independent":
+        return t_test_independent(
+            request["sample_a"],
+            request["sample_b"],
+            equal_var=request.get("equal_var", False),
+            alpha=request.get("alpha", 0.05),
+            reported_p=request.get("reported_p"),
+        )
+    if op == "t_test_paired":
+        return t_test_paired(
+            request["sample_a"], request["sample_b"], alpha=request.get("alpha", 0.05), reported_p=request.get("reported_p")
+        )
+    if op == "mann_whitney":
+        return mann_whitney(request["sample_a"], request["sample_b"], alpha=request.get("alpha", 0.05))
+    if op == "anova_oneway":
+        return anova_oneway(request["groups"], alpha=request.get("alpha", 0.05))
+    if op == "confidence_interval":
+        return confidence_interval(request["sample"], confidence=request.get("confidence", 0.95))
+    if op == "tost_equivalence":
+        return tost_equivalence(
+            request["sample_a"], request["sample_b"], request["low_bound"], request["high_bound"], alpha=request.get("alpha", 0.05)
+        )
+    if op == "multiple_comparisons":
+        return multiple_comparisons(request["p_values"], method=request.get("method", "holm"), alpha=request.get("alpha", 0.05))
+    if op == "bootstrap_ci":
+        return bootstrap_ci(
+            request["sample"], n_resamples=request.get("n_resamples", 2000), confidence=request.get("confidence", 0.95), seed=request.get("seed", 42)
+        )
+    if op == "permutation_test":
+        return permutation_test(
+            request["sample_a"], request["sample_b"], n_permutations=request.get("n_permutations", 2000), seed=request.get("seed", 42)
+        )
+    if op == "statistical_power":
+        return statistical_power_two_means(request["effect_size_d"], request["n_per_group"], alpha=request.get("alpha", 0.05))
+    if op == "assumptions_check":
+        return assumptions_check(request["groups"], alpha=request.get("alpha", 0.05))
+    if op == "autocorrelation":
+        return autocorrelation_check(request["series"], max_lag=request.get("max_lag", 5))
+    raise ValueError(f"Operação estatística desconhecida: {op}")
+
+
+def run_motor(payload: Any, *, run_id: str | None = None, artefato_alvo: str | None = None) -> dict[str, Any]:
+    inner = payload["payload"] if isinstance(payload, dict) and "payload" in payload and "motor_id" in payload else payload
+    items = inner.get("operations", []) if isinstance(inner, dict) and inner.get("operation") == "batch" else (inner if isinstance(inner, list) else [inner])
+
+    results: list[dict[str, Any]] = []
+    achados: list[dict[str, Any]] = []
+    for idx, item in enumerate(items, start=1):
+        op_id = str(item.get("id") or f"EST_{idx:03d}")
+        try:
+            res = execute_single_operation(item)
+            res["id"] = op_id
+            res["success"] = True
+            results.append(res)
+            if res.get("status") == "discrepancy_detected":
+                ev = create_evidence(
+                    f"EV-EST-{idx:03d}",
+                    "numerica",
+                    artefato_alvo or "payload_inline",
+                    op_id,
+                    f"p_calculado={res.get('p_value')} vs p_reportado={res.get('reported_p')}",
+                    valor_observado=res.get("reported_p"),
+                    valor_calculado=res.get("p_value"),
+                    motor_origem=MOTOR_ID,
+                )
+                achados.append(
+                    create_finding(
+                        f"ACH-EST-{idx:03d}",
+                        f"Discrepância estatística em {op_id}",
+                        "discrepancia_estatistica",
+                        "MAIOR",
+                        "ALTA",
+                        op_id,
+                        "Valor-p recalculado diverge do valor reportado no manuscrito.",
+                        [ev],
+                        estado="CONFIRMADO",
+                        portao="G04",
+                        origem_componente=MOTOR_ID,
+                    )
+                )
+        except Exception as err:
+            results.append({"id": op_id, "operation": item.get("operation"), "success": False, "status": "error", "error": str(err)})
+
+    failed = sum(1 for r in results if not r.get("success"))
+    status = "ERRO_VALIDACAO" if failed == len(results) else ("PARCIAL" if failed > 0 else ("COM_ACHADOS" if achados else "OK"))
+    return sanitize_for_json(
+        {
+            "schema_version": SCHEMA_VERSION,
+            "motor_id": MOTOR_ID,
+            "motor_version": MOTOR_VERSION,
+            "run_id": run_id,
+            "deterministico": True,
+            "status": status,
+            "timestamp": utc_now_iso(),
+            "artefato_alvo": artefato_alvo,
+            "hash_artefato": None,
+            "metricas": {"total_operacoes": len(results), "sucesso": len(results) - failed, "falhas": failed, "total_achados": len(achados)},
+            "resultados": {"results": results},
+            "achados": achados,
+            "limitacoes": [
+                "O motor executa cálculos estatísticos determinísticos; a adequação causal e científica do desenho cabe ao auditor_estatistico."
+            ],
+        }
+    )
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description="Motor estatístico determinístico (Revisão Hostil v8.0-beta.3).")
+    parser.add_argument("--input", "-i")
+    parser.add_argument("--out", "-o")
+    args = parser.parse_args()
+    req = json.loads(Path(args.input).read_text(encoding="utf-8")) if args.input else json.load(sys.stdin)
+    out = run_motor(req, artefato_alvo=args.input or "stdin")
+    text = json.dumps(out, ensure_ascii=False, indent=2, allow_nan=False)
+    if args.out:
+        Path(args.out).write_text(text, encoding="utf-8")
+    else:
+        print(text)
+
+
+if __name__ == "__main__":
+    main()

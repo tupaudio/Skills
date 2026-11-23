@@ -1,0 +1,72 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://revisao-hostil.v8/schemas/schema_relatorio_final.json",
+  "title": "RelatorioFinalAuditoria",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "versao_skill",
+    "run_id",
+    "timestamp",
+    "artefato_alvo",
+    "hash_artefato",
+    "pontuacao",
+    "resumo_executivo",
+    "achados",
+    "iteracoes",
+    "decisao_final"
+  ],
+  "properties": {
+    "schema_version": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$" },
+    "versao_skill": { "type": "string", "minLength": 1 },
+    "run_id": { "type": "string", "minLength": 1 },
+    "profile_id": { "type": ["string", "null"] },
+    "timestamp": { "type": "string" },
+    "artefato_alvo": { "type": "string", "minLength": 1 },
+    "hash_artefato": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "pontuacao": {
+      "type": "object",
+      "required": ["nota_global_0_10", "notas_por_eixo"],
+      "properties": {
+        "nota_global_0_10": { "type": "number", "minimum": 0, "maximum": 10 },
+        "nota_global_0_100": { "type": ["number", "null"], "minimum": 0, "maximum": 100 },
+        "notas_por_eixo": {
+          "type": "object",
+          "additionalProperties": { "type": "number", "minimum": 0, "maximum": 10 }
+        }
+      }
+    },
+    "resumo_executivo": {
+      "type": "object",
+      "required": ["total_achados", "criticos_abertos", "maiores_abertos", "nao_verificados_criticos"],
+      "properties": {
+        "total_achados": { "type": "integer", "minimum": 0 },
+        "criticos_abertos": { "type": "integer", "minimum": 0 },
+        "maiores_abertos": { "type": "integer", "minimum": 0 },
+        "nao_verificados_criticos": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "achados": {
+      "type": "array",
+      "items": { "$ref": "schema_achado.json" }
+    },
+    "iteracoes": {
+      "type": "array",
+      "items": { "$ref": "schema_iteracao.json" }
+    },
+    "decisao_final": {
+      "type": "string",
+      "enum": [
+        "APROVADO_CONGELADO",
+        "REVISAO_LEVE_RECOMENDADA",
+        "REVISAO_PONTUAL_RECOMENDADA",
+        "REVISAO_SUBSTANCIAL_RECOMENDADA",
+        "BLOQUEADO"
+      ]
+    },
+    "limitacoes": {
+      "type": "array",
+      "items": { "type": "string" }
+    }
+  }
+}

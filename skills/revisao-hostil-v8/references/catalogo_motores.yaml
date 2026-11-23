@@ -1,0 +1,518 @@
+# Catálogo Oficial de Motores — Revisão Hostil v8.0 (v8.0-beta.1)
+schema_version: "1.0.0"
+updated_at: "2026-11-23"
+
+motores:
+  # =========================================================================
+  # FASE 2 — CORE / LEGADO ESTABILIZADO
+  # =========================================================================
+  - id: motor_matematico
+    versao: "8.0.0-beta.2"
+    categoria: cientifico_universal
+    fase_alvo: beta.2
+    status: implementado_beta2
+    responsabilidade:
+      - substituicao_numerica_zero_trust
+      - comparacao_simbolica_formulas
+      - calculo_diferencial_integral
+      - sistemas_lineares_e_matrizes
+      - edos_ivp_bvp_simbolicas
+      - balanco_energetico_e_ahp
+    entradas:
+      - payload_operacoes_json
+      - tolerancias
+    saidas:
+      - resultados
+      - achados
+      - limitacoes
+    dependencias:
+      - numpy
+      - scipy
+      - sympy
+    deterministico: true
+    perfil_obrigatorio: false
+
+  # =========================================================================
+  # FASE 3 — MOTORES CIENTÍFICOS UNIVERSAIS
+  # =========================================================================
+  - id: motor_dimensional
+    versao: "0.1.0-beta.3"
+    categoria: cientifico_universal
+    fase_alvo: beta.3
+    status: implementado_beta3
+    responsabilidade:
+      - homogeneidade_dimensional
+      - conversao_unidades_compostas
+      - temperatura_absoluta_vs_diferenca
+      - potencia_vs_energia
+    entradas:
+      - expressoes_com_unidades
+      - tabelas_quantitativas
+    saidas:
+      - resultados
+      - achados
+      - limitacoes
+    dependencias: []
+    deterministico: true
+    perfil_obrigatorio: false
+
+  - id: motor_estatistico
+    versao: "0.1.0-beta.3"
+    categoria: cientifico_universal
+    fase_alvo: beta.3
+    status: implementado_beta3
+    responsabilidade:
+      - testes_parametricos_e_nao_parametricos
+      - intervalos_de_confianca_e_tamanho_efeito
+      - comparacoes_multiplas_bootstrap_permutacao
+      - poder_estatistico_e_pressupostos
+      - autocorrelacao_e_dependencia_temporal
+    entradas:
+      - dados_amostrais
+      - desenho_teste
+      - nivel_significancia
+    saidas:
+      - resultados
+      - achados
+      - limitacoes
+    dependencias:
+      - numpy
+      - scipy
+    deterministico: true
+    perfil_obrigatorio: false
+
+  - id: motor_geometrico
+    versao: "0.1.0-beta.3"
+    categoria: cientifico_universal
+    fase_alvo: beta.3
+    status: implementado_beta3
+    responsabilidade:
+      - geometria_plana_e_3d
+      - areas_volumes_superficies
+      - intersecoes_e_tolerancias_geometricas
+      - fatores_de_forma_radiativos
+      - analise_de_malhas
+    entradas:
+      - geometria
+      - unidades
+      - tolerancias
+    saidas:
+      - resultados
+      - achados
+      - limitacoes
+    dependencias:
+      - numpy
+    deterministico: true
+    perfil_obrigatorio: false
+
+  - id: motor_incerteza
+    versao: "0.1.0-beta.3"
+    categoria: cientifico_universal
+    fase_alvo: beta.3
+    status: implementado_beta3
+    responsabilidade:
+      - propagacao_incertezas_sensibilidade
+      - simulacao_monte_carlo
+      - incertezas_correlacionadas_e_pior_caso
+      - separacao_aleatoria_vs_sistematica
+    entradas:
+      - modelo_matematico
+      - distribuicoes_parametros
+      - semente_aleatoria
+    saidas:
+      - resultados
+      - achados
+      - limitacoes
+    dependencias:
+      - numpy
+      - sympy
+    deterministico: true
+    perfil_obrigatorio: false
+
+  - id: motor_dados
+    versao: "0.1.0-beta.3"
+    categoria: cientifico_universal
+    fase_alvo: beta.3
+    status: implementado_beta3
+    responsabilidade:
+      - dados_faltantes_duplicacoes_invalidos
+      - outliers_e_distribuicoes_empiricas
+      - triagem_vazamento_dados_ml
+      - integridade_treino_validacao_teste
+    entradas:
+      - tabelas_ou_datasets
+      - metadados_amostragem
+    saidas:
+      - resultados
+      - achados
+      - limitacoes
+    dependencias:
+      - numpy
+    deterministico: true
+    perfil_obrigatorio: false
+    restricoes_metodologicas:
+      - "Não declarar MAR/MNAR apenas por observação de valores ausentes."
+      - "Não declarar p-hacking ou fraude apenas por distribuição suspeita de valores-p."
+
+  # =========================================================================
+  # FASE 4 — TEXTO, FIGURAS, IMAGENS E CONSISTÊNCIA CRUZADA
+  # =========================================================================
+  - id: motor_linguagem
+    versao: "0.1.0-beta.4"
+    categoria: texto_e_visual
+    fase_alvo: beta.4
+    status: implementado_beta4
+    responsabilidade:
+      - clareza_coesao_ambiguidade_redundancia
+      - densidade_jargoes_e_definicao_siglas
+      - consistencia_terminologica_e_precisao_epistemica
+    entradas:
+      - texto_estruturado
+      - glossario_perfil
+    saidas:
+      - resultados
+      - achados
+      - limitacoes
+    dependencias: []
+    deterministico: true
+    perfil_obrigatorio: false
+
+  - id: motor_figuras
+    versao: "0.1.0-beta.4"
+    categoria: texto_e_visual
+    fase_alvo: beta.4
+    status: implementado_beta4
+    responsabilidade:
+      - resolucao_dpi_dimensoes_proporcao
+      - legibilidade_eixos_unidades_legendas_contraste
+      - inventario_objetos_visuais
+    entradas:
+      - imagens_e_pdfs_figuras
+      - legendas_extraidas
+    saidas:
+      - resultados
+      - achados
+      - limitacoes
+    dependencias:
+      - Pillow
+      - numpy
+    deterministico: true
+    perfil_obrigatorio: false
+
+  - id: motor_imagem_forense
+    versao: "0.1.0-beta.4"
+    categoria: texto_e_visual
+    fase_alvo: beta.4
+    status: implementado_beta4
+    responsabilidade:
+      - metadados_exif_e_historico_compressao
+      - triagem_anomalias_edicao_imagem
+    entradas:
+      - arquivos_imagem
+    saidas:
+      - resultados
+      - achados
+      - limitacoes
+    dependencias:
+      - Pillow
+      - numpy
+    deterministico: true
+    perfil_obrigatorio: false
+    restricoes_metodologicas:
+      - "Nunca classificar imagem como adulterada apenas por diferença de compressão ou ausência de metadados."
+
+  - id: motor_consistencia_cruzada
+    versao: "0.1.0-beta.4"
+    categoria: texto_e_visual
+    fase_alvo: beta.4
+    status: implementado_beta4
+    responsabilidade:
+      - grafo_proveniencia_texto_tabela_figura_codigo
+      - comparacao_valores_com_tolerancia_arredondamento
+      - rastreamento_divergencias_efeito_domino
+    entradas:
+      - inventario_objetos
+      - saidas_motores
+      - texto_e_tabelas
+    saidas:
+      - grafo_proveniencia
+      - achados
+      - limitacoes
+    dependencias:
+      - numpy
+    deterministico: true
+    perfil_obrigatorio: false
+
+  # =========================================================================
+  # FASE 5 — INTEGRIDADE CIENTÍFICA E METODOLOGIA
+  # =========================================================================
+  - id: motor_etica
+    versao: "0.1.0-beta.5"
+    categoria: integridade_cientifica
+    fase_alvo: beta.5
+    status: implementado_beta5
+    responsabilidade:
+      - triagem_declaracoes_cep_irb_consentimento
+      - conflito_interesse_financiamento_autoria
+      - triagem_similaridade_e_anonimato
+    entradas:
+      - texto_estruturado
+      - metadados_arquivo
+    saidas:
+      - resultados
+      - achados
+      - limitacoes
+    dependencias: []
+    deterministico: true
+    perfil_obrigatorio: false
+    restricoes_metodologicas:
+      - "Similaridade textual não equivale a plágio comprovado."
+      - "Presença de número de protocolo CEP/IRB não certifica conformidade ética ou legal."
+
+  - id: motor_argumentacao
+    versao: "0.1.0-beta.5"
+    categoria: integridade_cientifica
+    fase_alvo: beta.5
+    status: implementado_beta5
+    responsabilidade:
+      - extracao_alegacoes_premissas_conclusoes
+      - sinalizacao_candidatos_contradicao_circularidade
+    entradas:
+      - texto_estruturado
+    saidas:
+      - mapa_argumentativo
+      - achados
+      - limitacoes
+    dependencias: []
+    deterministico: true
+    perfil_obrigatorio: false
+    restricoes_metodologicas:
+      - "Apresenta candidatos estruturados para avaliação dos auditores; não classifica falácias de forma definitiva."
+
+  - id: motor_evidencia
+    versao: "0.1.0-beta.5"
+    categoria: integridade_cientifica
+    fase_alvo: beta.5
+    status: implementado_beta5
+    responsabilidade:
+      - classificacao_evidencia_por_framework_perfil
+      - suporte_grade_oxford_cebm_prisma_e_disciplinas
+    entradas:
+      - desenho_estudo
+      - framework_evidencia_perfil
+    saidas:
+      - resultados
+      - achados
+      - limitacoes
+    dependencias: []
+    deterministico: true
+    perfil_obrigatorio: true
+
+  - id: motor_temporal
+    versao: "0.1.0-beta.5"
+    categoria: integridade_cientifica
+    fase_alvo: beta.5
+    status: implementado_beta5
+    responsabilidade:
+      - cronologias_datas_periodos_experimentais
+      - antecedencia_e_consistencia_cronograma
+      - verificacao_janelas_vigencia
+    entradas:
+      - texto_estruturado
+      - referencias_e_normas
+    saidas:
+      - linha_do_tempo
+      - achados
+      - limitacoes
+    dependencias: []
+    deterministico: true
+    perfil_obrigatorio: false
+
+  - id: motor_nomenclatura
+    versao: "0.1.0-beta.5"
+    categoria: integridade_cientifica
+    fase_alvo: beta.5
+    status: implementado_beta5
+    responsabilidade:
+      - glossario_siglas_simbolos_variaveis
+      - deteccao_termos_com_significados_divergentes
+    entradas:
+      - texto_estruturado
+      - vocabulario_perfil
+    saidas:
+      - resultados
+      - achados
+      - limitacoes
+    dependencias: []
+    deterministico: true
+    perfil_obrigatorio: false
+
+  - id: motor_metadados
+    versao: "0.1.0-beta.5"
+    categoria: integridade_cientifica
+    fase_alvo: beta.5
+    status: implementado_beta5
+    responsabilidade:
+      - integridade_pacote_hashes_arquivos
+      - auditoria_metadados_internos_anonimato
+    entradas:
+      - pacote_arquivos
+    saidas:
+      - inventario_hashes
+      - achados
+      - limitacoes
+    dependencias: []
+    deterministico: true
+    perfil_obrigatorio: false
+
+  - id: motor_reprodutibilidade
+    versao: "0.1.0-beta.5"
+    categoria: integridade_cientifica
+    fase_alvo: beta.5
+    status: implementado_beta5
+    responsabilidade:
+      - checagem_dados_scripts_sementes_ambiente
+      - deteccao_parametros_orfaos_numeros_magicos
+    entradas:
+      - pacote_arquivos
+      - manifesto_execucao
+    saidas:
+      - resultados
+      - achados
+      - limitacoes
+    dependencias: []
+    deterministico: true
+    perfil_obrigatorio: false
+
+  - id: motor_qualitativo
+    versao: "0.1.0-beta.5"
+    categoria: especializado_perfil
+    fase_alvo: beta.5
+    status: implementado_beta5
+    responsabilidade:
+      - estrutura_codificacao_triangulacao
+      - kappa_cohen_e_alpha_krippendorff
+      - registro_evidencias_saturacao_e_member_checking
+    entradas:
+      - matriz_codificacao
+      - metadados_qualitativos
+    saidas:
+      - resultados
+      - achados
+      - limitacoes
+    dependencias:
+      - numpy
+    deterministico: true
+    perfil_obrigatorio: true
+    restricoes_metodologicas:
+      - "Calcula métricas de concordância; não determina sozinho saturação teórica."
+
+  # =========================================================================
+  # FASE 6 — NORMAS E MOTORES ESPECIALIZADOS POR DOMÍNIO
+  # =========================================================================
+  - id: motor_normas
+    versao: "0.1.0"
+    categoria: normativo
+    fase_alvo: beta.6
+    status: planejado
+    responsabilidade:
+      - verificacao_normas_versionadas_por_jurisdicao
+      - checagem_vigencia_revogacao_e_excecoes
+    entradas:
+      - citacoes_normativas
+      - catalogo_normas_oficiais
+      - data_referencia
+    saidas:
+      - resultados
+      - achados
+      - limitacoes
+    dependencias:
+      - pyyaml
+    deterministico: true
+    perfil_obrigatorio: true
+    restricoes_metodologicas:
+      - "Se versão vigente ou aplicabilidade não puder ser confirmada, retornar NAO_VERIFICADO."
+
+  - id: motor_risco
+    versao: "0.1.0"
+    categoria: especializado_perfil
+    fase_alvo: beta.6
+    status: planejado
+    responsabilidade:
+      - matrizes_risco_severidade_probabilidade
+      - verificacao_limites_exposicao_e_ergonomia
+    entradas:
+      - dados_risco
+      - perfil_seguranca_trabalho
+    saidas:
+      - resultados
+      - achados
+      - limitacoes
+    dependencias:
+      - numpy
+    deterministico: true
+    perfil_obrigatorio: true
+
+  - id: motor_estetico
+    versao: "0.1.0"
+    categoria: especializado_perfil
+    fase_alvo: beta.6
+    status: planejado
+    responsabilidade:
+      - analise_composicional_e_estetica_para_perfil_artes
+    entradas:
+      - obras_e_imagens
+      - perfil_artes
+    saidas:
+      - resultados
+      - achados
+      - limitacoes
+    dependencias:
+      - Pillow
+    deterministico: true
+    perfil_obrigatorio: true
+
+  # =========================================================================
+  # FASE 8 — INTEGRAÇÃO E METAAUDITORIA
+  # =========================================================================
+  - id: motor_integracao
+    versao: "0.1.0"
+    categoria: integracao_metaauditoria
+    fase_alvo: beta.8
+    status: planejado
+    responsabilidade:
+      - validacao_schemas_todos_motores
+      - deteccao_duplicidades_e_evidencias_incompativeis
+      - sinalizacao_conflitos_entre_motores
+    entradas:
+      - saidas_motores_json
+      - run_manifest
+    saidas:
+      - consolidado_motores
+      - conflitos
+      - achados
+    dependencias:
+      - jsonschema
+    deterministico: true
+    perfil_obrigatorio: false
+
+  - id: motor_meta
+    versao: "0.1.0"
+    categoria: integracao_metaauditoria
+    fase_alvo: beta.8
+    status: planejado
+    responsabilidade:
+      - auditoria_execucao_motores_e_portoes
+      - verificacao_desaparecimento_achados
+      - verificacao_redundancia_e_criterio_parada
+    entradas:
+      - run_manifest
+      - saidas_motores_e_agentes
+      - historico_iteracoes
+    saidas:
+      - relatorio_metaauditoria
+      - achados_processo
+    dependencias:
+      - jsonschema
+    deterministico: true
+    perfil_obrigatorio: false

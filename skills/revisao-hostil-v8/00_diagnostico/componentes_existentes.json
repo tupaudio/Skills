@@ -1,0 +1,39 @@
+{
+  "schema_version": "1.0.0",
+  "classification_legend": [
+    "aproveitavel",
+    "corrigivel",
+    "substituivel",
+    "descartavel"
+  ],
+  "components": [
+    {
+      "id": "legacy_skill_md",
+      "path": "versions/v6.0-legacy/SKILL.md",
+      "category": "orquestrador_metodologico",
+      "classification": "substituivel",
+      "rationale": "Filosofia (Zero-Trust Numerical Plug-In, 9 Princípios, 10 Portões) é altamente aproveitável conceitualmente, mas o arquivo v6.0 acopla caminhos absolutos Windows, mistura protocolo com regras específicas de engenharia espacial e não segue a separação v8.0 de perfis/motores/subagentes."
+    },
+    {
+      "id": "legacy_auditor_py",
+      "path": "versions/v6.0-legacy/scripts/auditor.py",
+      "category": "auditor_extracao_triagem",
+      "classification": "corrigivel",
+      "rationale": "Boa base de extração estruturada para TXT/MD/TEX/DOCX/PDF (incluindo forense OMML e core_properties em DOCX), mas requer refatoração na Fase 2: corrigir bug da regex de 100%, desacoplar regras específicas de domínio para perfis YAML, padronizar saída por schema JSON e adicionar testes unitários."
+    },
+    {
+      "id": "legacy_motor_matematico_py",
+      "path": "versions/v6.0-legacy/scripts/motor_matematico.py",
+      "category": "motor_deterministico",
+      "classification": "corrigivel",
+      "rationale": "Boa fundação com SafeExpressionParser (AST sem eval) e 13 operações + batch. Contudo, apresenta defeitos comprovados em testes (crash em matriz NaN, complexos silenciados no plug_in, oo não reconhecido como infinito em integrate, parâmetro interval não usado em ode_bvp, colisão do símbolo 'e' e inconsistência valid/success no AHP). Deve ser estabilizado e testado na Fase 2."
+    },
+    {
+      "id": "legacy_pycache",
+      "path": "C:/Users/dafnh/.gemini/config/skills/revisao-hostil/scripts/__pycache__",
+      "category": "artefato_compilacao",
+      "classification": "descartavel",
+      "rationale": "Bytecode gerado automaticamente pelo Python 3.14; não deve ser versionado nem empacotado."
+    }
+  ]
+}

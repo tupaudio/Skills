@@ -1,0 +1,21 @@
+=== ORIGEM REAL (v6.0 instalada globalmente) ===
+C:\Users\dafnh\.gemini\config\skills\revisao-hostil\
+├── SKILL.md                          (23.433 bytes, 291 linhas, v6.0)
+└── scripts\
+    ├── __pycache__\
+    │   └── auditor.cpython-314.pyc
+    ├── auditor.py                    (19.172 bytes, 455 linhas)
+    └── motor_matematico.py           (30.245 bytes, 813 linhas)
+
+=== CONGELAMENTO IMUTÁVEL NO REPOSITÓRIO v8.0 ===
+c:\ZZ - Antigravity\revisao-hostil-v8\
+├── 00_diagnostico\
+└── versions\
+    └── v6.0-legacy\
+        ├── SHA256SUMS
+        ├── SKILL.md
+        └── scripts\
+            ├── auditor.py
+            └── motor_matematico.py
+
+Nota: Não existem diretórios agents/, workflows/, profiles/, tests/ ou versão v7.1 implementada.

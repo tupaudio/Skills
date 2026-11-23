@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://revisao-hostil.v8/schemas/schema_motor.json",
+  "title": "SaidaMotor",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "motor_id",
+    "motor_version",
+    "deterministico",
+    "status",
+    "timestamp",
+    "resultados",
+    "achados",
+    "limitacoes"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "motor_id": {
+      "type": "string",
+      "minLength": 2
+    },
+    "motor_version": {
+      "type": "string",
+      "minLength": 1
+    },
+    "run_id": {
+      "type": ["string", "null"]
+    },
+    "deterministico": {
+      "type": "boolean"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["OK", "COM_ACHADOS", "PARCIAL", "ERRO_VALIDACAO", "ERRO_EXECUCAO"]
+    },
+    "timestamp": {
+      "type": "string"
+    },
+    "artefato_alvo": {
+      "type": ["string", "null"]
+    },
+    "hash_artefato": {
+      "type": ["string", "null"]
+    },
+    "metricas": {
+      "type": "object"
+    },
+    "resultados": {
+      "type": ["object", "array"]
+    },
+    "achados": {
+      "type": "array",
+      "items": {
+        "$ref": "schema_achado.json"
+      }
+    },
+    "limitacoes": {
+      "type": "array",
+      "items": { "type": "string" }
+    }
+  }
+}

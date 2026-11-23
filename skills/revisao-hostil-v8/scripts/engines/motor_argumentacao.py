@@ -1,0 +1,163 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+"""
+Motor de estruturação argumentativa (Revisão Hostil v8.0-beta.5).
+
+Extrai e organiza (Passo 5.2):
+- Alegações centrais, premissas, evidências, inferências e conclusões;
+- Candidatos a argumentos sem sustentação, circularidade e generalização indevida.
+
+RESTRIÇÃO OBRIGATÓRIA: não é classificador definitivo de falácias (`is_definitive_fallacy_classifier: False`);
+apenas gera candidatos estruturados para avaliação pelos auditores.
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+import re
+import sys
+from pathlib import Path
+from typing import Any
+
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8")
+
+_REPO_ROOT = Path(__file__).resolve().parents[2]
+if str(_REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(_REPO_ROOT))
+
+from scripts.common import SCHEMA_VERSION
+from scripts.common.evidence import create_evidence, create_finding, utc_now_iso
+from scripts.common.validation import sanitize_for_json
+
+MOTOR_ID = "motor_argumentacao"
+MOTOR_VERSION = "0.1.0-beta.5"
+
+OVERGENERALIZATION_RE = re.compile(
+    r"\b(todos\s+os\s+casos|em\s+qualquer\s+cen[áa]rio|universalmente|sem\s+exce[çc][ãa]o|always\s+holds|in\s+all\s+cases)\b",
+    re.IGNORECASE,
+)
+
+
+def audit_argument_map(arguments: list[dict[str, Any]]) -> dict[str, Any]:
+    """Audita uma lista estruturada de argumentos: {id, claim, premises, evidence, conclusion}."""
+    if not isinstance(arguments, list) or not arguments:
+        raise ValueError("arguments deve ser uma lista não vazia.")
+
+    candidates: list[dict[str, Any]] = []
+    for arg in arguments:
+        aid = str(arg.get("id") or "ARG")
+        claim = str(arg.get("claim", "")).strip()
+        premises = [str(p).strip() for p in (arg.get("premises") or []) if str(p).strip()]
+        evidence = [str(e).strip() for e in (arg.get("evidence") or []) if str(e).strip()]
+        conclusion = str(arg.get("conclusion", "")).strip()
+
+        if not evidence:
+            candidates.append({"argument_id": aid, "candidate_type": "unsupported_claim", "detail": f"Alegação '{claim[:100]}' sem evidência vinculada."})
+        if not premises:
+            candidates.append({"argument_id": aid, "candidate_type": "missing_premises", "detail": f"Argumento '{aid}' sem premissas explícitas."})
+
+        # Circularidade candidata: conclusão quase idêntica a uma premissa
+        c_tokens = set(re.findall(r"\b\w{4,}\b", conclusion.lower()))
+        if c_tokens:
+            for prem in premises:
+                p_tokens = set(re.findall(r"\b\w{4,}\b", prem.lower()))
+                if p_tokens:
+                    overlap = len(c_tokens & p_tokens) / max(1, len(c_tokens | p_tokens))
+                    if overlap >= 0.80:
+                        candidates.append(
+                            {
+                                "argument_id": aid,
+                                "candidate_type": "possible_circularity",
+                                "detail": f"Alta sobreposição lexical ({overlap:.2f}) entre premissa e conclusão.",
+                            }
+                        )
+                        break
+
+        if OVERGENERALIZATION_RE.search(claim) or OVERGENERALIZATION_RE.search(conclusion):
+            candidates.append(
+                {
+                    "argument_id": aid,
+                    "candidate_type": "possible_overgeneralization",
+                    "detail": "Linguagem de generalização universal detectada; verificar escopo da evidência.",
+                }
+            )
+
+    return {
+        "operation": "audit_argument_map",
+        "arguments_analyzed": len(arguments),
+        "candidate_issues": candidates,
+        "is_definitive_fallacy_classifier": False,
+        "status": "discrepancy_detected" if candidates else "ok",
+    }
+
+
+def run_motor(payload: Any, *, run_id: str | None = None, artefato_alvo: str | None = None) -> dict[str, Any]:
+    inner = payload["payload"] if isinstance(payload, dict) and "payload" in payload and "motor_id" in payload else payload
+    res = audit_argument_map(inner["arguments"])
+
+    achados: list[dict[str, Any]] = []
+    for idx, cand in enumerate(res["candidate_issues"], start=1):
+        ev = create_evidence(
+            f"EV-ARG-{idx:03d}",
+            "textual",
+            artefato_alvo or "mapa_argumentativo",
+            cand["argument_id"],
+            cand["detail"],
+            motor_origem=MOTOR_ID,
+        )
+        achados.append(
+            create_finding(
+                f"ACH-ARG-{idx:03d}",
+                f"Candidato argumentativo ({cand['candidate_type']}) em {cand['argument_id']}",
+                f"argumentacao_{cand['candidate_type']}",
+                "MODERADO",
+                "TRIAGEM",
+                cand["argument_id"],
+                cand["detail"],
+                [ev],
+                estado="ABERTO",
+                portao="G01",
+                origem_componente=MOTOR_ID,
+            )
+        )
+
+    return sanitize_for_json(
+        {
+            "schema_version": SCHEMA_VERSION,
+            "motor_id": MOTOR_ID,
+            "motor_version": MOTOR_VERSION,
+            "run_id": run_id,
+            "deterministico": True,
+            "status": "COM_ACHADOS" if achados else "OK",
+            "timestamp": utc_now_iso(),
+            "artefato_alvo": artefato_alvo,
+            "hash_artefato": None,
+            "metricas": {"argumentos": res["arguments_analyzed"], "candidatos": len(achados)},
+            "resultados": res,
+            "achados": achados,
+            "limitacoes": [
+                "O motor não classifica falácias de forma definitiva; os candidatos exigem julgamento do auditor_metodologia ou auditor_adversarial."
+            ],
+        }
+    )
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description="Motor de argumentação (Revisão Hostil v8.0-beta.5).")
+    parser.add_argument("--input", "-i")
+    parser.add_argument("--out", "-o")
+    args = parser.parse_args()
+    req = json.loads(Path(args.input).read_text(encoding="utf-8")) if args.input else json.load(sys.stdin)
+    out = run_motor(req, artefato_alvo=args.input or "stdin")
+    text = json.dumps(out, ensure_ascii=False, indent=2, allow_nan=False)
+    if args.out:
+        Path(args.out).write_text(text, encoding="utf-8")
+    else:
+        print(text)
+
+
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,95 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://revisao-hostil.v8/schemas/schema_achado.json",
+  "title": "Achado",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "titulo",
+    "categoria",
+    "gravidade",
+    "confianca",
+    "estado",
+    "localizacao",
+    "descricao",
+    "evidencias"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^ACH-[A-Z0-9_-]+$"
+    },
+    "titulo": {
+      "type": "string",
+      "minLength": 3
+    },
+    "categoria": {
+      "type": "string",
+      "minLength": 2
+    },
+    "portao": {
+      "type": ["string", "null"]
+    },
+    "gravidade": {
+      "type": "string",
+      "enum": ["CRITICO", "MAIOR", "MODERADO", "MENOR", "INFORMATIVO"]
+    },
+    "confianca": {
+      "type": "string",
+      "enum": ["ALTA", "MEDIA", "BAIXA", "TRIAGEM"]
+    },
+    "estado": {
+      "type": "string",
+      "enum": [
+        "ABERTO",
+        "EM_ANALISE",
+        "CONFIRMADO",
+        "NAO_VERIFICADO",
+        "PATCH_PROPOSTO",
+        "PATCH_APROVADO",
+        "PATCH_APLICADO",
+        "FECHADO",
+        "REJEITADO",
+        "FORA_DE_ESCOPO"
+      ]
+    },
+    "localizacao": {
+      "type": "string",
+      "minLength": 1
+    },
+    "descricao": {
+      "type": "string",
+      "minLength": 3
+    },
+    "impacto": {
+      "type": ["string", "null"]
+    },
+    "acao_recomendada": {
+      "type": ["string", "null"]
+    },
+    "origem_componente": {
+      "type": ["string", "null"]
+    },
+    "evidencias": {
+      "type": "array",
+      "items": {
+        "$ref": "schema_evidencia.json"
+      }
+    },
+    "historico_estados": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["de", "para", "motivo", "timestamp"],
+        "properties": {
+          "de": { "type": ["string", "null"] },
+          "para": { "type": "string" },
+          "motivo": { "type": "string" },
+          "reauditado": { "type": "boolean" },
+          "timestamp": { "type": "string" }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,214 @@
+# Catálogo Oficial de Agentes — Revisão Hostil v8.0 (v8.0-beta.1)
+schema_version: "1.0.0"
+updated_at: "2026-11-23"
+
+protocolo_independencia:
+  contexto_isolado: true
+  consulta_cruzada_primeira_rodada: false
+  preservar_json_individual: true
+  resolucao_conflitos: "exclusivamente_por_evidencia"
+
+agentes:
+  # =========================================================================
+  # AGENTES-BASE (8)
+  # =========================================================================
+  - id: auditor_dominio
+    grupo: base
+    fase_alvo: beta.7
+    status: planejado
+    ativacao: sempre
+    responsabilidade: "Validade científica e técnica do domínio, carregando o perfil YAML adequado."
+    entradas_permitidas:
+      - artefato_alvo
+      - perfil_dominio
+      - saidas_motores_pertinentes
+    contrato_saida: schema_agente.json
+
+  - id: auditor_engenharia
+    grupo: base
+    fase_alvo: beta.7
+    status: planejado
+    ativacao: perfil_ou_conteudo
+    responsabilidade: "Aplicabilidade, ordens de grandeza, termos omitidos e viabilidade prática/operacional."
+    entradas_permitidas:
+      - artefato_alvo
+      - saidas_motores_quantitativos
+    contrato_saida: schema_agente.json
+
+  - id: auditor_metodologia
+    grupo: base
+    fase_alvo: beta.7
+    status: planejado
+    ativacao: sempre
+    responsabilidade: "Desenho de pesquisa, hipóteses, comparadores/baselines e validade metodológica."
+    entradas_permitidas:
+      - artefato_alvo
+      - saidas_motor_evidencia_e_argumentacao
+    contrato_saida: schema_agente.json
+
+  - id: auditor_clareza
+    grupo: base
+    fase_alvo: beta.7
+    status: planejado
+    ativacao: sempre
+    responsabilidade: "Linguagem científica, precisão epistêmica, progressão argumentativa e clareza."
+    entradas_permitidas:
+      - artefato_alvo
+      - saidas_motor_linguagem_e_nomenclatura
+    contrato_saida: schema_agente.json
+
+  - id: auditor_visual
+    grupo: base
+    fase_alvo: beta.7
+    status: planejado
+    ativacao: conteudo_visual_detectado
+    responsabilidade: "Inspeção real de figuras, diagramas e tabelas frente às afirmações do texto."
+    entradas_permitidas:
+      - artefato_alvo
+      - inventario_objetos_visuais
+      - saidas_motor_figuras_e_consistencia
+    contrato_saida: schema_agente.json
+
+  - id: auditor_editorial
+    grupo: base
+    fase_alvo: beta.7
+    status: planejado
+    ativacao: sempre
+    responsabilidade: "Normas editoriais, template, bijeção bibliográfica 1:1 e anonimato Double-Blind."
+    entradas_permitidas:
+      - artefato_alvo
+      - saidas_auditor_e_motor_metadados
+    contrato_saida: schema_agente.json
+
+  - id: auditor_reprodutibilidade
+    grupo: base
+    fase_alvo: beta.7
+    status: planejado
+    ativacao: sempre
+    responsabilidade: "Integridade do pacote, rastreabilidade de dados/código e caça a números mágicos."
+    entradas_permitidas:
+      - artefato_alvo
+      - saidas_motor_reprodutibilidade_e_consistencia
+    contrato_saida: schema_agente.json
+
+  - id: auditor_challenger
+    grupo: base
+    fase_alvo: beta.7
+    status: planejado
+    ativacao: sempre
+    responsabilidade: "Questionamento interno implacável de método, premissas, cálculos e contradições existentes."
+    fronteira_critica: "Distinto de auditor_adversarial: foca falhas internas do trabalho entregue."
+    entradas_permitidas:
+      - artefato_alvo
+      - saidas_motores_pertinentes
+    contrato_saida: schema_agente.json
+
+  # =========================================================================
+  # AGENTES TRANSVERSAIS ESPECIALIZADOS (5)
+  # =========================================================================
+  - id: auditor_etico
+    grupo: transversal
+    fase_alvo: beta.7
+    status: planejado
+    ativacao: "condicional: humanos, animais, dados sensíveis ou alerta de integridade"
+    responsabilidade: "Julgamento ético especializado sobre consentimento, CEP/IRB, privacidade e integridade."
+    entradas_permitidas:
+      - artefato_alvo
+      - saidas_motor_etica
+    contrato_saida: schema_agente.json
+
+  - id: auditor_dados
+    grupo: transversal
+    fase_alvo: beta.7
+    status: planejado
+    ativacao: "condicional: campanhas experimentais, datasets ou ML"
+    responsabilidade: "Exame da integridade da coleta, viés de seleção, particionamento e vazamento de dados."
+    entradas_permitidas:
+      - artefato_alvo
+      - saidas_motor_dados
+    contrato_saida: schema_agente.json
+
+  - id: auditor_estatistico
+    grupo: transversal
+    fase_alvo: beta.7
+    status: planejado
+    ativacao: "condicional: inferência estatística relevante"
+    responsabilidade: "Julgamento de pressupostos estatísticos, adequação dos testes e interpretação dos resultados."
+    entradas_permitidas:
+      - artefato_alvo
+      - saidas_motor_estatistico
+    contrato_saida: schema_agente.json
+
+  - id: auditor_empirico
+    grupo: transversal
+    fase_alvo: beta.7
+    status: planejado
+    ativacao: "condicional: pesquisas empíricas complexas ou experimentais"
+    responsabilidade: "Avaliação de protocolo experimental, instrumentação, controles e validade externa."
+    entradas_permitidas:
+      - artefato_alvo
+      - saidas_motores_incerteza_e_dados
+    contrato_saida: schema_agente.json
+
+  - id: auditor_adversarial
+    grupo: transversal
+    fase_alvo: beta.7
+    status: planejado
+    ativacao: "condicional: refutação da tese central ou pré-defesa/submissão crítica"
+    responsabilidade: "Construir o contra-argumento mais forte possível contra a tese central e delimitar onde ela deixa de valer."
+    fronteira_critica: "Distinto de auditor_challenger: não lista erros pontuais, ataca a validade da tese central."
+    entradas_permitidas:
+      - artefato_alvo
+      - saidas_motor_argumentacao_e_evidencia
+    contrato_saida: schema_agente.json
+
+  # =========================================================================
+  # AGENTES DE RACIOCÍNIO ESPECIALIZADO (2)
+  # =========================================================================
+  - id: auditor_juridico
+    grupo: raciocinio_especializado
+    fase_alvo: beta.7
+    status: planejado
+    ativacao: "condicional: perfil jurídico ou normativo"
+    responsabilidade: "Raciocínio normativo, hierarquia de fontes, subsunção, precedentes e vigência."
+    entradas_permitidas:
+      - artefato_alvo
+      - saidas_motor_normas_e_temporal
+    contrato_saida: schema_agente.json
+
+  - id: auditor_artistico
+    grupo: raciocinio_especializado
+    fase_alvo: beta.7
+    status: planejado
+    ativacao: "condicional: perfil artes ou objeto estético/hermenêutico"
+    responsabilidade: "Interpretação estética, análise hermenêutica e contextualização histórica."
+    entradas_permitidas:
+      - artefato_alvo
+      - saidas_motor_estetico
+    contrato_saida: schema_agente.json
+
+  # =========================================================================
+  # CONSOLIDAÇÃO E METAAUDITORIA (2)
+  # =========================================================================
+  - id: auditor_adjudicador
+    grupo: consolidacao
+    fase_alvo: beta.7
+    status: planejado
+    ativacao: "sempre após conclusão de todos os agentes da banca"
+    responsabilidade: "Consolidar duplicidades, separar erro comprovado de divergência interpretativa, reclassificar severidade e resolver conflitos exclusivamente por evidência."
+    entradas_permitidas:
+      - artefato_alvo
+      - todos_os_relatorios_agentes_json
+      - consolidado_motores_json
+    contrato_saida: schema_relatorio_final.json
+
+  - id: auditor_meta
+    grupo: metaauditoria
+    fase_alvo: beta.8
+    status: planejado
+    ativacao: "sempre no fechamento da campanha"
+    responsabilidade: "Complementar motor_meta.py avaliando a profundidade científica dos pareceres e eventuais pontos cegos da própria auditoria."
+    entradas_permitidas:
+      - relatorio_metaauditoria_json
+      - relatorio_adjudicado_json
+    contrato_saida: schema_agente.json
