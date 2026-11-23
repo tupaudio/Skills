@@ -91,9 +91,9 @@ Não significa que a informação tenha sido medida, documentada ou verificada i
 
 Resultado de uma medição experimental ou instrumental efetivamente realizada.
 
-Quando uma medição instrumental com instrumento e condições identificadas for explicitamente relatada pelo usuário, classificar o valor como: **MEDIDO (relatado pelo usuário; verificação independente e rastreabilidade metrológica não confirmadas).**
+Quando o usuário declarar explicitamente que realizou ou obteve uma medição instrumental, classificar o valor como: **MEDIDO (relatado pelo usuário; verificação independente e rastreabilidade metrológica não confirmadas).**
 
-O relato de que a medição ocorreu permanece uma informação FORNECIDA quanto à sua origem. Entretanto, o valor informado deve ser classificado como MEDIDO quando o usuário declarar explicitamente que realizou ou obteve aquela medição. Não afirmar que a medição foi testemunhada, auditada, reproduzida ou verificada independentemente sem evidência correspondente.
+O relato de que a medição ocorreu permanece uma informação FORNECIDA quanto à sua origem. A ausência de modelo do instrumento, método ou condições operacionais gera lacunas documentais a serem registradas, mas não rebaixa o dado para FORNECIDO nem comprova rastreabilidade metrológica. Não afirmar que a medição foi testemunhada, auditada, reproduzida ou verificada independentemente sem evidência correspondente.
 
 Quando disponíveis, registrar:
 

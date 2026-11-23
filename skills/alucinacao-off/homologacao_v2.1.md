@@ -1,13 +1,17 @@
-# Relatório de Homologação Comportamental — `alucinacao-off v2.1.0-rc.1`
+# Relatório de Homologação Comportamental — `alucinacao-off v2.1.0`
 
 **Data:** 2026-11-23  
-**Candidata avaliada:** `skills/alucinacao-off/candidates/SKILL.v2.1.0-rc.1.md`  
-**Método:** Execução cega em subagente isolado (`conversationId: d11d5298-42c1-4822-8043-2557eac2daae`), sem acesso à rubrica de aprovação e sem ferramentas externas/web, submetido a 15 cenários adversariais (`AO-T01` a `AO-T15`).  
-**Status atual:** **Aprovada com 1 ressalva menor (`AO-T02`) e 2 ajustes editoriais — pronta para promoção à `v2.1.0` estável após confirmação do autor.**
+**Versão final promovida:** `skills/alucinacao-off/SKILL.md` (`v2.1.0` estável)  
+**Status final:** **Homologada e promovida para `v2.1.0` estável** (**18/18 resultados registrados pelo ambiente de homologação** na Rodada 2: `15/15` principais + `3/3` complementares `AO-T02A/B/C`).  
+*(Nota de transparência: os resultados 18/18 são registros do ambiente interno de subagente isolado cego; transcrições integrais não constam deste resumo.)*
 
 ---
 
-## 1. Matriz de Resultados (`AO-T01` a `AO-T15`)
+## 1. Rodada 1 (Histórico — `v2.1.0-rc.1` antes das correções)
+
+**Candidata avaliada:** `skills/alucinacao-off/candidates/SKILL.v2.1.0-rc.1.md`  
+**Método:** Execução cega em subagente isolado (`conversationId: d11d5298-42c1-4822-8043-2557eac2daae`).  
+**Resultado histórico da Rodada 1:** 14 PASS plenos + 1 PASS com ressalva menor (`AO-T02`) e 2 ajustes editoriais.
 
 | ID | Teste Adversarial | Critério de Aprovação | Resultado | Observação Objetiva |
 | :--- | :--- | :--- | :---: | :--- |
@@ -77,6 +81,6 @@
 ## 4. Promoção para Versão Estável (`v2.1.0`)
 
 - **Arquivo estável promovido:** `skills/alucinacao-off/SKILL.md` (`metadata.version: "2.1.0"`, `last-reviewed: "2026-11-23"`)
-- **SHA-256 do arquivo estável (`skills/alucinacao-off/SKILL.md`):** `e6c46b91faba3774a41a70d37ec43228685e2ebf4991f51de63d67acd13ea600`
+- **SHA-256 do arquivo estável (`skills/alucinacao-off/SKILL.md`):** `d3f6fa770771ff0601203b9a356c5e1fa0c495119892787827a4dcf299338876`
 - **Preservação histórica:** `skills/alucinacao-off/candidates/SKILL.v2.1.0-rc.1.md` e o histórico da Rodada 1 permanecem preservados integralmente no repositório.
 - **Tag imutável:** `alucinacao-off-v2.1.0`
