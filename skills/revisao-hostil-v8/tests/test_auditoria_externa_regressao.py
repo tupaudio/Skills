@@ -238,3 +238,107 @@ def test_geometric_and_data_extended_coverage() -> None:
     assert 6 in out_iqr["iqr_outlier_indices"]
     svr_bad = motor_dados.sample_vs_reported([10, 20, 30], {"mean": 99.0, "n": 3})
     assert svr_bad["status"] == "discrepancy_detected"
+
+
+def test_ach011_two_naive_two_utc_and_different_timezones() -> None:
+    # 1. Dois horários naive -> comparáveis entre si sem atribuir UTC
+    r_naive = motor_temporal.check_chronology(
+        {"a": "2025-05-01T08:00:00", "b": "2025-05-01T10:00:00"},
+        [["a", "b"]],
+    )
+    assert r_naive["status"] == "ok"
+    assert r_naive["chronological_order_verified"] is True
+    assert [e["event"] for e in r_naive["timeline_verified"]] == ["a", "b"]
+    assert all(e["has_timezone"] is False for e in r_naive["timeline_verified"])
+
+    # 2. Dois horários UTC
+    r_utc = motor_temporal.check_chronology(
+        {"b": "2025-05-01T12:00:00Z", "a": "2025-05-01T09:00:00Z"},
+        [["a", "b"]],
+    )
+    assert r_utc["status"] == "ok"
+    assert [e["event"] for e in r_utc["timeline_verified"]] == ["a", "b"]
+
+    # 3. Dois horários com fusos diferentes: 10:00-03:00 (=13:00Z) ocorre APÓS 14:00+02:00 (=12:00Z)
+    r_tz = motor_temporal.check_chronology(
+        {"sp": "2025-05-01T10:00:00-03:00", "berlim": "2025-05-01T14:00:00+02:00"},
+        [],
+    )
+    assert r_tz["status"] == "ok"
+    assert [e["event"] for e in r_tz["timeline_verified"]] == ["berlim", "sp"]
+
+
+def test_ach011_ambiguous_without_and_with_precedence_rules_no_fake_order() -> None:
+    # 4 & 5. Mistura naive + UTC SEM regras de precedência -> NÃO pode retornar ok nem inventar ordem factual!
+    r_no_rules = motor_temporal.run_motor(
+        {
+            "events": {"ev_utc": "2025-05-01T12:00:00Z", "ev_naive": "2025-05-01T10:00:00"},
+            "precedence_rules": [],
+        }
+    )
+    validate_contract(r_no_rules, "schema_motor.json")
+    res = r_no_rules["resultados"]
+    assert res["status"] == "unverified"
+    assert res["chronological_order_verified"] is False
+    assert res["timeline_verified"] == []
+    # Preserva estritamente a ordem de entrada em timeline_ambiguous (ev_utc antes de ev_naive!)
+    assert [e["event"] for e in res["timeline_ambiguous"]] == ["ev_utc", "ev_naive"]
+    assert r_no_rules["achados"][0]["estado"] == "NAO_VERIFICADO"
+
+    # 6. Mistura ambígua COM regra de precedência
+    r_with_rules = motor_temporal.check_chronology(
+        {"ev_naive": "2025-05-01T10:00:00", "ev_utc": "2025-05-01T12:00:00Z"},
+        [["ev_naive", "ev_utc"]],
+    )
+    assert r_with_rules["status"] == "unverified"
+    assert r_with_rules["chronological_order_verified"] is False
+    assert len(r_with_rules["ambiguities"]) == 1
+
+
+def test_ach011_over_26h_and_mixed_day_vs_datetime() -> None:
+    # 7. Naive e UTC separados por > 26 horas -> ordenação verificável!
+    r_far = motor_temporal.check_chronology(
+        {"ev_naive": "2025-05-01T10:00:00", "ev_utc": "2025-05-03T12:00:00Z"},
+        [["ev_naive", "ev_utc"]],
+    )
+    assert r_far["status"] == "ok"
+    assert r_far["chronological_order_verified"] is True
+    assert [e["event"] for e in r_far["timeline_verified"]] == ["ev_naive", "ev_utc"]
+
+    # 8. Data diária misturada com data+hora no MESMO dia -> ambíguo (hora do evento diário é desconhecida)
+    r_same_day = motor_temporal.check_chronology(
+        {"dia": "2025-05-01", "hora": "2025-05-01T14:00:00"},
+        [],
+    )
+    assert r_same_day["status"] == "unverified"
+    assert r_same_day["chronological_order_verified"] is False
+
+    # Data diária e data+hora em dias bem separados -> verificável
+    r_diff_day = motor_temporal.check_chronology(
+        {"dia": "2025-05-01", "hora": "2025-05-05T14:00:00Z"},
+        [["dia", "hora"]],
+    )
+    assert r_diff_day["status"] == "ok"
+    assert r_diff_day["chronological_order_verified"] is True
+
+
+def test_ach013_manifest_relative_paths_self_exclusion_and_git_dirty(tmp_path) -> None:
+    from scripts.common.provenance import build_run_manifest
+
+    sub = tmp_path / "scripts"
+    sub.mkdir()
+    f = sub / "sample.py"
+    f.write_text("x = 1\n", encoding="utf-8")
+
+    m = build_run_manifest(
+        "RUN-ACH013",
+        [f],
+        self_excluded_files=["relatorios_execucao/run_manifest.json"],
+        repo_root=tmp_path,
+    )
+    rec = m["inspected_files"][0]
+    assert rec["relative_path"] == "scripts/sample.py"
+    assert "path" not in rec
+    assert "C:" not in rec["relative_path"] and "\\" not in rec["relative_path"]
+    assert "relatorios_execucao/run_manifest.json" in m["self_excluded_files"]
+    assert "git_dirty" in m

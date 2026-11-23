@@ -68,11 +68,17 @@ def t_test_independent(
     if a.size < 2 or b.size < 2:
         raise ValueError("Cada amostra deve ter pelo menos 2 observações.")
 
-    res = stats.ttest_ind(a, b, equal_var=equal_var)
     d, g, eff_note = _cohens_d_independent(a, b)
-    stat_val = float(res.statistic)
-    p_val = float(res.pvalue)
-    finite_test = math.isfinite(stat_val) and math.isfinite(p_val)
+    va, vb = float(np.var(a, ddof=1)), float(np.var(b, ddof=1))
+    if va == 0.0 and vb == 0.0:
+        stat_val = float("nan")
+        p_val = float("nan")
+        finite_test = False
+    else:
+        res = stats.ttest_ind(a, b, equal_var=equal_var)
+        stat_val = float(res.statistic)
+        p_val = float(res.pvalue)
+        finite_test = math.isfinite(stat_val) and math.isfinite(p_val)
     discrepancy = (
         finite_test
         and reported_p is not None
