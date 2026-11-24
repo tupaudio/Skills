@@ -61,7 +61,7 @@ REPORT_ARTIFACTS_REL = [
     "relatorios_execucao/coverage_report.txt",
     "relatorios_execucao/smoke_tests.txt",
     "relatorios_execucao/run_manifest.json",
-    "relatorios_execucao/homologacao_v8.0-beta.6.4.md",
+    "relatorios_execucao/homologacao_v8.0-beta.6.5.md",
     "SHA256SUMS",
 ]
 
@@ -114,16 +114,18 @@ def _render_homologation_report(
         for p in profile_records
     )
 
-    return f"""# Relatório Técnico de Execução e Pré-Homologação — Revisão Hostil `v8.0-beta.6.4`
+    return f"""# Relatório Técnico de Execução e Pré-Homologação — Revisão Hostil `v8.0-beta.6.5`
+
+RUN_ID={run_id}
 
 > **Fonte única de verdade (`run_id`):** `{run_id}`  
-> **Gerado programaticamente** a partir da mesma execução que produziu `pytest_verbose.txt`, `coverage_report.txt`, `smoke_tests.txt` e `run_manifest.json` (todos marcados internamente com `run_id` e verificados por `validate_run_consistency()`).
+> **Gerado programaticamente** a partir da mesma execução que produziu `pytest_verbose.txt`, `coverage_report.txt`, `smoke_tests.txt` e `run_manifest.json` (todos marcados com cabeçalho `RUN_ID={run_id}` e verificados por `validate_artifact_run_id()` + `build_expected_checksum_inventory()` + `validate_run_consistency()`).
 
 ## 1. Objetivo da manutenção
-Manutenção corretiva direcionada sobre `v8.0-beta.6.3` para encerrar `ACH-B6.3-001` (propagação e verificação efetiva do `run_id` dentro do conteúdo de todos os artefatos obrigatórios) e `ACH-B6.3-002` (verificação integral de completude, duplicatas, entradas inesperadas e integridade em `SHA256SUMS`), preservando intacta a tag `v8.0-beta.6.3` e sem iniciar a Fase 7.
+Consolidação integral da Ordem de Serviço de `ACH-B6.3-001` e `ACH-B6.3-002` (preservando imutáveis as tags `v8.0-beta.6.3` e `v8.0-beta.6.4`): formato explícito `RUN_ID=` nos cabeçalhos, função reutilizável `validate_artifact_run_id()` (com rejeição de múltiplos `run_id` conflitantes), função `build_expected_checksum_inventory()` independente de `SHA256SUMS` (varredura controlada da raiz com exclusões explícitas e bloqueio de travessia/symlinks) e suíte dedicada `tests/test_beta6_4_provenance_integrity.py`.
 
 ## 2. Commit-base e identificação Git
-- **Tag-base preservada:** `v8.0-beta.6.3` (`67efd041c359301dcaf4eedfad891daf731ecf8d`)
+- **Tags-base preservadas:** `v8.0-beta.6.3` (`67efd041c359301dcaf4eedfad891daf731ecf8d`) e `v8.0-beta.6.4` (`9ba2045ee0ef33f80047bf5357641a92e3208777`)
 - **Branch de execução:** `{runtime_env.get('git_branch')}`
 - **Commit de código auditado (`audited_code_commit`):** `{audited_code_commit}`
 - **Início (UTC):** `{timestamp_start_utc}`
@@ -131,20 +133,17 @@ Manutenção corretiva direcionada sobre `v8.0-beta.6.3` para encerrar `ACH-B6.3
 
 ## 3. Achados tratados, 4. Causa-raiz e 5. Correção implementada
 
-### ACH-B6.3-001 (P2) — Propagação e verificação efetiva do `run_id` em todos os artefatos
-- **Causa-raiz:** `pytest_verbose.txt` e `coverage_report.txt` não continham o `run_id` no conteúdo do arquivo, e `validate_run_consistency()` verificava apenas o metadado `art["run_id"]` no manifesto.
-- **Correção:** Inserido cabeçalho `# run_id={run_id}` em `pytest_verbose.txt`, `coverage_report.txt` e `smoke_tests.txt` (além da presença em `homologacao_v8.0-beta.6.4.md`), e endurecido `validate_run_consistency()` em `scripts/common/provenance.py` para inspecionar o conteúdo real de cada artefato em disco e rejeitar ausência ou divergência de `run_id`.
+### ACH-B6.3-001 (P2) — `RUN_ID=` propagado e validado dentro do conteúdo dos artefatos
+- **Correção:** Cabeçalho explícito `RUN_ID={run_id}` gravado em `pytest_verbose.txt` (preservando log bruto mesmo em caso de falha), `coverage_report.txt`, `smoke_tests.txt` e neste relatório; função reutilizável `validate_artifact_run_id(artifact_path, expected_run_id)` em `scripts/common/provenance.py` chamada por `validate_run_consistency()`, rejeitando ausência, divergência ou múltiplos `run_id` conflitantes mesmo após atualização maliciosa de SHA-256.
 
-### ACH-B6.3-002 (P2) — Completude e integridade estrita de `SHA256SUMS`
-- **Causa-raiz:** `validate_run_consistency()` recalculava apenas as linhas presentes em `SHA256SUMS`, sem verificar se algum arquivo esperado do inventário havia sido omitido ou se havia entradas duplicadas/inesperadas/malformadas.
-- **Correção:** `validate_run_consistency()` agora constrói o conjunto esperado a partir de `inspected_files + self_excluded_files + artifacts` (excluindo `SHA256SUMS`), rejeitando arquivos omitidos, entradas duplicadas, arquivos inesperados, caminhos inválidos, hashes malformados e auto-inclusão.
+### ACH-B6.3-002 (P2) — Inventário esperado independente e segurança de caminhos no `SHA256SUMS`
+- **Correção:** Função `build_expected_checksum_inventory(manifest, root_dir)` em `scripts/common/provenance.py` construindo o conjunto esperado diretamente da árvore controlada + artefatos obrigatórios (excluindo explicitamente `SHA256SUMS`, caches e temporários), e `validate_run_consistency()` comparando `expected_files == checksummed_files` com rejeição de omissões, duplicatas (mesmo com separadores distintos), caminhos absolutos, `../`, symlinks fora da raiz e hashes malformados.
 
 ## 6. Arquivos alterados na manutenção
 - `skills/revisao-hostil-v8/scripts/common/provenance.py`
-- `skills/revisao-hostil-v8/scripts/common/dependencies.py`
 - `skills/revisao-hostil-v8/scripts/tools/generate_audit_reports.py`
-- `skills/revisao-hostil-v8/tests/test_beta6_3_requirements_provenance.py`
-- `skills/revisao-hostil-v8/relatorios_execucao/{{pytest_verbose.txt,coverage_report.txt,smoke_tests.txt,run_manifest.json,homologacao_v8.0-beta.6.4.md}}`
+- `skills/revisao-hostil-v8/tests/test_beta6_4_provenance_integrity.py` (novo)
+- `skills/revisao-hostil-v8/relatorios_execucao/{{pytest_verbose.txt,coverage_report.txt,smoke_tests.txt,run_manifest.json,homologacao_v8.0-beta.6.5.md}}`
 - `skills/revisao-hostil-v8/SHA256SUMS` e `README.md`
 
 ## 7. Testes criados, 8. Executados e 9. Resultado integral do pytest
@@ -196,12 +195,12 @@ Manutenção corretiva direcionada sobre `v8.0-beta.6.3` para encerrar `ACH-B6.3
 
 ## 18. Commit auditado e 19. Commit de publicação dos artefatos
 - **Commit auditado:** `{audited_code_commit}`
-- **Commit de publicação dos artefatos:** criado imediatamente após esta geração como descendente direto de `{audited_code_commit}`, com tag anotada `v8.0-beta.6.4`.
+- **Commit de publicação dos artefatos:** criado imediatamente após esta geração como descendente direto de `{audited_code_commit}`, com tag anotada `v8.0-beta.6.5`.
 
 ## 20. Limitações conhecidas
 - `motor_integracao`, `motor_meta`, `orchestrator.py` e `SKILL.md` da v8.0 permanecem planejados para a Fase 8.
 - Banca multiagente (`Challenger`, `Adversarial`, `Adjudicador`) permanece bloqueada na Fase 7 até reauditoria independente.
-- Resultados aqui registrados correspondem à execução local em ambiente virtual limpo (`venv_b64`), não substituindo a reauditoria externa independente.
+- Resultados aqui registrados correspondem à execução local em ambiente virtual limpo (`venv_b65`), não substituindo a reauditoria externa independente.
 
 ## 21. Decisão técnica local
 **`APROVADA PARA REAUDITORIA EXTERNA`** — todos os critérios de `ACH-B6.3-001`, `ACH-B6.3-002` e regressão de `ACH-B6.1-001` a `ACH-B6.2-002` validados em ambiente limpo com fonte única de verdade (`run_id={run_id}`).
@@ -211,7 +210,7 @@ Manutenção corretiva direcionada sobre `v8.0-beta.6.3` para encerrar `ACH-B6.3
 def main() -> None:
     t_total_0 = time.perf_counter()
     timestamp_start = utc_now_iso()
-    run_id = generate_run_id("BETA6.4")
+    run_id = generate_run_id("BETA6.5")
     runtime_env = capture_runtime_environment(ROOT)
 
     rep_dir = ROOT / "relatorios_execucao"
@@ -243,9 +242,9 @@ def main() -> None:
             env=env_sub,
         )
         full_pytest_out = (p_test.stdout + "\n" + p_test.stderr).replace("\r\n", "\n")
-        # ACH-B6.3-001: carimba run_id no cabeçalho de pytest_verbose.txt
+        # ACH-B6.3-001: carimba RUN_ID=<run_id> no cabeçalho de pytest_verbose.txt (mesmo se houver falhas)
         (rep_dir / "pytest_verbose.txt").write_text(
-            f"# run_id={run_id}\n" + full_pytest_out,
+            f"RUN_ID={run_id}\n" + full_pytest_out,
             encoding="utf-8",
             newline="\n",
         )
@@ -254,8 +253,8 @@ def main() -> None:
         test_results = json.loads(capture_json.read_text(encoding="utf-8"))
         cov_raw = json.loads(cov_json.read_text(encoding="utf-8"))
 
-    # Extrai tabela de cobertura para coverage_report.txt com cabeçalho run_id (ACH-B6.3-001)
-    cov_lines: list[str] = [f"# run_id={run_id}"]
+    # Extrai tabela de cobertura para coverage_report.txt com cabeçalho RUN_ID= (ACH-B6.3-001)
+    cov_lines: list[str] = [f"RUN_ID={run_id}"]
     in_cov = False
     for line in full_pytest_out.splitlines():
         if line.startswith("Name") and "Stmts" in line and "Cover" in line:
@@ -284,7 +283,7 @@ def main() -> None:
 
     # 2. Smoke tests reais de TODOS os 21 motores + auditor.py
     t_smoke_0 = time.perf_counter()
-    smoke_lines: list[str] = [f"# run_id={run_id}"]
+    smoke_lines: list[str] = [f"RUN_ID={run_id}"]
     live_versions = collect_live_engine_versions()
     for name in ALL_ENGINE_NAMES:
         mod = importlib.import_module(f"scripts.engines.{name}")
@@ -378,7 +377,7 @@ def main() -> None:
         "total_seconds": time.perf_counter() - t_total_0,
     }
 
-    homolog_path = rep_dir / "homologacao_v8.0-beta.6.4.md"
+    homolog_path = rep_dir / "homologacao_v8.0-beta.6.5.md"
     homolog_text = _render_homologation_report(
         run_id=run_id,
         timestamp_start_utc=timestamp_start,
@@ -411,7 +410,7 @@ def main() -> None:
     manifest = build_run_manifest(
         run_id,
         all_files,
-        skill_version="8.0.0-beta.6.4",
+        skill_version="8.0.0-beta.6.5",
         engine_versions=live_versions,
         profile_versions=profile_versions,
         profile_audit_records=profile_audit_records,
@@ -432,7 +431,7 @@ def main() -> None:
             "pytest_verbose": "relatorios_execucao/pytest_verbose.txt",
             "coverage_report": "relatorios_execucao/coverage_report.txt",
             "smoke_tests": "relatorios_execucao/smoke_tests.txt",
-            "homologation_report": "relatorios_execucao/homologacao_v8.0-beta.6.4.md",
+            "homologation_report": "relatorios_execucao/homologacao_v8.0-beta.6.5.md",
             "checksums": "SHA256SUMS",
         },
         config={
@@ -472,7 +471,7 @@ def main() -> None:
             "pytest_verbose.txt",
             "coverage_report.txt",
             "smoke_tests.txt",
-            "homologacao_v8.0-beta.6.4.md",
+            "homologacao_v8.0-beta.6.5.md",
         ),
     )
     integrity_s = time.perf_counter() - t_int_0

@@ -26,9 +26,15 @@ from . import CORE_VERSION, SCHEMA_VERSION
 from .dependencies import ALLOWED_DEPENDENCY_STATUSES
 from .evidence import utc_now_iso
 
-MANIFEST_GENERATOR_VERSION = "8.0.0-beta.6.4"
+MANIFEST_GENERATOR_VERSION = "8.0.0-beta.6.5"
 _SHA256_HEX_RE = re.compile(r"\A[a-f0-9]{64}\Z")
-_RUN_ID_HEADER_RE = re.compile(r"^#\s*run_id=([^\s]+)\s*$", re.MULTILINE)
+_RUN_ID_HEADER_RE = re.compile(r"^(?:#\s*run_id=|RUN_ID=)([^\s`]+)\s*$", re.MULTILINE)
+
+CHECKSUM_EXCLUDED_DIRS = frozenset(
+    {"__pycache__", ".pytest_cache", ".git", ".venv", "venv", ".mypy_cache", ".ruff_cache", "tmp", ".tmp"}
+)
+CHECKSUM_EXCLUDED_FILES = frozenset({"SHA256SUMS", ".coverage", ".DS_Store"})
+CHECKSUM_EXCLUDED_SUFFIXES = frozenset({".pyc", ".pyo", ".tmp"})
 
 
 class ConsistencyValidationError(ValueError):
@@ -321,6 +327,116 @@ def validate_run_manifest(manifest: dict[str, Any]) -> None:
                     )
 
 
+def validate_artifact_run_id(
+    artifact_path: str | Path,
+    expected_run_id: str,
+    *,
+    encoding: str = "utf-8",
+) -> dict[str, Any]:
+    """Valida a presença inequívoca e não-conflitante de `expected_run_id` no conteúdo de um artefato (ACH-B6.3-001)."""
+    p = Path(artifact_path)
+    if not p.exists() or not p.is_file():
+        raise ConsistencyValidationError([f"Artefato obrigatório ausente ou não é arquivo regular: {p}."])
+    try:
+        content = p.read_text(encoding=encoding)
+    except UnicodeDecodeError as exc:
+        raise ConsistencyValidationError([f"Artefato '{p}' ilegível em {encoding}: {exc}"]) from exc
+
+    found_headers = _RUN_ID_HEADER_RE.findall(content)
+    distinct_headers = sorted(set(found_headers))
+    errors: list[str] = []
+
+    if expected_run_id not in content:
+        errors.append(
+            f"Conteúdo do artefato '{p.name}' não contém o run_id da execução ({expected_run_id!r})."
+        )
+    if len(distinct_headers) > 1:
+        errors.append(
+            f"Artefato '{p.name}' contém múltiplos run_id conflitantes: {distinct_headers}."
+        )
+    for hid in distinct_headers:
+        if hid != expected_run_id:
+            errors.append(
+                f"Cabeçalho run_id divergente em '{p.name}': encontrado={hid!r} != esperado={expected_run_id!r}."
+            )
+
+    if errors:
+        raise ConsistencyValidationError(errors)
+
+    return {
+        "valid": True,
+        "artifact_path": str(p),
+        "expected_run_id": expected_run_id,
+        "found_run_ids": distinct_headers or [expected_run_id],
+        "bytes": p.stat().st_size,
+        "sha256": sha256_file(p),
+    }
+
+
+def _is_path_excluded_from_checksum(rel_path: Path) -> tuple[bool, str | None]:
+    """Avalia a política explícita de exclusão para o inventário de checksums."""
+    for part in rel_path.parts[:-1]:
+        if part in CHECKSUM_EXCLUDED_DIRS:
+            return True, f"diretório excluído ({part})"
+    if rel_path.name in CHECKSUM_EXCLUDED_FILES:
+        return True, f"arquivo excluído pela política ({rel_path.name})"
+    if rel_path.suffix.lower() in CHECKSUM_EXCLUDED_SUFFIXES:
+        return True, f"extensão temporária/cache excluída ({rel_path.suffix})"
+    return False, None
+
+
+def build_expected_checksum_inventory(
+    manifest: dict[str, Any],
+    root_dir: str | Path,
+) -> dict[str, Any]:
+    """Constrói o inventário esperado de arquivos para SHA256SUMS de forma independente (ACH-B6.3-002).
+
+    Combina a varredura controlada de `root_dir` (respeitando exclusões explícitas e bloqueando
+    symlinks fora da raiz) com os artefatos e arquivos autoexcluídos do manifesto (`run_manifest.json`).
+    """
+    root = Path(root_dir).resolve()
+    expected: set[str] = set()
+    excluded: list[dict[str, str]] = []
+
+    if root.exists():
+        for item in sorted(root.rglob("*")):
+            rel = item.relative_to(root)
+            is_excl, reason = _is_path_excluded_from_checksum(rel)
+            if is_excl:
+                if item.is_file() or item.is_symlink():
+                    excluded.append({"relative_path": rel.as_posix(), "reason": str(reason)})
+                continue
+            if item.is_symlink():
+                try:
+                    item.resolve().relative_to(root)
+                except ValueError:
+                    excluded.append({"relative_path": rel.as_posix(), "reason": "symlink fora da raiz bloqueado"})
+                    continue
+            if item.is_file():
+                expected.add(rel.as_posix())
+
+    for excl in manifest.get("self_excluded_files") or []:
+        excl_norm = str(excl).replace("\\", "/")
+        if excl_norm and excl_norm != "SHA256SUMS":
+            expected.add(excl_norm)
+
+    for art in manifest.get("artifacts") or []:
+        rel_art = str(art.get("relative_path", "")).replace("\\", "/")
+        if rel_art and rel_art != "SHA256SUMS":
+            expected.add(rel_art)
+
+    expected.discard("SHA256SUMS")
+    return {
+        "expected_files": sorted(expected),
+        "excluded_files": excluded,
+        "exclusion_policy": {
+            "excluded_dirs": sorted(CHECKSUM_EXCLUDED_DIRS),
+            "excluded_files": sorted(CHECKSUM_EXCLUDED_FILES),
+            "excluded_suffixes": sorted(CHECKSUM_EXCLUDED_SUFFIXES),
+        },
+    }
+
+
 def validate_run_consistency(
     manifest: dict[str, Any],
     *,
@@ -446,31 +562,20 @@ def validate_run_consistency(
                         f"Hash SHA-256 divergente em '{art['relative_path']}': "
                         f"manifesto={art.get('sha256')} != disco={actual_hash}."
                     )
-                # ACH-B6.3-001: verifica presença efetiva do run_id dentro do conteúdo do artefato
+                # ACH-B6.3-001: verifica presença efetiva e não-conflitante do run_id no conteúdo do artefato
                 try:
-                    art_content = art_path.read_text(encoding="utf-8")
-                except UnicodeDecodeError as exc:
-                    errors.append(f"Artefato textual '{art['relative_path']}' ilegível em UTF-8: {exc}")
-                else:
-                    if run_id not in art_content:
-                        errors.append(
-                            f"Conteúdo do artefato '{art['relative_path']}' não contém o run_id da execução ({run_id!r})."
-                        )
-                    header_ids = _RUN_ID_HEADER_RE.findall(art_content)
-                    for hid in header_ids:
-                        if hid != run_id:
-                            errors.append(
-                                f"Cabeçalho run_id divergente em '{art['relative_path']}': "
-                                f"encontrado={hid!r} != esperado={run_id!r}."
-                            )
+                    validate_artifact_run_id(art_path, run_id)
+                except ConsistencyValidationError as exc:
+                    errors.extend(exc.errors)
 
     for req_name in required_artifact_names:
         if req_name not in present_names:
             errors.append(f"Artefato obrigatório ausente no manifesto: {req_name}.")
 
-    # 5. Verificação integral e completude de SHA256SUMS (ACH-B6.3-002)
+    # 5. Verificação integral, segurança de caminhos e completude de SHA256SUMS (ACH-B6.3-002)
     sha_checked = 0
     sha_failed = 0
+    expected_count = 0
     if sha256sums_path is not None and root is not None:
         sf = Path(sha256sums_path)
         if not sf.exists():
@@ -478,8 +583,11 @@ def validate_run_consistency(
         else:
             if expected_sha256_paths is not None:
                 expected_set = {p.replace("\\", "/") for p in expected_sha256_paths if p != "SHA256SUMS"}
+                manifest_set = expected_set
             else:
-                expected_set = {
+                inv = build_expected_checksum_inventory(manifest, root)
+                expected_set = set(inv["expected_files"])
+                manifest_set = {
                     str(f["relative_path"]).replace("\\", "/")
                     for f in (manifest.get("inspected_files") or [])
                     if f.get("relative_path") and not f.get("missing")
@@ -487,13 +595,16 @@ def validate_run_consistency(
                 for excl in manifest.get("self_excluded_files") or []:
                     excl_norm = str(excl).replace("\\", "/")
                     if excl_norm and excl_norm != "SHA256SUMS":
-                        expected_set.add(excl_norm)
+                        manifest_set.add(excl_norm)
                 for art in artifacts:
                     rel_art = str(art.get("relative_path", "")).replace("\\", "/")
                     if rel_art and rel_art != "SHA256SUMS":
-                        expected_set.add(rel_art)
+                        manifest_set.add(rel_art)
+                manifest_set.discard("SHA256SUMS")
+            expected_count = len(expected_set)
 
             seen_paths: set[str] = set()
+            seen_norm_paths: set[str] = set()
             for lineno, raw_line in enumerate(sf.read_text(encoding="utf-8").splitlines(), start=1):
                 if not raw_line.strip():
                     continue
@@ -506,8 +617,23 @@ def validate_run_consistency(
                     errors.append(f"SHA256SUMS:{lineno} hash SHA-256 malformado para '{rel}': {expected_h!r}.")
                     sha_failed += 1
                     continue
-                if not rel or rel.startswith("/") or "\\" in rel or ".." in Path(rel).parts:
-                    errors.append(f"SHA256SUMS:{lineno} caminho relativo inválido: {rel!r}.")
+                norm_check = rel.replace("\\", "/").lstrip("./")
+                if norm_check in seen_norm_paths:
+                    errors.append(f"SHA256SUMS:{lineno} entrada duplicada (mesmo caminho normalizado) para '{rel}'.")
+                    sha_failed += 1
+                    continue
+                seen_norm_paths.add(norm_check)
+
+                rel_obj = Path(rel)
+                if (
+                    not rel
+                    or rel.startswith("/")
+                    or rel_obj.is_absolute()
+                    or "\\" in rel
+                    or ".." in rel_obj.parts
+                    or (len(rel) >= 2 and rel[1] == ":")
+                ):
+                    errors.append(f"SHA256SUMS:{lineno} caminho relativo inválido ou inseguro: {rel!r}.")
                     sha_failed += 1
                     continue
                 if rel == "SHA256SUMS":
@@ -521,6 +647,21 @@ def validate_run_consistency(
                 seen_paths.add(rel)
 
                 target = root / rel
+                if target.is_symlink():
+                    try:
+                        target.resolve().relative_to(root)
+                    except ValueError:
+                        errors.append(f"SHA256SUMS:{lineno} link simbólico aponta para fora da raiz autorizada: {rel!r}.")
+                        sha_failed += 1
+                        continue
+                else:
+                    try:
+                        target.resolve().relative_to(root)
+                    except ValueError:
+                        errors.append(f"SHA256SUMS:{lineno} caminho escapa da raiz autorizada: {rel!r}.")
+                        sha_failed += 1
+                        continue
+
                 if not target.exists() or not target.is_file():
                     errors.append(f"Arquivo listado em SHA256SUMS ausente em disco: {rel}.")
                     sha_failed += 1
@@ -532,8 +673,8 @@ def validate_run_consistency(
                     errors.append(f"Divergência SHA-256 em {rel}: esperado={expected_h} != atual={actual_h}.")
                     sha_failed += 1
 
-            missing_in_sha = sorted(expected_set - seen_paths)
-            unexpected_in_sha = sorted(seen_paths - expected_set)
+            missing_in_sha = sorted((expected_set | manifest_set) - seen_paths)
+            unexpected_in_sha = sorted(seen_paths - manifest_set) if manifest_set else sorted(seen_paths - expected_set)
             if missing_in_sha:
                 errors.append(
                     f"SHA256SUMS incompleto — arquivo(s) esperado(s) omitido(s): {missing_in_sha}."
@@ -550,6 +691,7 @@ def validate_run_consistency(
         "valid": True,
         "run_id": run_id,
         "checked_artifacts": len(artifacts),
+        "expected_files_count": expected_count,
         "sha256_verified": sha_checked,
         "sha256_failed": sha_failed,
         "errors": [],
