@@ -1,0 +1,251 @@
+{
+  "registry_version": "1.0.0",
+  "baseline_tag": "v8.0-beta.6.6",
+  "baseline_commit": "11e91b6f3d517707326357868cc34ff97ab8327d",
+  "total_canonical_contracts": 18,
+  "legacy_contracts_preserved": 8,
+  "total_transitive_refs": 19,
+  "compatibility_policy_jcs_sha256": "6f1be68d407bb9abb63220d15418a6fce853dcd49404c8ef5f1a37e0843930ad",
+  "legacy_schemas": {
+    "schema_achado.json": {
+      "source_path": "skills/revisao-hostil-v8/references/schemas/schema_achado.json",
+      "preserved_copy_path": "schemas/legacy-v8.0-beta.6.6/schema_achado.json",
+      "physical_sha256": "d702dc69c9693beb368444161a6575745c33893feadda8ef8bcdded936c34568",
+      "git_blob_sha": "8be020e84cda1fd89f928d0462172b516dfed8d5"
+    },
+    "schema_agente.json": {
+      "source_path": "skills/revisao-hostil-v8/references/schemas/schema_agente.json",
+      "preserved_copy_path": "schemas/legacy-v8.0-beta.6.6/schema_agente.json",
+      "physical_sha256": "58fcf4bc2bdae8f7bcc5a8e427479edeed0af81508787ff509600599ae34e240",
+      "git_blob_sha": "db04f77b18f5c2377d34391002f126ada95f74e8"
+    },
+    "schema_evidencia.json": {
+      "source_path": "skills/revisao-hostil-v8/references/schemas/schema_evidencia.json",
+      "preserved_copy_path": "schemas/legacy-v8.0-beta.6.6/schema_evidencia.json",
+      "physical_sha256": "0156b3516edb48826efd54c1fe18f324bf4e3219a4d7ef71f5a106abc5d9dcef",
+      "git_blob_sha": "88fbc55fa3966f6a8a988950ef438b8a32522041"
+    },
+    "schema_input.json": {
+      "source_path": "skills/revisao-hostil-v8/references/schemas/schema_input.json",
+      "preserved_copy_path": "schemas/legacy-v8.0-beta.6.6/schema_input.json",
+      "physical_sha256": "0861afd1027463bc4cb223bae942e7cff446e8227786fd0a58b6a6be72314b44",
+      "git_blob_sha": "afa3e81e5d704171a8c1c5353d8c9692e543ccdc"
+    },
+    "schema_iteracao.json": {
+      "source_path": "skills/revisao-hostil-v8/references/schemas/schema_iteracao.json",
+      "preserved_copy_path": "schemas/legacy-v8.0-beta.6.6/schema_iteracao.json",
+      "physical_sha256": "8e12f2cd018408094c5c42fc03f4164f2405d9954f2fde167156cb99cd2ea047",
+      "git_blob_sha": "3cd517708c58d7beff17edd89a9448e09665fd51"
+    },
+    "schema_motor.json": {
+      "source_path": "skills/revisao-hostil-v8/references/schemas/schema_motor.json",
+      "preserved_copy_path": "schemas/legacy-v8.0-beta.6.6/schema_motor.json",
+      "physical_sha256": "f572842db73e1ef4a4d582535324a59d05197abd62113460e92f785b3683d51f",
+      "git_blob_sha": "f0b822313da8fa1429ab9e39e62745f3e514bb9b"
+    },
+    "schema_profile.json": {
+      "source_path": "skills/revisao-hostil-v8/references/schemas/schema_profile.json",
+      "preserved_copy_path": "schemas/legacy-v8.0-beta.6.6/schema_profile.json",
+      "physical_sha256": "733ade10fb72109f74b8a389ebaa567c4e1541b1a64aa7f40f81085a166ffdd3",
+      "git_blob_sha": "51dc96e09e28c8ad792c3ae660cdb3f3eba9d1e7"
+    },
+    "schema_relatorio_final.json": {
+      "source_path": "skills/revisao-hostil-v8/references/schemas/schema_relatorio_final.json",
+      "preserved_copy_path": "schemas/legacy-v8.0-beta.6.6/schema_relatorio_final.json",
+      "physical_sha256": "a2a2b1290aafeea97333796fe70645f68ebec4f0cd8fb0d8f2d1d6eb0d8a52d1",
+      "git_blob_sha": "d186307123af07b561005b768bb5003738520703"
+    }
+  },
+  "canonical_v7_schemas": {
+    "schema_achado.json": {
+      "id": "https://revisao-hostil.v8/schemas/7.0.0/schema_achado.json",
+      "path": "schemas/7.0.0/schema_achado.json",
+      "contract_version": "7.0.0",
+      "physical_sha256": "cca0fc88ab4ecad4d88c43a6499ced607c4075f7840ce2bd2aec6539888b33bd",
+      "direct_refs": [
+        "schema_evidencia.json"
+      ],
+      "transitive_refs": {
+        "schema_evidencia.json": "91eedc910de19c1d657cae630460586248e59f0b67b9bbaa89b47a1759bd42f4"
+      }
+    },
+    "schema_adjudication_record.json": {
+      "id": "https://revisao-hostil.v8/schemas/7.0.0/schema_adjudication_record.json",
+      "path": "schemas/7.0.0/schema_adjudication_record.json",
+      "contract_version": "7.0.0",
+      "physical_sha256": "69a0b55c0cea1f2ab4b5159a99244d72a80f6bad5d977aa6a2b4c243b3bd98a4",
+      "direct_refs": [
+        "schema_adversarial_contestation.json",
+        "schema_evidence_qualification.json"
+      ],
+      "transitive_refs": {
+        "schema_achado.json": "cca0fc88ab4ecad4d88c43a6499ced607c4075f7840ce2bd2aec6539888b33bd",
+        "schema_adversarial_contestation.json": "c0e147dd5a60edcca0ff65ef675b13d840d31579850fae77988cfac7b6ea672a",
+        "schema_evidence_qualification.json": "07e59608a5bafab0e57fd21f5c26305a0a2b8a9a21eb8a56d78da778c54bcbf2",
+        "schema_evidencia.json": "91eedc910de19c1d657cae630460586248e59f0b67b9bbaa89b47a1759bd42f4"
+      }
+    },
+    "schema_adversarial_contestation.json": {
+      "id": "https://revisao-hostil.v8/schemas/7.0.0/schema_adversarial_contestation.json",
+      "path": "schemas/7.0.0/schema_adversarial_contestation.json",
+      "contract_version": "7.0.0",
+      "physical_sha256": "c0e147dd5a60edcca0ff65ef675b13d840d31579850fae77988cfac7b6ea672a",
+      "direct_refs": [
+        "schema_achado.json",
+        "schema_evidence_qualification.json"
+      ],
+      "transitive_refs": {
+        "schema_achado.json": "cca0fc88ab4ecad4d88c43a6499ced607c4075f7840ce2bd2aec6539888b33bd",
+        "schema_evidence_qualification.json": "07e59608a5bafab0e57fd21f5c26305a0a2b8a9a21eb8a56d78da778c54bcbf2",
+        "schema_evidencia.json": "91eedc910de19c1d657cae630460586248e59f0b67b9bbaa89b47a1759bd42f4"
+      }
+    },
+    "schema_agente.json": {
+      "id": "https://revisao-hostil.v8/schemas/7.0.0/schema_agente.json",
+      "path": "schemas/7.0.0/schema_agente.json",
+      "contract_version": "7.0.0",
+      "physical_sha256": "a52fa5e67279d2e606781b8b5deffb35d61a14d23c6338a9dcbfbdfb3649fc3b",
+      "direct_refs": [
+        "schema_achado.json"
+      ],
+      "transitive_refs": {
+        "schema_achado.json": "cca0fc88ab4ecad4d88c43a6499ced607c4075f7840ce2bd2aec6539888b33bd",
+        "schema_evidencia.json": "91eedc910de19c1d657cae630460586248e59f0b67b9bbaa89b47a1759bd42f4"
+      }
+    },
+    "schema_campaign_manifest.json": {
+      "id": "https://revisao-hostil.v8/schemas/7.0.0/schema_campaign_manifest.json",
+      "path": "schemas/7.0.0/schema_campaign_manifest.json",
+      "contract_version": "7.0.0",
+      "physical_sha256": "48ba02827c26170ff4be44267bbb18df1dd9d6f5cd9ceb42e54f75fb9cccc93c",
+      "direct_refs": [],
+      "transitive_refs": {}
+    },
+    "schema_envelope_agente.json": {
+      "id": "https://revisao-hostil.v8/schemas/7.0.0/schema_envelope_agente.json",
+      "path": "schemas/7.0.0/schema_envelope_agente.json",
+      "contract_version": "7.0.0",
+      "physical_sha256": "bc350c30cbfbec96caf7f44be747b44b97c40c0a554b9a9a590abdbe0e7ac339",
+      "direct_refs": [
+        "schema_agente.json"
+      ],
+      "transitive_refs": {
+        "schema_achado.json": "cca0fc88ab4ecad4d88c43a6499ced607c4075f7840ce2bd2aec6539888b33bd",
+        "schema_agente.json": "a52fa5e67279d2e606781b8b5deffb35d61a14d23c6338a9dcbfbdfb3649fc3b",
+        "schema_evidencia.json": "91eedc910de19c1d657cae630460586248e59f0b67b9bbaa89b47a1759bd42f4"
+      }
+    },
+    "schema_evidence_qualification.json": {
+      "id": "https://revisao-hostil.v8/schemas/7.0.0/schema_evidence_qualification.json",
+      "path": "schemas/7.0.0/schema_evidence_qualification.json",
+      "contract_version": "7.0.0",
+      "physical_sha256": "07e59608a5bafab0e57fd21f5c26305a0a2b8a9a21eb8a56d78da778c54bcbf2",
+      "direct_refs": [
+        "schema_evidencia.json"
+      ],
+      "transitive_refs": {
+        "schema_evidencia.json": "91eedc910de19c1d657cae630460586248e59f0b67b9bbaa89b47a1759bd42f4"
+      }
+    },
+    "schema_evidencia.json": {
+      "id": "https://revisao-hostil.v8/schemas/7.0.0/schema_evidencia.json",
+      "path": "schemas/7.0.0/schema_evidencia.json",
+      "contract_version": "7.0.0",
+      "physical_sha256": "91eedc910de19c1d657cae630460586248e59f0b67b9bbaa89b47a1759bd42f4",
+      "direct_refs": [],
+      "transitive_refs": {}
+    },
+    "schema_gatilho_agente.json": {
+      "id": "https://revisao-hostil.v8/schemas/7.0.0/schema_gatilho_agente.json",
+      "path": "schemas/7.0.0/schema_gatilho_agente.json",
+      "contract_version": "7.0.0",
+      "physical_sha256": "68cc6594f556378cda62f455088f7d5c7a82985612d30e1114840ca6c4690a75",
+      "direct_refs": [],
+      "transitive_refs": {}
+    },
+    "schema_input.json": {
+      "id": "https://revisao-hostil.v8/schemas/7.0.0/schema_input.json",
+      "path": "schemas/7.0.0/schema_input.json",
+      "contract_version": "7.0.0",
+      "physical_sha256": "d57fb1c09add1433b1b2ebf08e229e0b3b2b20f68c0f6720339691cc44bd010a",
+      "direct_refs": [],
+      "transitive_refs": {}
+    },
+    "schema_isolation_attestation.json": {
+      "id": "https://revisao-hostil.v8/schemas/7.0.0/schema_isolation_attestation.json",
+      "path": "schemas/7.0.0/schema_isolation_attestation.json",
+      "contract_version": "7.0.0",
+      "physical_sha256": "b39d247990cd95773ebce8b1ccafff4d130f0366181b359fcb280dfe13ceaba7",
+      "direct_refs": [],
+      "transitive_refs": {}
+    },
+    "schema_iteracao.json": {
+      "id": "https://revisao-hostil.v8/schemas/7.0.0/schema_iteracao.json",
+      "path": "schemas/7.0.0/schema_iteracao.json",
+      "contract_version": "7.0.0",
+      "physical_sha256": "accf87096bb12a90a9e207015fa47181de23f648cb26ecf26659b5dd4b0a8c0d",
+      "direct_refs": [],
+      "transitive_refs": {}
+    },
+    "schema_ledger_adjudicacao.json": {
+      "id": "https://revisao-hostil.v8/schemas/7.0.0/schema_ledger_adjudicacao.json",
+      "path": "schemas/7.0.0/schema_ledger_adjudicacao.json",
+      "contract_version": "7.0.0",
+      "physical_sha256": "af1f6652be4173f8b6cee805637d2eadf83718524719bd0a7ccbc5703a83907d",
+      "direct_refs": [],
+      "transitive_refs": {}
+    },
+    "schema_mandatory_axes_plan.json": {
+      "id": "https://revisao-hostil.v8/schemas/7.0.0/schema_mandatory_axes_plan.json",
+      "path": "schemas/7.0.0/schema_mandatory_axes_plan.json",
+      "contract_version": "7.0.0",
+      "physical_sha256": "c23f220b128a7b270aa8875e11142c9801be95b023011df11000fd41fe11e2a9",
+      "direct_refs": [],
+      "transitive_refs": {}
+    },
+    "schema_monotonic_checkpoint_receipt.json": {
+      "id": "https://revisao-hostil.v8/schemas/7.0.0/schema_monotonic_checkpoint_receipt.json",
+      "path": "schemas/7.0.0/schema_monotonic_checkpoint_receipt.json",
+      "contract_version": "7.0.0",
+      "physical_sha256": "4e32fdab42014a53e3964a5e4e16336632a963631078cbc6df188af688c5a2ca",
+      "direct_refs": [],
+      "transitive_refs": {}
+    },
+    "schema_motor.json": {
+      "id": "https://revisao-hostil.v8/schemas/7.0.0/schema_motor.json",
+      "path": "schemas/7.0.0/schema_motor.json",
+      "contract_version": "7.0.0",
+      "physical_sha256": "7e2c2f1bc67d3ac979d2edbb3eb1b02c5925d872ac4280c6635441c5213ef015",
+      "direct_refs": [
+        "schema_achado.json"
+      ],
+      "transitive_refs": {
+        "schema_achado.json": "cca0fc88ab4ecad4d88c43a6499ced607c4075f7840ce2bd2aec6539888b33bd",
+        "schema_evidencia.json": "91eedc910de19c1d657cae630460586248e59f0b67b9bbaa89b47a1759bd42f4"
+      }
+    },
+    "schema_profile.json": {
+      "id": "https://revisao-hostil.v8/schemas/7.0.0/schema_profile.json",
+      "path": "schemas/7.0.0/schema_profile.json",
+      "contract_version": "7.0.0",
+      "physical_sha256": "46cb8cf929dd8890fe2bfe651c30fa79b26a6d47783d61b75cd57065355c92be",
+      "direct_refs": [],
+      "transitive_refs": {}
+    },
+    "schema_relatorio_final.json": {
+      "id": "https://revisao-hostil.v8/schemas/7.0.0/schema_relatorio_final.json",
+      "path": "schemas/7.0.0/schema_relatorio_final.json",
+      "contract_version": "7.0.0",
+      "physical_sha256": "97790a97472ced5cb712254c275f0dfacafc7cf6073e3736d7aa62295a2abd22",
+      "direct_refs": [
+        "schema_achado.json",
+        "schema_iteracao.json"
+      ],
+      "transitive_refs": {
+        "schema_achado.json": "cca0fc88ab4ecad4d88c43a6499ced607c4075f7840ce2bd2aec6539888b33bd",
+        "schema_evidencia.json": "91eedc910de19c1d657cae630460586248e59f0b67b9bbaa89b47a1759bd42f4",
+        "schema_iteracao.json": "accf87096bb12a90a9e207015fa47181de23f648cb26ecf26659b5dd4b0a8c0d"
+      }
+    }
+  }
+}
