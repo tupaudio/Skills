@@ -1,0 +1,67 @@
+{
+  "run_at_utc": "2026-11-24T10:23:44Z",
+  "environment": {
+    "python": "3.14.6",
+    "platform": "Windows 11",
+    "architecture": "AMD64",
+    "lock_sha256": "d7270cbb1feeb640ef75321b856adcad048477e6bfa4456e680f3bd8ce693585"
+  },
+  "exit_code": 0,
+  "results": [
+    {
+      "test_id": "T-R19-195",
+      "status": "PASS",
+      "expected_result": "REJECT",
+      "actual_result": "REJECT",
+      "exit_code": 0,
+      "test_module": "tests.test_rev19_all",
+      "test_function": "test_trust_key_mutations",
+      "stdout_sha256": "753f140d6323082c31366281df0ab33e15311e5b44531ca1d192bc182af101ef",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "test_id": "T-R19-196",
+      "status": "PASS",
+      "expected_result": "REJECT",
+      "actual_result": "REJECT",
+      "exit_code": 0,
+      "test_module": "tests.test_rev19_all",
+      "test_function": "test_administrative_independence_and_revocation_mutations",
+      "stdout_sha256": "e334639e21e77af8935e7eccec18db1831becedf7922c7fdd831d1e09a2fee3a",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "test_id": "T-R19-197",
+      "status": "PASS",
+      "expected_result": "ACCEPT",
+      "actual_result": "ACCEPT",
+      "exit_code": 0,
+      "test_module": "tests.test_rev19_all",
+      "test_function": "test_windows_qpc_real_clock",
+      "stdout_sha256": "d682537cda8e9ee9a6db6ebe9cd0b79713a7bfc317ee6e15ccc50537d4485301",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "test_id": "T-R19-198",
+      "status": "BLOCKED_ENVIRONMENT",
+      "expected_result": "ACCEPT",
+      "actual_result": "BLOCKED_ENVIRONMENT",
+      "exit_code": 0,
+      "test_module": "tests.test_rev19_all",
+      "test_function": "test_linux_monotonic_raw_real_clock",
+      "stdout_sha256": "06d3dd995eb0aa4ecbb1b5a0266169ddab1efbf54550aea1f44d651128b74c84",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "test_id": "T-R19-199",
+      "status": "PASS",
+      "expected_result": "REJECT",
+      "actual_result": "REJECT",
+      "exit_code": 0,
+      "test_module": "tests.test_rev19_all",
+      "test_function": "test_policy_registry_digest_mismatch",
+      "stdout_sha256": "54fc463d33f8d4070a0c456b51bf031f79c8c4385b0c7252aff801b7a8190dfe",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ]
+}

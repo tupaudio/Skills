@@ -1,0 +1,12 @@
+{
+  "name": "v07_unicode_no_nfc",
+  "input": {
+    "nfc": "é",
+    "nfd": "é"
+  },
+  "expected_jcs_utf8": "{\"nfc\":\"é\",\"nfd\":\"é\"}",
+  "expected_sha256": "79eae438d105e852f86ea598ffdda91643386fad0b4f336b941528d30fbf1558",
+  "origin": "project_rev18",
+  "normative_ref": "RFC 8785 Section 3.2.2.2",
+  "classification": "positive"
+}

@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://revisao-hostil.v8/schemas/schema_agente.json",
+  "title": "ParecerAgente",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "agente_id",
+    "run_id",
+    "contexto_isolado",
+    "timestamp",
+    "escopo",
+    "pontuacao_eixo",
+    "achados",
+    "limitacoes"
+  ],
+  "properties": {
+    "schema_version": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$" },
+    "agente_id": { "type": "string", "minLength": 2 },
+    "run_id": { "type": "string", "minLength": 1 },
+    "profile_id": { "type": ["string", "null"] },
+    "contexto_isolado": { "type": "boolean" },
+    "timestamp": { "type": "string" },
+    "escopo": { "type": "string", "minLength": 3 },
+    "pontuacao_eixo": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["nota_0_10"],
+      "properties": {
+        "nota_0_10": { "type": "number", "minimum": 0, "maximum": 10 },
+        "nota_0_100": { "type": ["number", "null"], "minimum": 0, "maximum": 100 }
+      }
+    },
+    "achados": {
+      "type": "array",
+      "items": { "$ref": "schema_achado.json" }
+    },
+    "recomendacoes": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "limitacoes": {
+      "type": "array",
+      "items": { "type": "string" }
+    }
+  }
+}

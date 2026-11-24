@@ -1,0 +1,12 @@
+{
+  "name": "v05_u1f600_vs_ufb33",
+  "input": {
+    "דּ": "bmp",
+    "😀": "surrogate"
+  },
+  "expected_jcs_utf8": "{\"😀\":\"surrogate\",\"דּ\":\"bmp\"}",
+  "expected_sha256": "beca4e5377d3713755490f3e23880215d2fb84dd1413e5c79310348948e4397f",
+  "origin": "official_rfc8785",
+  "normative_ref": "RFC 8785 Section 3.2.3",
+  "classification": "positive"
+}

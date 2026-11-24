@@ -1,0 +1,85 @@
+{
+  "schema_version": "7.0.0",
+  "administrative_independence_dossier_sha256": "9e6c0a4261151b55a65579b1062a3aa8e561f83e5e65eecb385dd625a73b737b",
+  "signed_store_receipt": {
+    "protocol": "signed_store_receipt_v1",
+    "store_id": "store-prod-01",
+    "namespace": "revisao-hostil-v8",
+    "previous_revision": "9",
+    "new_revision": "10",
+    "previous_checkpoint_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+    "new_checkpoint_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "policy_seq": "10",
+    "policy_jcs_sha256": "5721b8e982e85f843283d571bbcb0d1e66dcac8b1f6ab43df566929cd498c028",
+    "receipt_timestamp_utc": "2026-11-24T06:00:00Z",
+    "store_key_id": "71a84ac30e1db3bdb793072e4d87cc41fc2c428b679e5a5619900e1eaa9b8b09",
+    "signature_algorithm": "Ed25519",
+    "signature_b64": "s/rp4w8P5O+NPggOhG50YtmlI4HrrKm193Y+xcGHyHWmaMIQXmk3h3kGnVz5VOix9zh1InYEZwHZRIQA0ecyBw=="
+  },
+  "witness_assertions": [
+    {
+      "protocol": "checkpoint_freshness_assertion_v1",
+      "witness_id": "witness-a",
+      "witness_key_id": "b4394cc5ecfd4eb7097f048b11e0d25b8e832fa2fbd57fdf45e12ad95a34c470",
+      "store_id": "store-prod-01",
+      "namespace": "revisao-hostil-v8",
+      "policy_seq": "10",
+      "checkpoint_revision": "10",
+      "checkpoint_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "receipt_sha256": "6fddcab4b198e7ae0c687bce12b31a7af98744f997bcfabfe1d28e761c6b2a37",
+      "challenge_nonce_b64": "ERERERERERERERERERERERERERERERERERERERERERE=",
+      "issued_at_utc": "2026-11-24T06:00:01Z",
+      "signature_algorithm": "Ed25519",
+      "signature_b64": "Z4PDwywr9vTkf4gSPuEAJj/0CQD18b8l3AVCV144lNCptfzCECPX+GZZXINUGnoFwXrTt4mqMIej+8zlfFDWCA=="
+    },
+    {
+      "protocol": "checkpoint_freshness_assertion_v1",
+      "witness_id": "witness-b",
+      "witness_key_id": "5219481e6fb09c9b8ed76ea329f59ac31448e58373fd51ff9e8a1ee7b9dd54d2",
+      "store_id": "store-prod-01",
+      "namespace": "revisao-hostil-v8",
+      "policy_seq": "10",
+      "checkpoint_revision": "10",
+      "checkpoint_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "receipt_sha256": "6fddcab4b198e7ae0c687bce12b31a7af98744f997bcfabfe1d28e761c6b2a37",
+      "challenge_nonce_b64": "IiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiI=",
+      "issued_at_utc": "2026-11-24T06:00:01Z",
+      "signature_algorithm": "Ed25519",
+      "signature_b64": "fr/DT0hnTc5pbpTAzXcY+6FOhyFMofm2ryOTWGUjd47kc1kKwdzl25AXVepId+02rh9ls7C2WR+qT5SolqpWCQ=="
+    }
+  ],
+  "nonce_consumption_receipts": [
+    {
+      "nonce_sha256": "02d449a31fbb267c8f352e9968a79e3e5fc95c1bbeaa502fd6454ebde5a4bedc",
+      "protocol_scope": "checkpoint_freshness_assertion_v1",
+      "campaign_id": "camp-tv-001",
+      "witness_id": "witness-a",
+      "bound_witness_key_id": "b4394cc5ecfd4eb7097f048b11e0d25b8e832fa2fbd57fdf45e12ad95a34c470",
+      "store_epoch": "epoch-001",
+      "persisted_tx_id": "tx-0001",
+      "expires_at_monotonic_context": {
+        "clock_source": "linux_clock_monotonic_raw",
+        "unit": "nanoseconds",
+        "clock_context_id": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+        "store_epoch": "epoch-001",
+        "deadline_ns": 30000000000
+      }
+    },
+    {
+      "nonce_sha256": "9f72ea0cf49536e3c66c787f705186df9a4378083753ae9536d65b3ad7fcddc4",
+      "protocol_scope": "checkpoint_freshness_assertion_v1",
+      "campaign_id": "camp-tv-001",
+      "witness_id": "witness-b",
+      "bound_witness_key_id": "5219481e6fb09c9b8ed76ea329f59ac31448e58373fd51ff9e8a1ee7b9dd54d2",
+      "store_epoch": "epoch-001",
+      "persisted_tx_id": "tx-0002",
+      "expires_at_monotonic_context": {
+        "clock_source": "windows_query_performance_counter",
+        "unit": "nanoseconds",
+        "clock_context_id": "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d",
+        "store_epoch": "epoch-001",
+        "deadline_ns": 30000000000
+      }
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "name": "v12_1e20",
+  "input": {
+    "v": 1e+20
+  },
+  "expected_jcs_utf8": "{\"v\":100000000000000000000}",
+  "expected_sha256": "8e85c1241e1aebc42bf95fcc16c0fef8b6d1de48d57f31096b9a7be664c2cebb",
+  "origin": "official_rfc8785",
+  "normative_ref": "RFC 8785 Appendix B",
+  "classification": "positive"
+}

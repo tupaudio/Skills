@@ -1,0 +1,13 @@
+{
+  "name": "v04_utf16_supplementary",
+  "input": {
+    "𐀀": "linear_b",
+    "": "pua",
+    "🚀": "rocket"
+  },
+  "expected_jcs_utf8": "{\"𐀀\":\"linear_b\",\"🚀\":\"rocket\",\"\":\"pua\"}",
+  "expected_sha256": "a7b2a05deceae27dc7d4d55048f6e14f6c2fc9e57808edd62d201f1ee060974d",
+  "origin": "project_rev18",
+  "normative_ref": "RFC 8785 Section 3.2.3",
+  "classification": "positive"
+}

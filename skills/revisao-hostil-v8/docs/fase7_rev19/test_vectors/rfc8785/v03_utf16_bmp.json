@@ -1,0 +1,13 @@
+{
+  "name": "v03_utf16_bmp",
+  "input": {
+    "é": 1,
+    "é": 2,
+    "€": 3
+  },
+  "expected_jcs_utf8": "{\"é\":2,\"é\":1,\"€\":3}",
+  "expected_sha256": "8f4a7f462f10b0df74378e55dab10ce6625b4ebcec657a7bb8738b6cee6b52d9",
+  "origin": "project_rev18",
+  "normative_ref": "RFC 8785 Section 3.2.3",
+  "classification": "positive"
+}

@@ -1,0 +1,51 @@
+{
+  "manifest_version": "1.0.0",
+  "historical_ids_preserved": 194,
+  "new_rev19_tests": [
+    {
+      "test_id": "T-R19-195",
+      "origin_finding": "ACH-B7-R18-001",
+      "execution_mode": "AUTOMATED",
+      "test_module": "tests.test_rev19_all",
+      "test_function": "test_trust_key_mutations",
+      "expected_result": "REJECT",
+      "required": true
+    },
+    {
+      "test_id": "T-R19-196",
+      "origin_finding": "ACH-B7-R18-002",
+      "execution_mode": "AUTOMATED",
+      "test_module": "tests.test_rev19_all",
+      "test_function": "test_administrative_independence_and_revocation_mutations",
+      "expected_result": "REJECT",
+      "required": true
+    },
+    {
+      "test_id": "T-R19-197",
+      "origin_finding": "ACH-B7-R18-004",
+      "execution_mode": "AUTOMATED",
+      "test_module": "tests.test_rev19_all",
+      "test_function": "test_windows_qpc_real_clock",
+      "expected_result": "ACCEPT",
+      "required": true
+    },
+    {
+      "test_id": "T-R19-198",
+      "origin_finding": "ACH-B7-R18-004",
+      "execution_mode": "AUTOMATED_LINUX_ONLY",
+      "test_module": "tests.test_rev19_all",
+      "test_function": "test_linux_monotonic_raw_real_clock",
+      "expected_result": "ACCEPT",
+      "required": true
+    },
+    {
+      "test_id": "T-R19-199",
+      "origin_finding": "ACH-B7-R18-005",
+      "execution_mode": "AUTOMATED",
+      "test_module": "tests.test_rev19_all",
+      "test_function": "test_policy_registry_digest_mismatch",
+      "expected_result": "REJECT",
+      "required": true
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "name": "v17_large_int_safe_bound",
+  "input": {
+    "safe_max": 9007199254740991,
+    "safe_min": -9007199254740991
+  },
+  "expected_jcs_utf8": "{\"safe_max\":9007199254740991,\"safe_min\":-9007199254740991}",
+  "expected_sha256": "6b9fd49b56cf91aaab4cc0b16e33dffbe113c765baa011984f28d6f273bf9162",
+  "origin": "project_rev18",
+  "normative_ref": "RFC 8785 Section 3.2.2.3 / I-JSON",
+  "classification": "positive"
+}

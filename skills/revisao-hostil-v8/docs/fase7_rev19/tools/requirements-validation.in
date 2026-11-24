@@ -1,0 +1,5 @@
+rfc8785==0.1.4
+jcs==0.3.0
+cryptography==50.0.2
+jsonschema==4.26.0
+pytest==9.2.0

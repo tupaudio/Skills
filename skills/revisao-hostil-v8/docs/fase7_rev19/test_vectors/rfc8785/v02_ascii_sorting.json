@@ -1,0 +1,14 @@
+{
+  "name": "v02_ascii_sorting",
+  "input": {
+    "z": 1,
+    "a": 2,
+    "M": 3,
+    "0": 4
+  },
+  "expected_jcs_utf8": "{\"0\":4,\"M\":3,\"a\":2,\"z\":1}",
+  "expected_sha256": "675f182f4b9c5552e41edabf63372f24e7845de5b41d762c9ef71095a3a8ccbe",
+  "origin": "project_rev18",
+  "normative_ref": "RFC 8785 Section 3.2.3",
+  "classification": "positive"
+}

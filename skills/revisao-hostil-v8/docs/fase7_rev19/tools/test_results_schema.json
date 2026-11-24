@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Schema de Resultados de Testes Independentes (Rev 19)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["run_at_utc", "environment", "exit_code", "results"],
+  "properties": {
+    "run_at_utc": {"type": "string", "format": "date-time"},
+    "environment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["python", "platform", "architecture", "lock_sha256"],
+      "properties": {
+        "python": {"type": "string"},
+        "platform": {"type": "string"},
+        "architecture": {"type": "string"},
+        "lock_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+      }
+    },
+    "exit_code": {"type": "integer"},
+    "results": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["test_id", "status", "expected_result", "actual_result", "exit_code", "test_module", "test_function", "stdout_sha256", "stderr_sha256"],
+        "properties": {
+          "test_id": {"type": "string"},
+          "status": {"type": "string", "enum": ["PASS", "FAIL", "BLOCKED_ENVIRONMENT", "NOT_EXECUTED_RUNTIME"]},
+          "expected_result": {"type": "string"},
+          "actual_result": {"type": "string"},
+          "exit_code": {"type": "integer"},
+          "test_module": {"type": "string"},
+          "test_function": {"type": "string"},
+          "stdout_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+          "stderr_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+        }
+      }
+    }
+  }
+}

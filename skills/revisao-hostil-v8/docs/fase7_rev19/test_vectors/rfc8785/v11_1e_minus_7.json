@@ -1,0 +1,11 @@
+{
+  "name": "v11_1e_minus_7",
+  "input": {
+    "v": 1e-07
+  },
+  "expected_jcs_utf8": "{\"v\":1e-7}",
+  "expected_sha256": "3a28f15de586a90e5f896f27e39cd7d7e4022dcccc3a795c373d64a52661987f",
+  "origin": "official_rfc8785",
+  "normative_ref": "RFC 8785 Appendix B",
+  "classification": "positive"
+}

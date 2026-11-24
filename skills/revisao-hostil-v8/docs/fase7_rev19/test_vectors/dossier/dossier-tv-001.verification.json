@@ -1,0 +1,9 @@
+{
+  "test_vector_id": "dossier-tv-001",
+  "jcs_byte_length": 1788,
+  "dossier_jcs_sha256": "9e6c0a4261151b55a65579b1062a3aa8e561f83e5e65eecb385dd625a73b737b",
+  "authority_key_id": "a041ce4dfbef680d6bb7aa32091b44b40a7a74a617d14c939830bad29c29475e",
+  "public_key_spki_der_b64": "MCowBQYDK2VwAyEAShcgYB8101jeVuXrOWvzBB2SDKAoKphRtQunoBQ1Un4=",
+  "signature_algorithm": "Ed25519",
+  "signature_b64": "hzUPWrGBqFvchwWfxqUBuNYuZ9jj57PvDh2szuZh0puRKGaUKGibpl9eepapbnJ0nw/VsP8QszX6+1nsiRFnBw=="
+}

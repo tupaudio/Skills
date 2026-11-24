@@ -1,0 +1,2 @@
+# Use requirements-validation.lock com --require-hashes para instalacao reproduzivel (ACH-B7-R18-006).
+-r requirements-validation.lock
