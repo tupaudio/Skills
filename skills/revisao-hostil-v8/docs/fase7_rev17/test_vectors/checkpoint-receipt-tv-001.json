@@ -1,0 +1,85 @@
+{
+  "schema_version": "7.0.0",
+  "administrative_independence_dossier_sha256": "e322b6ae5d9b60084f115ee078c5eac6c48a0d3871e7739980556b2841a9ca8f",
+  "signed_store_receipt": {
+    "protocol": "signed_store_receipt_v1",
+    "store_id": "store-prod-01",
+    "namespace": "revisao-hostil-v8",
+    "previous_revision": "9",
+    "new_revision": "10",
+    "previous_checkpoint_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+    "new_checkpoint_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "policy_seq": "10",
+    "policy_jcs_sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "receipt_timestamp_utc": "2026-11-24T06:00:00Z",
+    "store_key_id": "1111111111111111111111111111111111111111111111111111111111111111",
+    "signature_algorithm": "Ed25519",
+    "signature_b64": "AQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQ=="
+  },
+  "witness_assertions": [
+    {
+      "protocol": "checkpoint_freshness_assertion_v1",
+      "witness_id": "witness-a",
+      "witness_key_id": "2222222222222222222222222222222222222222222222222222222222222222",
+      "store_id": "store-prod-01",
+      "namespace": "revisao-hostil-v8",
+      "policy_seq": "10",
+      "checkpoint_revision": "10",
+      "checkpoint_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "receipt_sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "challenge_nonce_b64": "ERERERERERERERERERERERERERERERERERERERERERE=",
+      "issued_at_utc": "2026-11-24T06:00:01Z",
+      "signature_algorithm": "Ed25519",
+      "signature_b64": "AgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg=="
+    },
+    {
+      "protocol": "checkpoint_freshness_assertion_v1",
+      "witness_id": "witness-b",
+      "witness_key_id": "3333333333333333333333333333333333333333333333333333333333333333",
+      "store_id": "store-prod-01",
+      "namespace": "revisao-hostil-v8",
+      "policy_seq": "10",
+      "checkpoint_revision": "10",
+      "checkpoint_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "receipt_sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "challenge_nonce_b64": "IiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiI=",
+      "issued_at_utc": "2026-11-24T06:00:01Z",
+      "signature_algorithm": "Ed25519",
+      "signature_b64": "AwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAw=="
+    }
+  ],
+  "nonce_consumption_receipts": [
+    {
+      "nonce_sha256": "02d449a31fbb267c8f352e9968a79e3e5fc95c1bbeaa502fd6454ebde5a4bedc",
+      "protocol_scope": "checkpoint_freshness_assertion_v1",
+      "campaign_id": "camp-tv-001",
+      "witness_id": "witness-a",
+      "bound_witness_key_id": "2222222222222222222222222222222222222222222222222222222222222222",
+      "store_epoch": "epoch-001",
+      "persisted_tx_id": "tx-0001",
+      "expires_at_monotonic_context": {
+        "clock_source": "linux_clock_monotonic_raw",
+        "unit": "nanoseconds",
+        "clock_context_id": "proc-uuid-001",
+        "store_epoch": "epoch-001",
+        "deadline_ns": 30000000000
+      }
+    },
+    {
+      "nonce_sha256": "9f72ea0cf49536e3c66c787f705186df9a4378083753ae9536d65b3ad7fcddc4",
+      "protocol_scope": "checkpoint_freshness_assertion_v1",
+      "campaign_id": "camp-tv-001",
+      "witness_id": "witness-b",
+      "bound_witness_key_id": "3333333333333333333333333333333333333333333333333333333333333333",
+      "store_epoch": "epoch-001",
+      "persisted_tx_id": "tx-0002",
+      "expires_at_monotonic_context": {
+        "clock_source": "windows_query_performance_counter",
+        "unit": "nanoseconds",
+        "clock_context_id": "proc-uuid-002",
+        "store_epoch": "epoch-001",
+        "deadline_ns": 30000000000
+      }
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "description": "Vetores de conformidade RFC 8785 (ordenacao UTF-16 code units e representacao numerica).",
+  "vectors": [
+    {
+      "name": "utf16_surrogate_vs_bmp_sorting",
+      "input": {
+        "דּ": "bmp",
+        "😀": "surrogate",
+        "\r": "cr",
+        "1": "one"
+      },
+      "expected_jcs": "{\"\\r\":\"cr\",\"1\":\"one\",\"😀\":\"surrogate\",\"דּ\":\"bmp\"}"
+    },
+    {
+      "name": "numeric_zero_and_integers",
+      "input": {
+        "b": -0.0,
+        "a": 1.0,
+        "c": 42
+      },
+      "expected_jcs": "{\"a\":1,\"b\":0,\"c\":42}"
+    }
+  ]
+}

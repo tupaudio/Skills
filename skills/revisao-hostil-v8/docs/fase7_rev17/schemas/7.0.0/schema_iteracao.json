@@ -1,0 +1,96 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://revisao-hostil.v8/schemas/7.0.0/schema_iteracao.json",
+  "title": "IteracaoAuditoria",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "run_id",
+    "numero_iteracao",
+    "timestamp",
+    "hash_artefato",
+    "pontuacao_global",
+    "contagem_estados",
+    "regressao_executada",
+    "regressao_aprovada"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "pattern": "^(0|[1-9][0-9]{0,9})\\.(0|[1-9][0-9]{0,9})\\.(0|[1-9][0-9]{0,9})(?![\\r\\n])$",
+      "description": "Versao SemVer estavel estrita da instancia (MAJOR.MINOR.PATCH)."
+    },
+    "run_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "numero_iteracao": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 4
+    },
+    "timestamp": {
+      "type": "string"
+    },
+    "hash_artefato": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "pontuacao_global": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "nota_0_10"
+      ],
+      "properties": {
+        "nota_0_10": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 10
+        },
+        "nota_0_100": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0,
+          "maximum": 100
+        }
+      }
+    },
+    "contagem_estados": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "integer",
+        "minimum": 0
+      }
+    },
+    "achados_abertos": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "achados_fechados": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "regressao_executada": {
+      "type": "boolean"
+    },
+    "regressao_aprovada": {
+      "type": "boolean"
+    },
+    "decisao_ciclo": {
+      "type": "string",
+      "enum": [
+        "CONTINUAR",
+        "CONGELAR",
+        "BLOQUEADO"
+      ]
+    }
+  }
+}

@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://revisao-hostil.v8/schemas/7.0.0/schema_input.json",
+  "title": "EntradaMotor",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "motor_id",
+    "payload"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "pattern": "^(0|[1-9][0-9]{0,9})\\.(0|[1-9][0-9]{0,9})\\.(0|[1-9][0-9]{0,9})(?![\\r\\n])$",
+      "description": "Versao SemVer estavel estrita da instancia (MAJOR.MINOR.PATCH)."
+    },
+    "motor_id": {
+      "type": "string",
+      "minLength": 2
+    },
+    "run_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "profile_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "artefato_alvo": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "tolerancias": {
+      "type": "object",
+      "description": "Objeto deliberadamente extensível para tolerâncias numéricas ou físicas específicas de cada motor.",
+      "additionalProperties": true
+    },
+    "semente": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "payload": {
+      "type": [
+        "object",
+        "array"
+      ],
+      "description": "Estrutura deliberadamente extensível para o payload de entrada específico de cada motor."
+    }
+  }
+}
