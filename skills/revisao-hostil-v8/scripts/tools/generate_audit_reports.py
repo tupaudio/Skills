@@ -156,7 +156,7 @@ Manutenção corretiva sobre `v8.0-beta.6.2` para encerrar `ACH-B6.2-002` (parse
 - **Reprovados:** `{test_results['failed']}`
 - **Ignorados:** `{test_results['skipped']}`
 - **Erros de coleta:** `{test_results['collection_errors']}`
-- **Warnings:** `{test_results['warnings']}`
+- Warnings: `{test_results['warnings']}`
 - **Código de saída:** `{test_results['exit_code']}`
 - **Duração da suíte (precisão completa):** `{test_results['duration_seconds']:.6f}s` (`{test_results['duration_seconds']:.2f}s`)
 - **Duração smoke tests:** `{durations['smoke_tests_seconds']:.6f}s`
