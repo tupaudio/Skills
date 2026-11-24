@@ -265,12 +265,14 @@ def test_ach_b6_008_environment_dependencies_verified() -> None:
 
     ok = verify_environment_dependencies({"motor_normas": ["pyyaml"], "motor_matematico": ["numpy"]})
     assert ok["_summary"]["all_available"] is True
-    assert ok["pyyaml"]["status"] == "disponivel"
+    assert ok["pyyaml"]["status"] == "available"
+    assert ok["pyyaml"]["distribution"] == "PyYAML"
+    assert ok["pyyaml"]["import_name"] == "yaml"
     assert ok["numpy"]["installed_version"] is not None
 
     missing = verify_environment_dependencies({"motor_x": ["pacote_inexistente_xyz_999"]})
     assert missing["_summary"]["all_available"] is False
-    assert missing["pacote_inexistente_xyz_999"]["status"] == "ausente"
+    assert missing["pacote_inexistente_xyz_999"]["status"] == "missing"
 
     na = verify_environment_dependencies({"motor_linguagem": []})
-    assert na["_summary"]["status"] == "nao_aplicavel"
+    assert na["_summary"]["status"] == "not_applicable"
