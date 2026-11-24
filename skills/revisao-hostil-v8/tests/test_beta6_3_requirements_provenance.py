@@ -303,7 +303,7 @@ def _build_consistent_fixture(tmp_path: Path) -> tuple[dict[str, Any], Path, str
 
     report_text = (
         f"# Homologacao\n"
-        f"run_id: `{run_id}`\n"
+        f"RUN_ID={run_id}\n"
         f"Python: `{env['python_version']}`\n"
         f"Build: `{env['os_build']}`\n"
         f"Aprovados: `93 passed`\n"
