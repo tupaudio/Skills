@@ -61,7 +61,7 @@ REPORT_ARTIFACTS_REL = [
     "relatorios_execucao/coverage_report.txt",
     "relatorios_execucao/smoke_tests.txt",
     "relatorios_execucao/run_manifest.json",
-    "relatorios_execucao/homologacao_v8.0-beta.6.5.md",
+    "relatorios_execucao/homologacao_v8.0-beta.6.6.md",
     "SHA256SUMS",
 ]
 
@@ -114,36 +114,35 @@ def _render_homologation_report(
         for p in profile_records
     )
 
-    return f"""# Relatório Técnico de Execução e Pré-Homologação — Revisão Hostil `v8.0-beta.6.5`
+    return f"""# Relatório Técnico de Execução e Pré-Homologação — Revisão Hostil `v8.0-beta.6.6`
 
 RUN_ID={run_id}
 
 > **Fonte única de verdade (`run_id`):** `{run_id}`  
-> **Gerado programaticamente** a partir da mesma execução que produziu `pytest_verbose.txt`, `coverage_report.txt`, `smoke_tests.txt` e `run_manifest.json` (todos marcados com cabeçalho `RUN_ID={run_id}` e verificados por `validate_artifact_run_id()` + `build_expected_checksum_inventory()` + `validate_run_consistency()`).
+> **Gerado programaticamente** a partir da mesma execução que produziu `pytest_verbose.txt`, `coverage_report.txt`, `smoke_tests.txt` e `run_manifest.json` (todos marcados com cabeçalho estrito `RUN_ID={run_id}` e verificados por `validate_artifact_run_id()` + `build_expected_checksum_inventory()` + `validate_run_consistency()`).
 
 ## 1. Objetivo da manutenção
-Consolidação integral da Ordem de Serviço de `ACH-B6.3-001` e `ACH-B6.3-002` (preservando imutáveis as tags `v8.0-beta.6.3` e `v8.0-beta.6.4`): formato explícito `RUN_ID=` nos cabeçalhos, função reutilizável `validate_artifact_run_id()` (com rejeição de múltiplos `run_id` conflitantes), função `build_expected_checksum_inventory()` independente de `SHA256SUMS` (varredura controlada da raiz com exclusões explícitas e bloqueio de travessia/symlinks) e suíte dedicada `tests/test_beta6_4_provenance_integrity.py`.
+Correção do achado `ACH-B6.5-001 (P2)` sobre `v8.0-beta.6.5`: endurecimento de `validate_artifact_run_id()` em `scripts/common/provenance.py` para exigir cabeçalho estritamente conforme (`RUN_ID=` ou `# run_id=`), rejeitando presença apenas no corpo, cabeçalhos vazios/malformados e cabeçalhos duplicados pela política padrão (documentada), preservando integralmente `ACH-B6.3-001`, `ACH-B6.3-002` e todas as tags históricas.
 
 ## 2. Commit-base e identificação Git
-- **Tags-base preservadas:** `v8.0-beta.6.3` (`67efd041c359301dcaf4eedfad891daf731ecf8d`) e `v8.0-beta.6.4` (`9ba2045ee0ef33f80047bf5357641a92e3208777`)
+- **Tag-base preservada:** `v8.0-beta.6.5` (`fa09c3e07ea763e2bf2c76546c1c076391b17145`)
 - **Branch de execução:** `{runtime_env.get('git_branch')}`
 - **Commit de código auditado (`audited_code_commit`):** `{audited_code_commit}`
 - **Início (UTC):** `{timestamp_start_utc}`
 - **Fim dos testes/relatórios (UTC):** `{timestamp_end_utc}`
 
-## 3. Achados tratados, 4. Causa-raiz e 5. Correção implementada
+## 3. Achado tratado, 4. Causa-raiz e 5. Correção implementada
 
-### ACH-B6.3-001 (P2) — `RUN_ID=` propagado e validado dentro do conteúdo dos artefatos
-- **Correção:** Cabeçalho explícito `RUN_ID={run_id}` gravado em `pytest_verbose.txt` (preservando log bruto mesmo em caso de falha), `coverage_report.txt`, `smoke_tests.txt` e neste relatório; função reutilizável `validate_artifact_run_id(artifact_path, expected_run_id)` em `scripts/common/provenance.py` chamada por `validate_run_consistency()`, rejeitando ausência, divergência ou múltiplos `run_id` conflitantes mesmo após atualização maliciosa de SHA-256.
-
-### ACH-B6.3-002 (P2) — Inventário esperado independente e segurança de caminhos no `SHA256SUMS`
-- **Correção:** Função `build_expected_checksum_inventory(manifest, root_dir)` em `scripts/common/provenance.py` construindo o conjunto esperado diretamente da árvore controlada + artefatos obrigatórios (excluindo explicitamente `SHA256SUMS`, caches e temporários), e `validate_run_consistency()` comparando `expected_files == checksummed_files` com rejeição de omissões, duplicatas (mesmo com separadores distintos), caminhos absolutos, `../`, symlinks fora da raiz e hashes malformados.
+### ACH-B6.5-001 (P2) — Validação estrita de cabeçalho em `validate_artifact_run_id()`
+- **Causa-raiz:** Na Beta 6.5, quando nenhum cabeçalho era encontrado (`distinct_headers == []`), a verificação `expected_run_id in content` ainda podia aprovar um artefato que apenas mencionasse o `run_id` no corpo textual.
+- **Correção:** `validate_artifact_run_id()` em `scripts/common/provenance.py` passou a exigir explicitamente pelo menos um cabeçalho estritamente conforme (`_RUN_ID_STRICT_HEADER_RE`), rejeitando menção apenas no corpo, cabeçalhos vazios/malformados (`_RUN_ID_CANDIDATE_LINE_RE`), cabeçalhos divergentes, cabeçalhos conflitantes e múltiplas ocorrências idênticas por padrão (`allow_duplicate_identical_headers=False`, documentado).
 
 ## 6. Arquivos alterados na manutenção
 - `skills/revisao-hostil-v8/scripts/common/provenance.py`
 - `skills/revisao-hostil-v8/scripts/tools/generate_audit_reports.py`
-- `skills/revisao-hostil-v8/tests/test_beta6_4_provenance_integrity.py` (novo)
-- `skills/revisao-hostil-v8/relatorios_execucao/{{pytest_verbose.txt,coverage_report.txt,smoke_tests.txt,run_manifest.json,homologacao_v8.0-beta.6.5.md}}`
+- `skills/revisao-hostil-v8/tests/test_beta6_5_run_id_header_strict.py` (novo)
+- `skills/revisao-hostil-v8/tests/test_beta6_3_requirements_provenance.py`
+- `skills/revisao-hostil-v8/relatorios_execucao/{{pytest_verbose.txt,coverage_report.txt,smoke_tests.txt,run_manifest.json,homologacao_v8.0-beta.6.6.md}}`
 - `skills/revisao-hostil-v8/SHA256SUMS` e `README.md`
 
 ## 7. Testes criados, 8. Executados e 9. Resultado integral do pytest
@@ -195,22 +194,22 @@ Consolidação integral da Ordem de Serviço de `ACH-B6.3-001` e `ACH-B6.3-002` 
 
 ## 18. Commit auditado e 19. Commit de publicação dos artefatos
 - **Commit auditado:** `{audited_code_commit}`
-- **Commit de publicação dos artefatos:** criado imediatamente após esta geração como descendente direto de `{audited_code_commit}`, com tag anotada `v8.0-beta.6.5`.
+- **Commit de publicação dos artefatos:** criado imediatamente após esta geração como descendente direto de `{audited_code_commit}`, com tag anotada `v8.0-beta.6.6`.
 
 ## 20. Limitações conhecidas
 - `motor_integracao`, `motor_meta`, `orchestrator.py` e `SKILL.md` da v8.0 permanecem planejados para a Fase 8.
 - Banca multiagente (`Challenger`, `Adversarial`, `Adjudicador`) permanece bloqueada na Fase 7 até reauditoria independente.
-- Resultados aqui registrados correspondem à execução local em ambiente virtual limpo (`venv_b65`), não substituindo a reauditoria externa independente.
+- Resultados aqui registrados correspondem à execução local em ambiente virtual limpo (`venv_b66`), não substituindo a reauditoria externa independente.
 
 ## 21. Decisão técnica local
-**`APROVADA PARA REAUDITORIA EXTERNA`** — todos os critérios de `ACH-B6.3-001`, `ACH-B6.3-002` e regressão de `ACH-B6.1-001` a `ACH-B6.2-002` validados em ambiente limpo com fonte única de verdade (`run_id={run_id}`).
+**`APROVADA PARA REAUDITORIA EXTERNA`** — `ACH-B6.5-001` corrigido e regressão integral de `ACH-B6.1-001` a `ACH-B6.3-002` validada em ambiente limpo com fonte única de verdade (`run_id={run_id}`).
 """
 
 
 def main() -> None:
     t_total_0 = time.perf_counter()
     timestamp_start = utc_now_iso()
-    run_id = generate_run_id("BETA6.5")
+    run_id = generate_run_id("BETA6.6")
     runtime_env = capture_runtime_environment(ROOT)
 
     rep_dir = ROOT / "relatorios_execucao"
@@ -377,7 +376,7 @@ def main() -> None:
         "total_seconds": time.perf_counter() - t_total_0,
     }
 
-    homolog_path = rep_dir / "homologacao_v8.0-beta.6.5.md"
+    homolog_path = rep_dir / "homologacao_v8.0-beta.6.6.md"
     homolog_text = _render_homologation_report(
         run_id=run_id,
         timestamp_start_utc=timestamp_start,
@@ -410,7 +409,7 @@ def main() -> None:
     manifest = build_run_manifest(
         run_id,
         all_files,
-        skill_version="8.0.0-beta.6.5",
+        skill_version="8.0.0-beta.6.6",
         engine_versions=live_versions,
         profile_versions=profile_versions,
         profile_audit_records=profile_audit_records,
@@ -431,7 +430,7 @@ def main() -> None:
             "pytest_verbose": "relatorios_execucao/pytest_verbose.txt",
             "coverage_report": "relatorios_execucao/coverage_report.txt",
             "smoke_tests": "relatorios_execucao/smoke_tests.txt",
-            "homologation_report": "relatorios_execucao/homologacao_v8.0-beta.6.5.md",
+            "homologation_report": "relatorios_execucao/homologacao_v8.0-beta.6.6.md",
             "checksums": "SHA256SUMS",
         },
         config={
@@ -471,7 +470,7 @@ def main() -> None:
             "pytest_verbose.txt",
             "coverage_report.txt",
             "smoke_tests.txt",
-            "homologacao_v8.0-beta.6.5.md",
+            "homologacao_v8.0-beta.6.6.md",
         ),
     )
     integrity_s = time.perf_counter() - t_int_0

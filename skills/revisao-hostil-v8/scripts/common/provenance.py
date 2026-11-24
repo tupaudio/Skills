@@ -26,9 +26,12 @@ from . import CORE_VERSION, SCHEMA_VERSION
 from .dependencies import ALLOWED_DEPENDENCY_STATUSES
 from .evidence import utc_now_iso
 
-MANIFEST_GENERATOR_VERSION = "8.0.0-beta.6.5"
+MANIFEST_GENERATOR_VERSION = "8.0.0-beta.6.6"
 _SHA256_HEX_RE = re.compile(r"\A[a-f0-9]{64}\Z")
-_RUN_ID_HEADER_RE = re.compile(r"^(?:#\s*run_id=|RUN_ID=)([^\s`]+)\s*$", re.MULTILINE)
+# Detecta qualquer linha que tente declarar um cabeçalho RUN_ID / # run_id (mesmo vazio ou malformado)
+_RUN_ID_CANDIDATE_LINE_RE = re.compile(r"^\s*(?:RUN_ID\s*=|#\s*run_id\s*=)(.*)$", re.IGNORECASE)
+# Contrato estrito de cabeçalho válido: linha inteira sem espaços à esquerda/direita ou lixo extra
+_RUN_ID_STRICT_HEADER_RE = re.compile(r"\A(?:RUN_ID=|#\s*run_id=)([A-Za-z0-9][A-Za-z0-9._-]{2,})\Z")
 
 CHECKSUM_EXCLUDED_DIRS = frozenset(
     {"__pycache__", ".pytest_cache", ".git", ".venv", "venv", ".mypy_cache", ".ruff_cache", "tmp", ".tmp"}
@@ -332,32 +335,66 @@ def validate_artifact_run_id(
     expected_run_id: str,
     *,
     encoding: str = "utf-8",
+    allow_duplicate_identical_headers: bool = False,
 ) -> dict[str, Any]:
-    """Valida a presença inequívoca e não-conflitante de `expected_run_id` no conteúdo de um artefato (ACH-B6.3-001)."""
+    """Valida a presença estrita de cabeçalho autorizado `RUN_ID=` / `# run_id=` no artefato (ACH-B6.5-001).
+
+    Política formal:
+    - Exige pelo menos um cabeçalho estritamente conforme (`RUN_ID=<id>` ou `# run_id=<id>`).
+    - A presença de `expected_run_id` apenas no corpo textual NÃO satisfaz a validação.
+    - Cabeçalho ausente, vazio ou malformado levanta `ConsistencyValidationError`.
+    - Cabeçalhos conflitantes (IDs distintos) sempre levantam `ConsistencyValidationError`.
+    - Múltiplas ocorrências idênticas do mesmo cabeçalho são REJEITADAS por padrão
+      (`allow_duplicate_identical_headers=False`, política fail-closed de cabeçalho único),
+      podendo ser explicitamente permitidas somente com `allow_duplicate_identical_headers=True`.
+    - Menções a outros identificadores no corpo (fora de linhas de cabeçalho) não invalidam
+      um cabeçalho estritamente válido.
+    """
     p = Path(artifact_path)
     if not p.exists() or not p.is_file():
         raise ConsistencyValidationError([f"Artefato obrigatório ausente ou não é arquivo regular: {p}."])
     try:
         content = p.read_text(encoding=encoding)
-    except UnicodeDecodeError as exc:
+    except (UnicodeDecodeError, OSError) as exc:
         raise ConsistencyValidationError([f"Artefato '{p}' ilegível em {encoding}: {exc}"]) from exc
 
-    found_headers = _RUN_ID_HEADER_RE.findall(content)
-    distinct_headers = sorted(set(found_headers))
+    if not content.strip():
+        raise ConsistencyValidationError([f"Artefato '{p.name}' está vazio e não possui cabeçalho RUN_ID."])
+
+    valid_headers: list[str] = []
     errors: list[str] = []
 
-    if expected_run_id not in content:
+    for lineno, line in enumerate(content.splitlines(), start=1):
+        if _RUN_ID_CANDIDATE_LINE_RE.match(line):
+            m = _RUN_ID_STRICT_HEADER_RE.fullmatch(line)
+            if m is None:
+                errors.append(
+                    f"Cabeçalho RUN_ID vazio ou malformado em '{p.name}' (linha {lineno}): {line!r}."
+                )
+            else:
+                valid_headers.append(m.group(1))
+
+    if not valid_headers and not errors:
         errors.append(
-            f"Conteúdo do artefato '{p.name}' não contém o run_id da execução ({expected_run_id!r})."
+            f"Artefato '{p.name}' não possui cabeçalho autorizado RUN_ID= / # run_id= "
+            f"(esperado {expected_run_id!r}; menção apenas no corpo não satisfaz)."
         )
+
+    distinct_headers = sorted(set(valid_headers))
     if len(distinct_headers) > 1:
         errors.append(
-            f"Artefato '{p.name}' contém múltiplos run_id conflitantes: {distinct_headers}."
+            f"Artefato '{p.name}' contém múltiplos cabeçalhos RUN_ID conflitantes: {distinct_headers}."
         )
+    elif len(valid_headers) > 1 and not allow_duplicate_identical_headers:
+        errors.append(
+            f"Artefato '{p.name}' contém {len(valid_headers)} cabeçalhos RUN_ID duplicados "
+            f"({valid_headers[0]!r}); política padrão exige cabeçalho único."
+        )
+
     for hid in distinct_headers:
         if hid != expected_run_id:
             errors.append(
-                f"Cabeçalho run_id divergente em '{p.name}': encontrado={hid!r} != esperado={expected_run_id!r}."
+                f"Cabeçalho run_id (RUN_ID) divergente em '{p.name}': encontrado={hid!r} != esperado={expected_run_id!r}."
             )
 
     if errors:
@@ -367,7 +404,8 @@ def validate_artifact_run_id(
         "valid": True,
         "artifact_path": str(p),
         "expected_run_id": expected_run_id,
-        "found_run_ids": distinct_headers or [expected_run_id],
+        "found_run_ids": valid_headers,
+        "header_count": len(valid_headers),
         "bytes": p.stat().st_size,
         "sha256": sha256_file(p),
     }
