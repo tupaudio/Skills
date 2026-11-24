@@ -137,13 +137,13 @@ Manutenção corretiva sobre `v8.0-beta.6.2` para encerrar `ACH-B6.2-002` (parse
 
 ### ACH-B6.2-001 (P2) — Proveniência e consistência entre artefatos
 - **Causa-raiz:** Artefatos da Beta 6.2 combinavam métricas capturadas em execuções distintas e transcrição manual no relatório de homologação, gerando divergências de build do Windows e duração.
-- **Correção:** Introduzidos `run_id` único por execução, captura ambiental única (`capture_runtime_environment()`), plugin programático `scripts/tools/_pytest_capture_plugin.py`, inventário `artifacts` com SHA-256 real em `run_manifest.json`, geração programática deste relatório a partir dos mesmos objetos em memória e portão obrigatório `validate_run_consistency()` (que aborta diante de qualquer divergência).
+- **Correção:** Introduzidos `run_id` único por execução, captura ambiental única (`capture_runtime_environment()`), plugin programático `tests/_pytest_capture_plugin.py`, inventário `artifacts` com SHA-256 real em `run_manifest.json`, geração programática deste relatório a partir dos mesmos objetos em memória e portão obrigatório `validate_run_consistency()` (que aborta diante de qualquer divergência).
 
 ## 6. Arquivos alterados na manutenção
 - `skills/revisao-hostil-v8/scripts/common/dependencies.py`
 - `skills/revisao-hostil-v8/scripts/common/profile_loader.py`
 - `skills/revisao-hostil-v8/scripts/common/provenance.py`
-- `skills/revisao-hostil-v8/scripts/tools/_pytest_capture_plugin.py` (novo)
+- `skills/revisao-hostil-v8/tests/_pytest_capture_plugin.py` (novo)
 - `skills/revisao-hostil-v8/scripts/tools/generate_audit_reports.py`
 - `skills/revisao-hostil-v8/tests/test_beta6_3_requirements_provenance.py` (novo)
 - `skills/revisao-hostil-v8/relatorios_execucao/{{pytest_verbose.txt,coverage_report.txt,smoke_tests.txt,run_manifest.json,homologacao_v8.0-beta.6.3.md}}`
@@ -232,7 +232,7 @@ def main() -> None:
             "pytest",
             "-v",
             "-p",
-            "scripts.tools._pytest_capture_plugin",
+            "tests._pytest_capture_plugin",
             "--cov=scripts",
             "--cov-report=term-missing",
             f"--cov-report=json:{cov_json}",

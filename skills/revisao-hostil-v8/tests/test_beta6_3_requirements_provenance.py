@@ -158,6 +158,25 @@ def test_b63_requirements_duplicate_compatible_and_conflicting_constraints(tmp_p
     with pytest.raises(RequirementsConflictError):
         parse_requirements_file(conflict_exact)
 
+    conflict_bound = tmp_path / "conflict_bound.txt"
+    conflict_bound.write_text("numpy>2.0.0\nnumpy<=2.0.0\n", encoding="utf-8")
+    with pytest.raises(RequirementsConflictError):
+        parse_requirements_file(conflict_bound)
+
+    conflict_excl = tmp_path / "conflict_excl.txt"
+    conflict_excl.write_text("numpy>=2.0.0\nnumpy<=2.0.0\nnumpy!=2.0.0\n", encoding="utf-8")
+    with pytest.raises(RequirementsConflictError):
+        parse_requirements_file(conflict_excl)
+
+    # Conflito inline em validate_single_dependency -> unknown (nunca available)
+    r_conf = validate_single_dependency(
+        "numpy>=3.0.0,<2.0.0",
+        required=True,
+        requirements_map={},
+        metadata_resolver=_make_resolver({"numpy": "2.5.5"}),
+    )
+    assert r_conf["status"] == "unknown"
+
 
 def test_b63_requirements_unconstrained_markers_and_dist_vs_import(tmp_path: Path) -> None:
     """[Unitário] Distingue dependência sem restrição (-> unknown), marcadores de ambiente e dist vs import."""
