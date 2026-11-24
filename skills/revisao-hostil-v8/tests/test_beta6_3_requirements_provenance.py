@@ -298,7 +298,7 @@ def _build_consistent_fixture(tmp_path: Path) -> tuple[dict[str, Any], Path, str
     rep_dir.mkdir(parents=True, exist_ok=True)
 
     (rep_dir / "pytest_verbose.txt").write_text(f"# run_id={run_id}\n93 passed in 1.25s\n", encoding="utf-8")
-    (rep_dir / "coverage_report.txt").write_text("TOTAL 100 10 90%\n", encoding="utf-8")
+    (rep_dir / "coverage_report.txt").write_text(f"# run_id={run_id}\nTOTAL 100 10 90%\n", encoding="utf-8")
     (rep_dir / "smoke_tests.txt").write_text(f"# run_id={run_id}\n[CLI OK]\n", encoding="utf-8")
 
     report_text = (
@@ -456,3 +456,122 @@ def test_b63_consistency_detects_all_divergences(tmp_path: Path, tamper_case: st
             report_text=rep_txt,
             required_artifact_names=req_names,
         )
+
+
+# =============================================================================
+# DOMÍNIO 4 — ACH-B6.3-001 (run_id NO CONTEÚDO) E ACH-B6.3-002 (COMPLETUDE SHA256SUMS)
+# =============================================================================
+
+
+@pytest.mark.parametrize(
+    "content_tamper",
+    [
+        "pytest_log_missing_run_id_even_with_updated_hash",
+        "coverage_report_missing_run_id_even_with_updated_hash",
+        "pytest_log_foreign_run_id_even_with_updated_hash",
+        "coverage_report_foreign_run_id_even_with_updated_hash",
+    ],
+)
+def test_ach_b63_001_artifact_content_must_contain_matching_run_id(tmp_path: Path, content_tamper: str) -> None:
+    """[Adversarial] Substituir pytest_verbose.txt ou coverage_report.txt por outra execução falha mesmo atualizando hashes."""
+    manifest, sha_file, report_text = _build_consistent_fixture(tmp_path)
+    m = copy.deepcopy(manifest)
+
+    if content_tamper == "pytest_log_missing_run_id_even_with_updated_hash":
+        target_name = "pytest_verbose.txt"
+        new_body = "93 passed in 1.25s (sem cabecalho run_id)\n"
+    elif content_tamper == "coverage_report_missing_run_id_even_with_updated_hash":
+        target_name = "coverage_report.txt"
+        new_body = "TOTAL 100 10 90%\n"
+    elif content_tamper == "pytest_log_foreign_run_id_even_with_updated_hash":
+        target_name = "pytest_verbose.txt"
+        new_body = "# run_id=OUTRA-EXECUCAO-9999\n93 passed in 1.25s\n"
+    else:
+        target_name = "coverage_report.txt"
+        new_body = "# run_id=OUTRA-EXECUCAO-9999\nTOTAL 100 10 90%\n"
+
+    target_path = tmp_path / "relatorios_execucao" / target_name
+    target_path.write_text(new_body, encoding="utf-8")
+    new_hash = hashlib.sha256(target_path.read_bytes()).hexdigest()
+    new_size = target_path.stat().st_size
+
+    # Atualiza hash no manifesto e no SHA256SUMS simulando ataque de substituição
+    for art in m["artifacts"]:
+        if art["name"] == target_name:
+            art["sha256"] = new_hash
+            art["bytes"] = new_size
+    sha_lines = []
+    for art in m["artifacts"]:
+        p = tmp_path / art["relative_path"]
+        sha_lines.append(f"{hashlib.sha256(p.read_bytes()).hexdigest()}  {art['relative_path']}")
+    sha_file.write_text("\n".join(sha_lines) + "\n", encoding="utf-8")
+
+    with pytest.raises(ConsistencyValidationError, match="run_id"):
+        validate_run_consistency(
+            m,
+            root_dir=tmp_path,
+            sha256sums_path=sha_file,
+            expected_commit="abc1234",
+            report_text=report_text,
+        )
+
+
+@pytest.mark.parametrize(
+    "sha_tamper",
+    [
+        "omitted_file",
+        "duplicate_entry",
+        "unexpected_extra_file",
+        "malformed_hash",
+        "malformed_line_no_separator",
+        "invalid_traversal_path",
+    ],
+)
+def test_ach_b63_002_sha256sums_completeness_and_strict_parsing(tmp_path: Path, sha_tamper: str) -> None:
+    """[Negativo/Adversarial] SHA256SUMS rejeita omissão, duplicata, arquivo extra, hash malformado e caminho inválido."""
+    manifest, sha_file, report_text = _build_consistent_fixture(tmp_path)
+    lines = sha_file.read_text(encoding="utf-8").splitlines()
+
+    if sha_tamper == "omitted_file":
+        sha_file.write_text("\n".join(lines[:-1]) + "\n", encoding="utf-8")
+    elif sha_tamper == "duplicate_entry":
+        sha_file.write_text("\n".join(lines + [lines[0]]) + "\n", encoding="utf-8")
+    elif sha_tamper == "unexpected_extra_file":
+        extra = tmp_path / "extra_nao_inventariado.txt"
+        extra.write_text("intruso\n", encoding="utf-8")
+        eh = hashlib.sha256(extra.read_bytes()).hexdigest()
+        sha_file.write_text("\n".join(lines + [f"{eh}  extra_nao_inventariado.txt"]) + "\n", encoding="utf-8")
+    elif sha_tamper == "malformed_hash":
+        sha_file.write_text("\n".join(["ZZZZ_HASH_INVALIDO  relatorios_execucao/pytest_verbose.txt"] + lines[1:]) + "\n", encoding="utf-8")
+    elif sha_tamper == "malformed_line_no_separator":
+        sha_file.write_text("\n".join(lines + ["linha_sem_separador_duplo"]) + "\n", encoding="utf-8")
+    elif sha_tamper == "invalid_traversal_path":
+        sha_file.write_text("\n".join(lines + [("a" * 64) + "  ../escape.txt"]) + "\n", encoding="utf-8")
+
+    with pytest.raises(ConsistencyValidationError):
+        validate_run_consistency(
+            manifest,
+            root_dir=tmp_path,
+            sha256sums_path=sha_file,
+            expected_commit="abc1234",
+            report_text=report_text,
+        )
+
+
+def test_b64_parser_compatible_release_wildcard_and_arbitrary_equality(tmp_path: Path) -> None:
+    """[Unitário] Cobre ~= (conflitante e compatível), === e curingas ==2.* no parser de requisitos."""
+    # ~=2.1.0 equivale a >=2.1.0, <2.2.0 -> conflita com >=2.2.0
+    c_tilde = tmp_path / "tilde_conflict.txt"
+    c_tilde.write_text("numpy~=2.1.0\nnumpy>=2.2.0\n", encoding="utf-8")
+    with pytest.raises(RequirementsConflictError):
+        parse_requirements_file(c_tilde)
+
+    # ~=2.1.0 compatível com 2.1.5 e incompatível com 2.2.0
+    ok_tilde = tmp_path / "tilde_ok.txt"
+    ok_tilde.write_text("numpy~=2.1.0\nscipy==1.*\nsympy===1.14.0\n", encoding="utf-8")
+    req_map = parse_requirements_file(ok_tilde)
+    assert validate_single_dependency("numpy", requirements_map=req_map, metadata_resolver=_make_resolver({"numpy": "2.1.5"}))["status"] == "available"
+    assert validate_single_dependency("numpy", requirements_map=req_map, metadata_resolver=_make_resolver({"numpy": "2.2.0"}))["status"] == "incompatible"
+    assert validate_single_dependency("scipy", requirements_map=req_map, metadata_resolver=_make_resolver({"scipy": "1.18.1"}))["status"] == "available"
+    assert validate_single_dependency("sympy", requirements_map=req_map, metadata_resolver=_make_resolver({"sympy": "1.14.0"}))["status"] == "available"
+    assert validate_single_dependency("sympy", requirements_map=req_map, metadata_resolver=_make_resolver({"sympy": "1.13.0"}))["status"] == "incompatible"
