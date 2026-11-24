@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-"""Gerador reproduzível de relatórios de auditoria, cobertura, manifesto e SHA256SUMS (v8.0-beta.5.3)."""
+"""Gerador reproduzível de relatórios de auditoria, cobertura, manifesto e SHA256SUMS (v8.0-beta.6.2)."""
 
 from __future__ import annotations
 
@@ -45,8 +45,10 @@ ALL_ENGINE_NAMES = (
 
 REPORT_ARTIFACTS_REL = [
     "relatorios_execucao/pytest_verbose.txt",
+    "relatorios_execucao/coverage_report.txt",
     "relatorios_execucao/smoke_tests.txt",
     "relatorios_execucao/run_manifest.json",
+    "relatorios_execucao/homologacao_v8.0-beta.6.2.md",
     "SHA256SUMS",
 ]
 
@@ -82,14 +84,23 @@ def main() -> None:
         text=True,
         capture_output=True,
     )
-    (rep_dir / "pytest_verbose.txt").write_text(
-        (p_test.stdout + "\n" + p_test.stderr).replace("\r\n", "\n"),
-        encoding="utf-8",
-        newline="\n",
-    )
+    full_pytest_out = (p_test.stdout + "\n" + p_test.stderr).replace("\r\n", "\n")
+    (rep_dir / "pytest_verbose.txt").write_text(full_pytest_out, encoding="utf-8", newline="\n")
     assert p_test.returncode == 0, f"pytest falhou:\n{p_test.stdout}\n{p_test.stderr}"
 
-    # 2. Smoke tests de TODOS os 18 motores + auditor.py (com validação contra schema_motor.json)
+    # Extrai tabela de cobertura para arquivo dedicado
+    cov_lines: list[str] = []
+    in_cov = False
+    for line in full_pytest_out.splitlines():
+        if line.startswith("Name") and "Stmts" in line and "Cover" in line:
+            in_cov = True
+        if in_cov:
+            cov_lines.append(line)
+            if line.startswith("TOTAL"):
+                break
+    (rep_dir / "coverage_report.txt").write_text("\n".join(cov_lines) + "\n", encoding="utf-8", newline="\n")
+
+    # 2. Smoke tests de TODOS os 21 motores + auditor.py (com validação contra schema_motor.json)
     smoke_lines: list[str] = []
     # Importação e versão de todos os 18 motores
     live_versions = collect_live_engine_versions()
@@ -153,32 +164,41 @@ def main() -> None:
     smoke_lines.append(f"[CLI OK] auditor.py -> status={aud_out['status']}, pistas={len(aud_out['achados'])}, schema_motor.json=VALID")
     (rep_dir / "smoke_tests.txt").write_text("\n".join(smoke_lines) + "\n", encoding="utf-8", newline="\n")
 
-    # 3. Carrega versões e dependências verificadas de todos os perfis-piloto ativos para o manifesto
+    # 3. Carrega e audita todos os perfis-piloto ativos (rastreabilidade perfil -> motor -> dependência, ACH-B6.1-005)
     from scripts.common.profile_loader import list_available_profiles, load_profile
-    profile_versions = {}
-    profile_deps_summary = {}
-    for pid in list_available_profiles():
-        prof = load_profile(pid)
-        profile_versions[pid] = str(prof["profile_version"])
-        for dep_name, dep_info in prof.get("_resolved", {}).get("verified_dependencies", {}).items():
-            profile_deps_summary[dep_name] = dep_info
 
-    # 4. run_manifest.json (caminhos relativos, autoexclusão e política transparente de git_dirty)
+    profile_versions = {}
+    profile_audit_records = []
+    for pid in list_available_profiles():
+        prof = load_profile(pid, mode="execution")
+        profile_versions[pid] = str(prof["profile_version"])
+        profile_audit_records.append(prof["_resolved"]["manifest_profile_record"])
+
+    # 4. run_manifest.json (caminhos relativos, autoexclusão e proveniência completa ACH-B6.1-005)
     manifest_rel = "relatorios_execucao/run_manifest.json"
     all_files = sorted(
         p for p in ROOT.rglob("*") if is_clean_file(p) and p.relative_to(ROOT).as_posix() != manifest_rel
     )
     manifest = build_run_manifest(
-        "BETA6.1-HOMOLOGATION-2026-11-23",
+        "BETA6.2-HOMOLOGATION-2026-11-23",
         all_files,
-        skill_version="8.0.0-beta.6.1",
+        skill_version="8.0.0-beta.6.2",
         engine_versions=live_versions,
         profile_versions=profile_versions,
+        profile_audit_records=profile_audit_records,
+        authorized_exceptions=[],
+        report_references={
+            "pytest_verbose": "relatorios_execucao/pytest_verbose.txt",
+            "coverage_report": "relatorios_execucao/coverage_report.txt",
+            "smoke_tests": "relatorios_execucao/smoke_tests.txt",
+            "homologation_report": "relatorios_execucao/homologacao_v8.0-beta.6.2.md",
+            "checksums": "SHA256SUMS",
+        },
         config={
             "pytest_args": ["-v", "--cov=scripts", "--cov-report=term-missing"],
             "naive_timezone_policy": "strict",
             "profile_schema_enforced": "references/schemas/schema_profile.json",
-            "profile_dependencies_verified": profile_deps_summary,
+            "dependency_validation_source": "requirements.txt + references/catalogo_motores.yaml",
             "engines_cataloged": 23,
             "engines_implemented": len(ALL_ENGINE_NAMES),
             "engines_planned_phase8": 2,
@@ -193,21 +213,30 @@ def main() -> None:
     )
     save_run_manifest(manifest, rep_dir / "run_manifest.json")
 
-    # 4. SHA256SUMS na raiz (LF garantido) + verificação automática pós-geração
+    # 5. SHA256SUMS na raiz (LF garantido) + verificação automática pós-geração por recálculo de bytes
     final_files = sorted(p for p in ROOT.rglob("*") if is_clean_file(p))
     sha_lines = [f"{hashlib.sha256(p.read_bytes()).hexdigest()}  {p.relative_to(ROOT).as_posix()}" for p in final_files]
     sha_file = ROOT / "SHA256SUMS"
     sha_file.write_text("\n".join(sha_lines) + "\n", encoding="utf-8", newline="\n")
 
+    verified_count = 0
+    failed_count = 0
     for line in sha_file.read_text(encoding="utf-8").splitlines():
         expected, rel = line.split("  ", 1)
         actual = hashlib.sha256((ROOT / rel).read_bytes()).hexdigest()
-        assert actual == expected, f"Divergência de hash pós-geração em {rel}"
+        if actual == expected:
+            verified_count += 1
+        else:
+            failed_count += 1
+    assert failed_count == 0, f"Falha de integridade SHA-256 em {failed_count} arquivo(s)."
 
     gs = manifest["git_state"]
+    ge = manifest["global_eligibility"]
     print(
         f"AUDIT_REPORTS_OK | audited_code_commit={manifest['audited_code_commit']} "
-        f"| git_dirty_raw={gs['git_dirty_raw']} | git_dirty_code={gs['git_dirty_code']} | files={len(final_files)}"
+        f"| git_dirty_raw={gs['git_dirty_raw']} | git_dirty_code={gs['git_dirty_code']} "
+        f"| eligible={ge['eligible_count']}/{ge['evaluated_profiles']} "
+        f"| sha256_verified={verified_count} | sha256_failed={failed_count}"
     )
 
 
