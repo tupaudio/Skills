@@ -1,9 +1,18 @@
 {
   "schema_version": "1.0.0",
-  "run_id": "BETA6.2-HOMOLOGATION-2026-11-23",
-  "timestamp_utc": "2026-11-24T00:39:48+00:00",
-  "skill_version": "8.0.0-beta.6.2",
-  "manifest_generator_version": "8.0.0-beta.6.2",
+  "run_id": "BETA6.3-20261124T011635Z-000e37a7",
+  "timestamp_utc": "2026-11-24T01:17:00+00:00",
+  "timestamp_start_utc": "2026-11-24T01:16:35+00:00",
+  "timestamp_end_utc": "2026-11-24T01:17:00+00:00",
+  "durations": {
+    "test_suite_seconds": 13.449764199962374,
+    "smoke_tests_seconds": 9.307375400036108,
+    "report_generation_seconds": 0.3607109000440687,
+    "integrity_verification_seconds": 0.0,
+    "total_seconds": 24.972788799961563
+  },
+  "skill_version": "8.0.0-beta.6.3",
+  "manifest_generator_version": "8.0.0-beta.6.3",
   "schema_validator_version": "4.26.0",
   "engine_versions": {
     "auditor_estrutural": "8.0.0-beta.2",
@@ -67,9 +76,13 @@
               "import_name": "PIL",
               "required": true,
               "version_specifier": ">=10.0.0",
+              "has_version_specifier": true,
+              "extras": [],
+              "markers": [],
+              "origin": "C:\\ZZ - Antigravity\\tupaudio-Skills\\skills\\revisao-hostil-v8\\requirements.txt",
+              "validation_timestamp": "2026-11-24T01:17:00+00:00",
               "installed_version": "13.0.0",
               "status": "available",
-              "validation_timestamp": "2026-11-24T00:39:47+00:00",
               "reason": "Versão instalada '13.0.0' satisfaz restrição '>=10.0.0'."
             },
             {
@@ -77,9 +90,13 @@
               "import_name": "numpy",
               "required": true,
               "version_specifier": ">=2.0.0",
+              "has_version_specifier": true,
+              "extras": [],
+              "markers": [],
+              "origin": "C:\\ZZ - Antigravity\\tupaudio-Skills\\skills\\revisao-hostil-v8\\requirements.txt",
+              "validation_timestamp": "2026-11-24T01:17:00+00:00",
               "installed_version": "2.5.5",
               "status": "available",
-              "validation_timestamp": "2026-11-24T00:39:47+00:00",
               "reason": "Versão instalada '2.5.5' satisfaz restrição '>=2.0.0'."
             }
           ]
@@ -95,9 +112,13 @@
               "import_name": "PIL",
               "required": true,
               "version_specifier": ">=10.0.0",
+              "has_version_specifier": true,
+              "extras": [],
+              "markers": [],
+              "origin": "C:\\ZZ - Antigravity\\tupaudio-Skills\\skills\\revisao-hostil-v8\\requirements.txt",
+              "validation_timestamp": "2026-11-24T01:17:00+00:00",
               "installed_version": "13.0.0",
               "status": "available",
-              "validation_timestamp": "2026-11-24T00:39:47+00:00",
               "reason": "Versão instalada '13.0.0' satisfaz restrição '>=10.0.0'."
             },
             {
@@ -105,9 +126,13 @@
               "import_name": "numpy",
               "required": true,
               "version_specifier": ">=2.0.0",
+              "has_version_specifier": true,
+              "extras": [],
+              "markers": [],
+              "origin": "C:\\ZZ - Antigravity\\tupaudio-Skills\\skills\\revisao-hostil-v8\\requirements.txt",
+              "validation_timestamp": "2026-11-24T01:17:00+00:00",
               "installed_version": "2.5.5",
               "status": "available",
-              "validation_timestamp": "2026-11-24T00:39:47+00:00",
               "reason": "Versão instalada '2.5.5' satisfaz restrição '>=2.0.0'."
             }
           ]
@@ -123,9 +148,13 @@
               "import_name": "PIL",
               "required": true,
               "version_specifier": ">=10.0.0",
+              "has_version_specifier": true,
+              "extras": [],
+              "markers": [],
+              "origin": "C:\\ZZ - Antigravity\\tupaudio-Skills\\skills\\revisao-hostil-v8\\requirements.txt",
+              "validation_timestamp": "2026-11-24T01:17:00+00:00",
               "installed_version": "13.0.0",
               "status": "available",
-              "validation_timestamp": "2026-11-24T00:39:47+00:00",
               "reason": "Versão instalada '13.0.0' satisfaz restrição '>=10.0.0'."
             }
           ]
@@ -141,9 +170,13 @@
               "import_name": null,
               "required": true,
               "version_specifier": null,
+              "has_version_specifier": false,
+              "extras": [],
+              "markers": [],
+              "origin": "none",
               "installed_version": null,
               "status": "not_applicable",
-              "validation_timestamp": "2026-11-24T00:39:47+00:00",
+              "validation_timestamp": "2026-11-24T01:17:00+00:00",
               "reason": "Motor 'motor_linguagem' não declara dependências externas (apenas biblioteca padrão)."
             }
           ]
@@ -159,9 +192,13 @@
               "import_name": null,
               "required": true,
               "version_specifier": null,
+              "has_version_specifier": false,
+              "extras": [],
+              "markers": [],
+              "origin": "none",
               "installed_version": null,
               "status": "not_applicable",
-              "validation_timestamp": "2026-11-24T00:39:47+00:00",
+              "validation_timestamp": "2026-11-24T01:17:00+00:00",
               "reason": "Motor 'motor_temporal' não declara dependências externas (apenas biblioteca padrão)."
             }
           ]
@@ -177,9 +214,13 @@
               "import_name": null,
               "required": false,
               "version_specifier": null,
+              "has_version_specifier": false,
+              "extras": [],
+              "markers": [],
+              "origin": "none",
               "installed_version": null,
               "status": "not_applicable",
-              "validation_timestamp": "2026-11-24T00:39:47+00:00",
+              "validation_timestamp": "2026-11-24T01:17:00+00:00",
               "reason": "Motor 'motor_etica' não declara dependências externas (apenas biblioteca padrão)."
             }
           ]
@@ -195,9 +236,13 @@
               "import_name": null,
               "required": false,
               "version_specifier": null,
+              "has_version_specifier": false,
+              "extras": [],
+              "markers": [],
+              "origin": "none",
               "installed_version": null,
               "status": "not_applicable",
-              "validation_timestamp": "2026-11-24T00:39:47+00:00",
+              "validation_timestamp": "2026-11-24T01:17:00+00:00",
               "reason": "Motor 'motor_argumentacao' não declara dependências externas (apenas biblioteca padrão)."
             }
           ]
@@ -213,15 +258,20 @@
               "import_name": null,
               "required": false,
               "version_specifier": null,
+              "has_version_specifier": false,
+              "extras": [],
+              "markers": [],
+              "origin": "none",
               "installed_version": null,
               "status": "not_applicable",
-              "validation_timestamp": "2026-11-24T00:39:47+00:00",
+              "validation_timestamp": "2026-11-24T01:17:00+00:00",
               "reason": "Motor 'motor_metadados' não declara dependências externas (apenas biblioteca padrão)."
             }
           ]
         }
       ],
       "profile_dependencies": [],
+      "requirements_error": null,
       "blocking_reasons": [],
       "optional_unmet_warnings": []
     },
@@ -253,9 +303,13 @@
               "import_name": "yaml",
               "required": true,
               "version_specifier": ">=6.0.0",
+              "has_version_specifier": true,
+              "extras": [],
+              "markers": [],
+              "origin": "C:\\ZZ - Antigravity\\tupaudio-Skills\\skills\\revisao-hostil-v8\\requirements.txt",
+              "validation_timestamp": "2026-11-24T01:17:00+00:00",
               "installed_version": "6.0.4",
               "status": "available",
-              "validation_timestamp": "2026-11-24T00:39:47+00:00",
               "reason": "Versão instalada '6.0.4' satisfaz restrição '>=6.0.0'."
             }
           ]
@@ -271,9 +325,13 @@
               "import_name": null,
               "required": true,
               "version_specifier": null,
+              "has_version_specifier": false,
+              "extras": [],
+              "markers": [],
+              "origin": "none",
               "installed_version": null,
               "status": "not_applicable",
-              "validation_timestamp": "2026-11-24T00:39:47+00:00",
+              "validation_timestamp": "2026-11-24T01:17:00+00:00",
               "reason": "Motor 'motor_temporal' não declara dependências externas (apenas biblioteca padrão)."
             }
           ]
@@ -289,9 +347,13 @@
               "import_name": null,
               "required": true,
               "version_specifier": null,
+              "has_version_specifier": false,
+              "extras": [],
+              "markers": [],
+              "origin": "none",
               "installed_version": null,
               "status": "not_applicable",
-              "validation_timestamp": "2026-11-24T00:39:47+00:00",
+              "validation_timestamp": "2026-11-24T01:17:00+00:00",
               "reason": "Motor 'motor_argumentacao' não declara dependências externas (apenas biblioteca padrão)."
             }
           ]
@@ -307,9 +369,13 @@
               "import_name": null,
               "required": true,
               "version_specifier": null,
+              "has_version_specifier": false,
+              "extras": [],
+              "markers": [],
+              "origin": "none",
               "installed_version": null,
               "status": "not_applicable",
-              "validation_timestamp": "2026-11-24T00:39:47+00:00",
+              "validation_timestamp": "2026-11-24T01:17:00+00:00",
               "reason": "Motor 'motor_evidencia' não declara dependências externas (apenas biblioteca padrão)."
             }
           ]
@@ -325,9 +391,13 @@
               "import_name": null,
               "required": true,
               "version_specifier": null,
+              "has_version_specifier": false,
+              "extras": [],
+              "markers": [],
+              "origin": "none",
               "installed_version": null,
               "status": "not_applicable",
-              "validation_timestamp": "2026-11-24T00:39:47+00:00",
+              "validation_timestamp": "2026-11-24T01:17:00+00:00",
               "reason": "Motor 'motor_linguagem' não declara dependências externas (apenas biblioteca padrão)."
             }
           ]
@@ -343,9 +413,13 @@
               "import_name": null,
               "required": false,
               "version_specifier": null,
+              "has_version_specifier": false,
+              "extras": [],
+              "markers": [],
+              "origin": "none",
               "installed_version": null,
               "status": "not_applicable",
-              "validation_timestamp": "2026-11-24T00:39:47+00:00",
+              "validation_timestamp": "2026-11-24T01:17:00+00:00",
               "reason": "Motor 'motor_etica' não declara dependências externas (apenas biblioteca padrão)."
             }
           ]
@@ -361,9 +435,13 @@
               "import_name": null,
               "required": false,
               "version_specifier": null,
+              "has_version_specifier": false,
+              "extras": [],
+              "markers": [],
+              "origin": "none",
               "installed_version": null,
               "status": "not_applicable",
-              "validation_timestamp": "2026-11-24T00:39:47+00:00",
+              "validation_timestamp": "2026-11-24T01:17:00+00:00",
               "reason": "Motor 'motor_nomenclatura' não declara dependências externas (apenas biblioteca padrão)."
             }
           ]
@@ -379,15 +457,20 @@
               "import_name": null,
               "required": false,
               "version_specifier": null,
+              "has_version_specifier": false,
+              "extras": [],
+              "markers": [],
+              "origin": "none",
               "installed_version": null,
               "status": "not_applicable",
-              "validation_timestamp": "2026-11-24T00:39:47+00:00",
+              "validation_timestamp": "2026-11-24T01:17:00+00:00",
               "reason": "Motor 'motor_metadados' não declara dependências externas (apenas biblioteca padrão)."
             }
           ]
         }
       ],
       "profile_dependencies": [],
+      "requirements_error": null,
       "blocking_reasons": [],
       "optional_unmet_warnings": []
     },
@@ -419,9 +502,13 @@
               "import_name": "numpy",
               "required": true,
               "version_specifier": ">=2.0.0",
+              "has_version_specifier": true,
+              "extras": [],
+              "markers": [],
+              "origin": "C:\\ZZ - Antigravity\\tupaudio-Skills\\skills\\revisao-hostil-v8\\requirements.txt",
+              "validation_timestamp": "2026-11-24T01:17:00+00:00",
               "installed_version": "2.5.5",
               "status": "available",
-              "validation_timestamp": "2026-11-24T00:39:47+00:00",
               "reason": "Versão instalada '2.5.5' satisfaz restrição '>=2.0.0'."
             },
             {
@@ -429,9 +516,13 @@
               "import_name": "scipy",
               "required": true,
               "version_specifier": ">=1.14.0",
+              "has_version_specifier": true,
+              "extras": [],
+              "markers": [],
+              "origin": "C:\\ZZ - Antigravity\\tupaudio-Skills\\skills\\revisao-hostil-v8\\requirements.txt",
+              "validation_timestamp": "2026-11-24T01:17:00+00:00",
               "installed_version": "1.18.1",
               "status": "available",
-              "validation_timestamp": "2026-11-24T00:39:47+00:00",
               "reason": "Versão instalada '1.18.1' satisfaz restrição '>=1.14.0'."
             },
             {
@@ -439,9 +530,13 @@
               "import_name": "sympy",
               "required": true,
               "version_specifier": ">=1.13.0",
+              "has_version_specifier": true,
+              "extras": [],
+              "markers": [],
+              "origin": "C:\\ZZ - Antigravity\\tupaudio-Skills\\skills\\revisao-hostil-v8\\requirements.txt",
+              "validation_timestamp": "2026-11-24T01:17:00+00:00",
               "installed_version": "1.14.0",
               "status": "available",
-              "validation_timestamp": "2026-11-24T00:39:47+00:00",
               "reason": "Versão instalada '1.14.0' satisfaz restrição '>=1.13.0'."
             }
           ]
@@ -457,9 +552,13 @@
               "import_name": null,
               "required": true,
               "version_specifier": null,
+              "has_version_specifier": false,
+              "extras": [],
+              "markers": [],
+              "origin": "none",
               "installed_version": null,
               "status": "not_applicable",
-              "validation_timestamp": "2026-11-24T00:39:47+00:00",
+              "validation_timestamp": "2026-11-24T01:17:00+00:00",
               "reason": "Motor 'motor_dimensional' não declara dependências externas (apenas biblioteca padrão)."
             }
           ]
@@ -475,9 +574,13 @@
               "import_name": "numpy",
               "required": true,
               "version_specifier": ">=2.0.0",
+              "has_version_specifier": true,
+              "extras": [],
+              "markers": [],
+              "origin": "C:\\ZZ - Antigravity\\tupaudio-Skills\\skills\\revisao-hostil-v8\\requirements.txt",
+              "validation_timestamp": "2026-11-24T01:17:00+00:00",
               "installed_version": "2.5.5",
               "status": "available",
-              "validation_timestamp": "2026-11-24T00:39:47+00:00",
               "reason": "Versão instalada '2.5.5' satisfaz restrição '>=2.0.0'."
             },
             {
@@ -485,9 +588,13 @@
               "import_name": "scipy",
               "required": true,
               "version_specifier": ">=1.14.0",
+              "has_version_specifier": true,
+              "extras": [],
+              "markers": [],
+              "origin": "C:\\ZZ - Antigravity\\tupaudio-Skills\\skills\\revisao-hostil-v8\\requirements.txt",
+              "validation_timestamp": "2026-11-24T01:17:00+00:00",
               "installed_version": "1.18.1",
               "status": "available",
-              "validation_timestamp": "2026-11-24T00:39:47+00:00",
               "reason": "Versão instalada '1.18.1' satisfaz restrição '>=1.14.0'."
             }
           ]
@@ -503,9 +610,13 @@
               "import_name": "numpy",
               "required": true,
               "version_specifier": ">=2.0.0",
+              "has_version_specifier": true,
+              "extras": [],
+              "markers": [],
+              "origin": "C:\\ZZ - Antigravity\\tupaudio-Skills\\skills\\revisao-hostil-v8\\requirements.txt",
+              "validation_timestamp": "2026-11-24T01:17:00+00:00",
               "installed_version": "2.5.5",
               "status": "available",
-              "validation_timestamp": "2026-11-24T00:39:47+00:00",
               "reason": "Versão instalada '2.5.5' satisfaz restrição '>=2.0.0'."
             },
             {
@@ -513,9 +624,13 @@
               "import_name": "sympy",
               "required": true,
               "version_specifier": ">=1.13.0",
+              "has_version_specifier": true,
+              "extras": [],
+              "markers": [],
+              "origin": "C:\\ZZ - Antigravity\\tupaudio-Skills\\skills\\revisao-hostil-v8\\requirements.txt",
+              "validation_timestamp": "2026-11-24T01:17:00+00:00",
               "installed_version": "1.14.0",
               "status": "available",
-              "validation_timestamp": "2026-11-24T00:39:47+00:00",
               "reason": "Versão instalada '1.14.0' satisfaz restrição '>=1.13.0'."
             }
           ]
@@ -531,9 +646,13 @@
               "import_name": "numpy",
               "required": true,
               "version_specifier": ">=2.0.0",
+              "has_version_specifier": true,
+              "extras": [],
+              "markers": [],
+              "origin": "C:\\ZZ - Antigravity\\tupaudio-Skills\\skills\\revisao-hostil-v8\\requirements.txt",
+              "validation_timestamp": "2026-11-24T01:17:00+00:00",
               "installed_version": "2.5.5",
               "status": "available",
-              "validation_timestamp": "2026-11-24T00:39:47+00:00",
               "reason": "Versão instalada '2.5.5' satisfaz restrição '>=2.0.0'."
             }
           ]
@@ -549,9 +668,13 @@
               "import_name": null,
               "required": true,
               "version_specifier": null,
+              "has_version_specifier": false,
+              "extras": [],
+              "markers": [],
+              "origin": "none",
               "installed_version": null,
               "status": "not_applicable",
-              "validation_timestamp": "2026-11-24T00:39:47+00:00",
+              "validation_timestamp": "2026-11-24T01:17:00+00:00",
               "reason": "Motor 'motor_reprodutibilidade' não declara dependências externas (apenas biblioteca padrão)."
             }
           ]
@@ -567,9 +690,13 @@
               "import_name": "numpy",
               "required": false,
               "version_specifier": ">=2.0.0",
+              "has_version_specifier": true,
+              "extras": [],
+              "markers": [],
+              "origin": "C:\\ZZ - Antigravity\\tupaudio-Skills\\skills\\revisao-hostil-v8\\requirements.txt",
+              "validation_timestamp": "2026-11-24T01:17:00+00:00",
               "installed_version": "2.5.5",
               "status": "available",
-              "validation_timestamp": "2026-11-24T00:39:47+00:00",
               "reason": "Versão instalada '2.5.5' satisfaz restrição '>=2.0.0'."
             }
           ]
@@ -585,9 +712,13 @@
               "import_name": "numpy",
               "required": false,
               "version_specifier": ">=2.0.0",
+              "has_version_specifier": true,
+              "extras": [],
+              "markers": [],
+              "origin": "C:\\ZZ - Antigravity\\tupaudio-Skills\\skills\\revisao-hostil-v8\\requirements.txt",
+              "validation_timestamp": "2026-11-24T01:17:00+00:00",
               "installed_version": "2.5.5",
               "status": "available",
-              "validation_timestamp": "2026-11-24T00:39:47+00:00",
               "reason": "Versão instalada '2.5.5' satisfaz restrição '>=2.0.0'."
             }
           ]
@@ -603,9 +734,13 @@
               "import_name": "PIL",
               "required": false,
               "version_specifier": ">=10.0.0",
+              "has_version_specifier": true,
+              "extras": [],
+              "markers": [],
+              "origin": "C:\\ZZ - Antigravity\\tupaudio-Skills\\skills\\revisao-hostil-v8\\requirements.txt",
+              "validation_timestamp": "2026-11-24T01:17:00+00:00",
               "installed_version": "13.0.0",
               "status": "available",
-              "validation_timestamp": "2026-11-24T00:39:47+00:00",
               "reason": "Versão instalada '13.0.0' satisfaz restrição '>=10.0.0'."
             },
             {
@@ -613,9 +748,13 @@
               "import_name": "numpy",
               "required": false,
               "version_specifier": ">=2.0.0",
+              "has_version_specifier": true,
+              "extras": [],
+              "markers": [],
+              "origin": "C:\\ZZ - Antigravity\\tupaudio-Skills\\skills\\revisao-hostil-v8\\requirements.txt",
+              "validation_timestamp": "2026-11-24T01:17:00+00:00",
               "installed_version": "2.5.5",
               "status": "available",
-              "validation_timestamp": "2026-11-24T00:39:47+00:00",
               "reason": "Versão instalada '2.5.5' satisfaz restrição '>=2.0.0'."
             }
           ]
@@ -631,9 +770,13 @@
               "import_name": null,
               "required": false,
               "version_specifier": null,
+              "has_version_specifier": false,
+              "extras": [],
+              "markers": [],
+              "origin": "none",
               "installed_version": null,
               "status": "not_applicable",
-              "validation_timestamp": "2026-11-24T00:39:47+00:00",
+              "validation_timestamp": "2026-11-24T01:17:00+00:00",
               "reason": "Motor 'motor_linguagem' não declara dependências externas (apenas biblioteca padrão)."
             }
           ]
@@ -649,9 +792,13 @@
               "import_name": null,
               "required": false,
               "version_specifier": null,
+              "has_version_specifier": false,
+              "extras": [],
+              "markers": [],
+              "origin": "none",
               "installed_version": null,
               "status": "not_applicable",
-              "validation_timestamp": "2026-11-24T00:39:47+00:00",
+              "validation_timestamp": "2026-11-24T01:17:00+00:00",
               "reason": "Motor 'motor_nomenclatura' não declara dependências externas (apenas biblioteca padrão)."
             }
           ]
@@ -667,15 +814,20 @@
               "import_name": "yaml",
               "required": false,
               "version_specifier": ">=6.0.0",
+              "has_version_specifier": true,
+              "extras": [],
+              "markers": [],
+              "origin": "C:\\ZZ - Antigravity\\tupaudio-Skills\\skills\\revisao-hostil-v8\\requirements.txt",
+              "validation_timestamp": "2026-11-24T01:17:00+00:00",
               "installed_version": "6.0.4",
               "status": "available",
-              "validation_timestamp": "2026-11-24T00:39:47+00:00",
               "reason": "Versão instalada '6.0.4' satisfaz restrição '>=6.0.0'."
             }
           ]
         }
       ],
       "profile_dependencies": [],
+      "requirements_error": null,
       "blocking_reasons": [],
       "optional_unmet_warnings": []
     },
@@ -707,9 +859,13 @@
               "import_name": "numpy",
               "required": true,
               "version_specifier": ">=2.0.0",
+              "has_version_specifier": true,
+              "extras": [],
+              "markers": [],
+              "origin": "C:\\ZZ - Antigravity\\tupaudio-Skills\\skills\\revisao-hostil-v8\\requirements.txt",
+              "validation_timestamp": "2026-11-24T01:17:00+00:00",
               "installed_version": "2.5.5",
               "status": "available",
-              "validation_timestamp": "2026-11-24T00:39:47+00:00",
               "reason": "Versão instalada '2.5.5' satisfaz restrição '>=2.0.0'."
             },
             {
@@ -717,9 +873,13 @@
               "import_name": "scipy",
               "required": true,
               "version_specifier": ">=1.14.0",
+              "has_version_specifier": true,
+              "extras": [],
+              "markers": [],
+              "origin": "C:\\ZZ - Antigravity\\tupaudio-Skills\\skills\\revisao-hostil-v8\\requirements.txt",
+              "validation_timestamp": "2026-11-24T01:17:00+00:00",
               "installed_version": "1.18.1",
               "status": "available",
-              "validation_timestamp": "2026-11-24T00:39:47+00:00",
               "reason": "Versão instalada '1.18.1' satisfaz restrição '>=1.14.0'."
             },
             {
@@ -727,9 +887,13 @@
               "import_name": "sympy",
               "required": true,
               "version_specifier": ">=1.13.0",
+              "has_version_specifier": true,
+              "extras": [],
+              "markers": [],
+              "origin": "C:\\ZZ - Antigravity\\tupaudio-Skills\\skills\\revisao-hostil-v8\\requirements.txt",
+              "validation_timestamp": "2026-11-24T01:17:00+00:00",
               "installed_version": "1.14.0",
               "status": "available",
-              "validation_timestamp": "2026-11-24T00:39:47+00:00",
               "reason": "Versão instalada '1.14.0' satisfaz restrição '>=1.13.0'."
             }
           ]
@@ -745,9 +909,13 @@
               "import_name": null,
               "required": true,
               "version_specifier": null,
+              "has_version_specifier": false,
+              "extras": [],
+              "markers": [],
+              "origin": "none",
               "installed_version": null,
               "status": "not_applicable",
-              "validation_timestamp": "2026-11-24T00:39:47+00:00",
+              "validation_timestamp": "2026-11-24T01:17:00+00:00",
               "reason": "Motor 'motor_dimensional' não declara dependências externas (apenas biblioteca padrão)."
             }
           ]
@@ -763,9 +931,13 @@
               "import_name": "numpy",
               "required": true,
               "version_specifier": ">=2.0.0",
+              "has_version_specifier": true,
+              "extras": [],
+              "markers": [],
+              "origin": "C:\\ZZ - Antigravity\\tupaudio-Skills\\skills\\revisao-hostil-v8\\requirements.txt",
+              "validation_timestamp": "2026-11-24T01:17:00+00:00",
               "installed_version": "2.5.5",
               "status": "available",
-              "validation_timestamp": "2026-11-24T00:39:47+00:00",
               "reason": "Versão instalada '2.5.5' satisfaz restrição '>=2.0.0'."
             },
             {
@@ -773,9 +945,13 @@
               "import_name": "scipy",
               "required": true,
               "version_specifier": ">=1.14.0",
+              "has_version_specifier": true,
+              "extras": [],
+              "markers": [],
+              "origin": "C:\\ZZ - Antigravity\\tupaudio-Skills\\skills\\revisao-hostil-v8\\requirements.txt",
+              "validation_timestamp": "2026-11-24T01:17:00+00:00",
               "installed_version": "1.18.1",
               "status": "available",
-              "validation_timestamp": "2026-11-24T00:39:47+00:00",
               "reason": "Versão instalada '1.18.1' satisfaz restrição '>=1.14.0'."
             }
           ]
@@ -791,9 +967,13 @@
               "import_name": null,
               "required": true,
               "version_specifier": null,
+              "has_version_specifier": false,
+              "extras": [],
+              "markers": [],
+              "origin": "none",
               "installed_version": null,
               "status": "not_applicable",
-              "validation_timestamp": "2026-11-24T00:39:47+00:00",
+              "validation_timestamp": "2026-11-24T01:17:00+00:00",
               "reason": "Motor 'motor_nomenclatura' não declara dependências externas (apenas biblioteca padrão)."
             }
           ]
@@ -809,9 +989,13 @@
               "import_name": "PIL",
               "required": true,
               "version_specifier": ">=10.0.0",
+              "has_version_specifier": true,
+              "extras": [],
+              "markers": [],
+              "origin": "C:\\ZZ - Antigravity\\tupaudio-Skills\\skills\\revisao-hostil-v8\\requirements.txt",
+              "validation_timestamp": "2026-11-24T01:17:00+00:00",
               "installed_version": "13.0.0",
               "status": "available",
-              "validation_timestamp": "2026-11-24T00:39:47+00:00",
               "reason": "Versão instalada '13.0.0' satisfaz restrição '>=10.0.0'."
             },
             {
@@ -819,9 +1003,13 @@
               "import_name": "numpy",
               "required": true,
               "version_specifier": ">=2.0.0",
+              "has_version_specifier": true,
+              "extras": [],
+              "markers": [],
+              "origin": "C:\\ZZ - Antigravity\\tupaudio-Skills\\skills\\revisao-hostil-v8\\requirements.txt",
+              "validation_timestamp": "2026-11-24T01:17:00+00:00",
               "installed_version": "2.5.5",
               "status": "available",
-              "validation_timestamp": "2026-11-24T00:39:47+00:00",
               "reason": "Versão instalada '2.5.5' satisfaz restrição '>=2.0.0'."
             }
           ]
@@ -837,9 +1025,13 @@
               "import_name": "numpy",
               "required": false,
               "version_specifier": ">=2.0.0",
+              "has_version_specifier": true,
+              "extras": [],
+              "markers": [],
+              "origin": "C:\\ZZ - Antigravity\\tupaudio-Skills\\skills\\revisao-hostil-v8\\requirements.txt",
+              "validation_timestamp": "2026-11-24T01:17:00+00:00",
               "installed_version": "2.5.5",
               "status": "available",
-              "validation_timestamp": "2026-11-24T00:39:47+00:00",
               "reason": "Versão instalada '2.5.5' satisfaz restrição '>=2.0.0'."
             },
             {
@@ -847,9 +1039,13 @@
               "import_name": "sympy",
               "required": false,
               "version_specifier": ">=1.13.0",
+              "has_version_specifier": true,
+              "extras": [],
+              "markers": [],
+              "origin": "C:\\ZZ - Antigravity\\tupaudio-Skills\\skills\\revisao-hostil-v8\\requirements.txt",
+              "validation_timestamp": "2026-11-24T01:17:00+00:00",
               "installed_version": "1.14.0",
               "status": "available",
-              "validation_timestamp": "2026-11-24T00:39:47+00:00",
               "reason": "Versão instalada '1.14.0' satisfaz restrição '>=1.13.0'."
             }
           ]
@@ -865,9 +1061,13 @@
               "import_name": "numpy",
               "required": false,
               "version_specifier": ">=2.0.0",
+              "has_version_specifier": true,
+              "extras": [],
+              "markers": [],
+              "origin": "C:\\ZZ - Antigravity\\tupaudio-Skills\\skills\\revisao-hostil-v8\\requirements.txt",
+              "validation_timestamp": "2026-11-24T01:17:00+00:00",
               "installed_version": "2.5.5",
               "status": "available",
-              "validation_timestamp": "2026-11-24T00:39:47+00:00",
               "reason": "Versão instalada '2.5.5' satisfaz restrição '>=2.0.0'."
             }
           ]
@@ -883,9 +1083,13 @@
               "import_name": null,
               "required": false,
               "version_specifier": null,
+              "has_version_specifier": false,
+              "extras": [],
+              "markers": [],
+              "origin": "none",
               "installed_version": null,
               "status": "not_applicable",
-              "validation_timestamp": "2026-11-24T00:39:47+00:00",
+              "validation_timestamp": "2026-11-24T01:17:00+00:00",
               "reason": "Motor 'motor_linguagem' não declara dependências externas (apenas biblioteca padrão)."
             }
           ]
@@ -901,15 +1105,20 @@
               "import_name": "PIL",
               "required": false,
               "version_specifier": ">=10.0.0",
+              "has_version_specifier": true,
+              "extras": [],
+              "markers": [],
+              "origin": "C:\\ZZ - Antigravity\\tupaudio-Skills\\skills\\revisao-hostil-v8\\requirements.txt",
+              "validation_timestamp": "2026-11-24T01:17:00+00:00",
               "installed_version": "13.0.0",
               "status": "available",
-              "validation_timestamp": "2026-11-24T00:39:47+00:00",
               "reason": "Versão instalada '13.0.0' satisfaz restrição '>=10.0.0'."
             }
           ]
         }
       ],
       "profile_dependencies": [],
+      "requirements_error": null,
       "blocking_reasons": [],
       "optional_unmet_warnings": []
     },
@@ -941,9 +1150,13 @@
               "import_name": "numpy",
               "required": true,
               "version_specifier": ">=2.0.0",
+              "has_version_specifier": true,
+              "extras": [],
+              "markers": [],
+              "origin": "C:\\ZZ - Antigravity\\tupaudio-Skills\\skills\\revisao-hostil-v8\\requirements.txt",
+              "validation_timestamp": "2026-11-24T01:17:00+00:00",
               "installed_version": "2.5.5",
               "status": "available",
-              "validation_timestamp": "2026-11-24T00:39:47+00:00",
               "reason": "Versão instalada '2.5.5' satisfaz restrição '>=2.0.0'."
             }
           ]
@@ -959,9 +1172,13 @@
               "import_name": null,
               "required": true,
               "version_specifier": null,
+              "has_version_specifier": false,
+              "extras": [],
+              "markers": [],
+              "origin": "none",
               "installed_version": null,
               "status": "not_applicable",
-              "validation_timestamp": "2026-11-24T00:39:47+00:00",
+              "validation_timestamp": "2026-11-24T01:17:00+00:00",
               "reason": "Motor 'motor_etica' não declara dependências externas (apenas biblioteca padrão)."
             }
           ]
@@ -977,9 +1194,13 @@
               "import_name": null,
               "required": true,
               "version_specifier": null,
+              "has_version_specifier": false,
+              "extras": [],
+              "markers": [],
+              "origin": "none",
               "installed_version": null,
               "status": "not_applicable",
-              "validation_timestamp": "2026-11-24T00:39:47+00:00",
+              "validation_timestamp": "2026-11-24T01:17:00+00:00",
               "reason": "Motor 'motor_argumentacao' não declara dependências externas (apenas biblioteca padrão)."
             }
           ]
@@ -995,9 +1216,13 @@
               "import_name": null,
               "required": true,
               "version_specifier": null,
+              "has_version_specifier": false,
+              "extras": [],
+              "markers": [],
+              "origin": "none",
               "installed_version": null,
               "status": "not_applicable",
-              "validation_timestamp": "2026-11-24T00:39:47+00:00",
+              "validation_timestamp": "2026-11-24T01:17:00+00:00",
               "reason": "Motor 'motor_evidencia' não declara dependências externas (apenas biblioteca padrão)."
             }
           ]
@@ -1013,9 +1238,13 @@
               "import_name": null,
               "required": true,
               "version_specifier": null,
+              "has_version_specifier": false,
+              "extras": [],
+              "markers": [],
+              "origin": "none",
               "installed_version": null,
               "status": "not_applicable",
-              "validation_timestamp": "2026-11-24T00:39:47+00:00",
+              "validation_timestamp": "2026-11-24T01:17:00+00:00",
               "reason": "Motor 'motor_linguagem' não declara dependências externas (apenas biblioteca padrão)."
             }
           ]
@@ -1031,9 +1260,13 @@
               "import_name": null,
               "required": false,
               "version_specifier": null,
+              "has_version_specifier": false,
+              "extras": [],
+              "markers": [],
+              "origin": "none",
               "installed_version": null,
               "status": "not_applicable",
-              "validation_timestamp": "2026-11-24T00:39:47+00:00",
+              "validation_timestamp": "2026-11-24T01:17:00+00:00",
               "reason": "Motor 'motor_temporal' não declara dependências externas (apenas biblioteca padrão)."
             }
           ]
@@ -1049,9 +1282,13 @@
               "import_name": null,
               "required": false,
               "version_specifier": null,
+              "has_version_specifier": false,
+              "extras": [],
+              "markers": [],
+              "origin": "none",
               "installed_version": null,
               "status": "not_applicable",
-              "validation_timestamp": "2026-11-24T00:39:47+00:00",
+              "validation_timestamp": "2026-11-24T01:17:00+00:00",
               "reason": "Motor 'motor_nomenclatura' não declara dependências externas (apenas biblioteca padrão)."
             }
           ]
@@ -1067,15 +1304,20 @@
               "import_name": null,
               "required": false,
               "version_specifier": null,
+              "has_version_specifier": false,
+              "extras": [],
+              "markers": [],
+              "origin": "none",
               "installed_version": null,
               "status": "not_applicable",
-              "validation_timestamp": "2026-11-24T00:39:47+00:00",
+              "validation_timestamp": "2026-11-24T01:17:00+00:00",
               "reason": "Motor 'motor_metadados' não declara dependências externas (apenas biblioteca padrão)."
             }
           ]
         }
       ],
       "profile_dependencies": [],
+      "requirements_error": null,
       "blocking_reasons": [],
       "optional_unmet_warnings": []
     },
@@ -1107,9 +1349,13 @@
               "import_name": "numpy",
               "required": true,
               "version_specifier": ">=2.0.0",
+              "has_version_specifier": true,
+              "extras": [],
+              "markers": [],
+              "origin": "C:\\ZZ - Antigravity\\tupaudio-Skills\\skills\\revisao-hostil-v8\\requirements.txt",
+              "validation_timestamp": "2026-11-24T01:17:00+00:00",
               "installed_version": "2.5.5",
               "status": "available",
-              "validation_timestamp": "2026-11-24T00:39:47+00:00",
               "reason": "Versão instalada '2.5.5' satisfaz restrição '>=2.0.0'."
             },
             {
@@ -1117,9 +1363,13 @@
               "import_name": "scipy",
               "required": true,
               "version_specifier": ">=1.14.0",
+              "has_version_specifier": true,
+              "extras": [],
+              "markers": [],
+              "origin": "C:\\ZZ - Antigravity\\tupaudio-Skills\\skills\\revisao-hostil-v8\\requirements.txt",
+              "validation_timestamp": "2026-11-24T01:17:00+00:00",
               "installed_version": "1.18.1",
               "status": "available",
-              "validation_timestamp": "2026-11-24T00:39:47+00:00",
               "reason": "Versão instalada '1.18.1' satisfaz restrição '>=1.14.0'."
             }
           ]
@@ -1135,9 +1385,13 @@
               "import_name": "numpy",
               "required": true,
               "version_specifier": ">=2.0.0",
+              "has_version_specifier": true,
+              "extras": [],
+              "markers": [],
+              "origin": "C:\\ZZ - Antigravity\\tupaudio-Skills\\skills\\revisao-hostil-v8\\requirements.txt",
+              "validation_timestamp": "2026-11-24T01:17:00+00:00",
               "installed_version": "2.5.5",
               "status": "available",
-              "validation_timestamp": "2026-11-24T00:39:47+00:00",
               "reason": "Versão instalada '2.5.5' satisfaz restrição '>=2.0.0'."
             }
           ]
@@ -1153,9 +1407,13 @@
               "import_name": "yaml",
               "required": true,
               "version_specifier": ">=6.0.0",
+              "has_version_specifier": true,
+              "extras": [],
+              "markers": [],
+              "origin": "C:\\ZZ - Antigravity\\tupaudio-Skills\\skills\\revisao-hostil-v8\\requirements.txt",
+              "validation_timestamp": "2026-11-24T01:17:00+00:00",
               "installed_version": "6.0.4",
               "status": "available",
-              "validation_timestamp": "2026-11-24T00:39:47+00:00",
               "reason": "Versão instalada '6.0.4' satisfaz restrição '>=6.0.0'."
             }
           ]
@@ -1171,9 +1429,13 @@
               "import_name": null,
               "required": true,
               "version_specifier": null,
+              "has_version_specifier": false,
+              "extras": [],
+              "markers": [],
+              "origin": "none",
               "installed_version": null,
               "status": "not_applicable",
-              "validation_timestamp": "2026-11-24T00:39:47+00:00",
+              "validation_timestamp": "2026-11-24T01:17:00+00:00",
               "reason": "Motor 'motor_risco' não declara dependências externas (apenas biblioteca padrão)."
             }
           ]
@@ -1189,9 +1451,13 @@
               "import_name": null,
               "required": true,
               "version_specifier": null,
+              "has_version_specifier": false,
+              "extras": [],
+              "markers": [],
+              "origin": "none",
               "installed_version": null,
               "status": "not_applicable",
-              "validation_timestamp": "2026-11-24T00:39:47+00:00",
+              "validation_timestamp": "2026-11-24T01:17:00+00:00",
               "reason": "Motor 'motor_temporal' não declara dependências externas (apenas biblioteca padrão)."
             }
           ]
@@ -1207,9 +1473,13 @@
               "import_name": null,
               "required": false,
               "version_specifier": null,
+              "has_version_specifier": false,
+              "extras": [],
+              "markers": [],
+              "origin": "none",
               "installed_version": null,
               "status": "not_applicable",
-              "validation_timestamp": "2026-11-24T00:39:47+00:00",
+              "validation_timestamp": "2026-11-24T01:17:00+00:00",
               "reason": "Motor 'motor_etica' não declara dependências externas (apenas biblioteca padrão)."
             }
           ]
@@ -1225,9 +1495,13 @@
               "import_name": "numpy",
               "required": false,
               "version_specifier": ">=2.0.0",
+              "has_version_specifier": true,
+              "extras": [],
+              "markers": [],
+              "origin": "C:\\ZZ - Antigravity\\tupaudio-Skills\\skills\\revisao-hostil-v8\\requirements.txt",
+              "validation_timestamp": "2026-11-24T01:17:00+00:00",
               "installed_version": "2.5.5",
               "status": "available",
-              "validation_timestamp": "2026-11-24T00:39:47+00:00",
               "reason": "Versão instalada '2.5.5' satisfaz restrição '>=2.0.0'."
             },
             {
@@ -1235,9 +1509,13 @@
               "import_name": "sympy",
               "required": false,
               "version_specifier": ">=1.13.0",
+              "has_version_specifier": true,
+              "extras": [],
+              "markers": [],
+              "origin": "C:\\ZZ - Antigravity\\tupaudio-Skills\\skills\\revisao-hostil-v8\\requirements.txt",
+              "validation_timestamp": "2026-11-24T01:17:00+00:00",
               "installed_version": "1.14.0",
               "status": "available",
-              "validation_timestamp": "2026-11-24T00:39:47+00:00",
               "reason": "Versão instalada '1.14.0' satisfaz restrição '>=1.13.0'."
             }
           ]
@@ -1253,9 +1531,13 @@
               "import_name": null,
               "required": false,
               "version_specifier": null,
+              "has_version_specifier": false,
+              "extras": [],
+              "markers": [],
+              "origin": "none",
               "installed_version": null,
               "status": "not_applicable",
-              "validation_timestamp": "2026-11-24T00:39:47+00:00",
+              "validation_timestamp": "2026-11-24T01:17:00+00:00",
               "reason": "Motor 'motor_linguagem' não declara dependências externas (apenas biblioteca padrão)."
             }
           ]
@@ -1271,15 +1553,20 @@
               "import_name": "numpy",
               "required": false,
               "version_specifier": ">=2.0.0",
+              "has_version_specifier": true,
+              "extras": [],
+              "markers": [],
+              "origin": "C:\\ZZ - Antigravity\\tupaudio-Skills\\skills\\revisao-hostil-v8\\requirements.txt",
+              "validation_timestamp": "2026-11-24T01:17:00+00:00",
               "installed_version": "2.5.5",
               "status": "available",
-              "validation_timestamp": "2026-11-24T00:39:47+00:00",
               "reason": "Versão instalada '2.5.5' satisfaz restrição '>=2.0.0'."
             }
           ]
         }
       ],
       "profile_dependencies": [],
+      "requirements_error": null,
       "blocking_reasons": [],
       "optional_unmet_warnings": []
     },
@@ -1311,9 +1598,13 @@
               "import_name": "numpy",
               "required": true,
               "version_specifier": ">=2.0.0",
+              "has_version_specifier": true,
+              "extras": [],
+              "markers": [],
+              "origin": "C:\\ZZ - Antigravity\\tupaudio-Skills\\skills\\revisao-hostil-v8\\requirements.txt",
+              "validation_timestamp": "2026-11-24T01:17:00+00:00",
               "installed_version": "2.5.5",
               "status": "available",
-              "validation_timestamp": "2026-11-24T00:39:47+00:00",
               "reason": "Versão instalada '2.5.5' satisfaz restrição '>=2.0.0'."
             },
             {
@@ -1321,9 +1612,13 @@
               "import_name": "scipy",
               "required": true,
               "version_specifier": ">=1.14.0",
+              "has_version_specifier": true,
+              "extras": [],
+              "markers": [],
+              "origin": "C:\\ZZ - Antigravity\\tupaudio-Skills\\skills\\revisao-hostil-v8\\requirements.txt",
+              "validation_timestamp": "2026-11-24T01:17:00+00:00",
               "installed_version": "1.18.1",
               "status": "available",
-              "validation_timestamp": "2026-11-24T00:39:47+00:00",
               "reason": "Versão instalada '1.18.1' satisfaz restrição '>=1.14.0'."
             },
             {
@@ -1331,9 +1626,13 @@
               "import_name": "sympy",
               "required": true,
               "version_specifier": ">=1.13.0",
+              "has_version_specifier": true,
+              "extras": [],
+              "markers": [],
+              "origin": "C:\\ZZ - Antigravity\\tupaudio-Skills\\skills\\revisao-hostil-v8\\requirements.txt",
+              "validation_timestamp": "2026-11-24T01:17:00+00:00",
               "installed_version": "1.14.0",
               "status": "available",
-              "validation_timestamp": "2026-11-24T00:39:47+00:00",
               "reason": "Versão instalada '1.14.0' satisfaz restrição '>=1.13.0'."
             }
           ]
@@ -1349,9 +1648,13 @@
               "import_name": null,
               "required": true,
               "version_specifier": null,
+              "has_version_specifier": false,
+              "extras": [],
+              "markers": [],
+              "origin": "none",
               "installed_version": null,
               "status": "not_applicable",
-              "validation_timestamp": "2026-11-24T00:39:47+00:00",
+              "validation_timestamp": "2026-11-24T01:17:00+00:00",
               "reason": "Motor 'motor_dimensional' não declara dependências externas (apenas biblioteca padrão)."
             }
           ]
@@ -1367,9 +1670,13 @@
               "import_name": "numpy",
               "required": true,
               "version_specifier": ">=2.0.0",
+              "has_version_specifier": true,
+              "extras": [],
+              "markers": [],
+              "origin": "C:\\ZZ - Antigravity\\tupaudio-Skills\\skills\\revisao-hostil-v8\\requirements.txt",
+              "validation_timestamp": "2026-11-24T01:17:00+00:00",
               "installed_version": "2.5.5",
               "status": "available",
-              "validation_timestamp": "2026-11-24T00:39:47+00:00",
               "reason": "Versão instalada '2.5.5' satisfaz restrição '>=2.0.0'."
             }
           ]
@@ -1385,9 +1692,13 @@
               "import_name": "numpy",
               "required": true,
               "version_specifier": ">=2.0.0",
+              "has_version_specifier": true,
+              "extras": [],
+              "markers": [],
+              "origin": "C:\\ZZ - Antigravity\\tupaudio-Skills\\skills\\revisao-hostil-v8\\requirements.txt",
+              "validation_timestamp": "2026-11-24T01:17:00+00:00",
               "installed_version": "2.5.5",
               "status": "available",
-              "validation_timestamp": "2026-11-24T00:39:47+00:00",
               "reason": "Versão instalada '2.5.5' satisfaz restrição '>=2.0.0'."
             },
             {
@@ -1395,9 +1706,13 @@
               "import_name": "sympy",
               "required": true,
               "version_specifier": ">=1.13.0",
+              "has_version_specifier": true,
+              "extras": [],
+              "markers": [],
+              "origin": "C:\\ZZ - Antigravity\\tupaudio-Skills\\skills\\revisao-hostil-v8\\requirements.txt",
+              "validation_timestamp": "2026-11-24T01:17:00+00:00",
               "installed_version": "1.14.0",
               "status": "available",
-              "validation_timestamp": "2026-11-24T00:39:47+00:00",
               "reason": "Versão instalada '1.14.0' satisfaz restrição '>=1.13.0'."
             }
           ]
@@ -1413,9 +1728,13 @@
               "import_name": "numpy",
               "required": true,
               "version_specifier": ">=2.0.0",
+              "has_version_specifier": true,
+              "extras": [],
+              "markers": [],
+              "origin": "C:\\ZZ - Antigravity\\tupaudio-Skills\\skills\\revisao-hostil-v8\\requirements.txt",
+              "validation_timestamp": "2026-11-24T01:17:00+00:00",
               "installed_version": "2.5.5",
               "status": "available",
-              "validation_timestamp": "2026-11-24T00:39:47+00:00",
               "reason": "Versão instalada '2.5.5' satisfaz restrição '>=2.0.0'."
             }
           ]
@@ -1431,9 +1750,13 @@
               "import_name": null,
               "required": true,
               "version_specifier": null,
+              "has_version_specifier": false,
+              "extras": [],
+              "markers": [],
+              "origin": "none",
               "installed_version": null,
               "status": "not_applicable",
-              "validation_timestamp": "2026-11-24T00:39:47+00:00",
+              "validation_timestamp": "2026-11-24T01:17:00+00:00",
               "reason": "Motor 'motor_nomenclatura' não declara dependências externas (apenas biblioteca padrão)."
             }
           ]
@@ -1449,9 +1772,13 @@
               "import_name": null,
               "required": true,
               "version_specifier": null,
+              "has_version_specifier": false,
+              "extras": [],
+              "markers": [],
+              "origin": "none",
               "installed_version": null,
               "status": "not_applicable",
-              "validation_timestamp": "2026-11-24T00:39:47+00:00",
+              "validation_timestamp": "2026-11-24T01:17:00+00:00",
               "reason": "Motor 'motor_reprodutibilidade' não declara dependências externas (apenas biblioteca padrão)."
             }
           ]
@@ -1467,9 +1794,13 @@
               "import_name": "numpy",
               "required": false,
               "version_specifier": ">=2.0.0",
+              "has_version_specifier": true,
+              "extras": [],
+              "markers": [],
+              "origin": "C:\\ZZ - Antigravity\\tupaudio-Skills\\skills\\revisao-hostil-v8\\requirements.txt",
+              "validation_timestamp": "2026-11-24T01:17:00+00:00",
               "installed_version": "2.5.5",
               "status": "available",
-              "validation_timestamp": "2026-11-24T00:39:47+00:00",
               "reason": "Versão instalada '2.5.5' satisfaz restrição '>=2.0.0'."
             },
             {
@@ -1477,9 +1808,13 @@
               "import_name": "scipy",
               "required": false,
               "version_specifier": ">=1.14.0",
+              "has_version_specifier": true,
+              "extras": [],
+              "markers": [],
+              "origin": "C:\\ZZ - Antigravity\\tupaudio-Skills\\skills\\revisao-hostil-v8\\requirements.txt",
+              "validation_timestamp": "2026-11-24T01:17:00+00:00",
               "installed_version": "1.18.1",
               "status": "available",
-              "validation_timestamp": "2026-11-24T00:39:47+00:00",
               "reason": "Versão instalada '1.18.1' satisfaz restrição '>=1.14.0'."
             }
           ]
@@ -1495,9 +1830,13 @@
               "import_name": "PIL",
               "required": false,
               "version_specifier": ">=10.0.0",
+              "has_version_specifier": true,
+              "extras": [],
+              "markers": [],
+              "origin": "C:\\ZZ - Antigravity\\tupaudio-Skills\\skills\\revisao-hostil-v8\\requirements.txt",
+              "validation_timestamp": "2026-11-24T01:17:00+00:00",
               "installed_version": "13.0.0",
               "status": "available",
-              "validation_timestamp": "2026-11-24T00:39:47+00:00",
               "reason": "Versão instalada '13.0.0' satisfaz restrição '>=10.0.0'."
             },
             {
@@ -1505,9 +1844,13 @@
               "import_name": "numpy",
               "required": false,
               "version_specifier": ">=2.0.0",
+              "has_version_specifier": true,
+              "extras": [],
+              "markers": [],
+              "origin": "C:\\ZZ - Antigravity\\tupaudio-Skills\\skills\\revisao-hostil-v8\\requirements.txt",
+              "validation_timestamp": "2026-11-24T01:17:00+00:00",
               "installed_version": "2.5.5",
               "status": "available",
-              "validation_timestamp": "2026-11-24T00:39:47+00:00",
               "reason": "Versão instalada '2.5.5' satisfaz restrição '>=2.0.0'."
             }
           ]
@@ -1523,9 +1866,13 @@
               "import_name": "numpy",
               "required": false,
               "version_specifier": ">=2.0.0",
+              "has_version_specifier": true,
+              "extras": [],
+              "markers": [],
+              "origin": "C:\\ZZ - Antigravity\\tupaudio-Skills\\skills\\revisao-hostil-v8\\requirements.txt",
+              "validation_timestamp": "2026-11-24T01:17:00+00:00",
               "installed_version": "2.5.5",
               "status": "available",
-              "validation_timestamp": "2026-11-24T00:39:47+00:00",
               "reason": "Versão instalada '2.5.5' satisfaz restrição '>=2.0.0'."
             }
           ]
@@ -1541,15 +1888,20 @@
               "import_name": null,
               "required": false,
               "version_specifier": null,
+              "has_version_specifier": false,
+              "extras": [],
+              "markers": [],
+              "origin": "none",
               "installed_version": null,
               "status": "not_applicable",
-              "validation_timestamp": "2026-11-24T00:39:47+00:00",
+              "validation_timestamp": "2026-11-24T01:17:00+00:00",
               "reason": "Motor 'motor_linguagem' não declara dependências externas (apenas biblioteca padrão)."
             }
           ]
         }
       ],
       "profile_dependencies": [],
+      "requirements_error": null,
       "blocking_reasons": [],
       "optional_unmet_warnings": []
     }
@@ -1571,34 +1923,40 @@
     "ineligible_profiles": []
   },
   "authorized_exceptions": [],
-  "git_commit": "92eb3c0921f4875f65aacaa418258708c6bb3495",
-  "audited_code_commit": "92eb3c0921f4875f65aacaa418258708c6bb3495",
-  "artifact_commit_note": "O commit que publica os artefatos de relatório (pytest_verbose.txt, coverage_report.txt, smoke_tests.txt, run_manifest.json, homologacao_v8.0-beta.6.2.md e SHA256SUMS) é criado após esta geração tendo audited_code_commit como pai direto.",
+  "git_commit": "56a8d00029adfefc0120f6b85fa1d52ea02c2988",
+  "audited_code_commit": "56a8d00029adfefc0120f6b85fa1d52ea02c2988",
+  "git_branch": "maintenance/v8.0-beta.6.3",
+  "base_tag": "v8.0-beta.6.2",
+  "artifact_commit_note": "O commit que publica os artefatos de relatório (pytest_verbose.txt, coverage_report.txt, smoke_tests.txt, run_manifest.json, homologacao_v8.0-beta.6.3.md e SHA256SUMS) é criado após esta geração tendo audited_code_commit como pai direto.",
   "git_dirty": true,
   "git_state": {
     "in_git_repo": true,
     "git_dirty_raw": true,
     "git_dirty_code": false,
     "dirty_files_all": [
-      "skills/revisao-hostil-v8/SHA256SUMS",
-      "skills/revisao-hostil-v8/relatorios_execucao/pytest_verbose.txt",
-      "skills/revisao-hostil-v8/relatorios_execucao/run_manifest.json",
       "skills/revisao-hostil-v8/relatorios_execucao/coverage_report.txt",
-      "skills/revisao-hostil-v8/relatorios_execucao/homologacao_v8.0-beta.6.2.md"
+      "skills/revisao-hostil-v8/relatorios_execucao/pytest_verbose.txt",
+      "skills/revisao-hostil-v8/relatorios_execucao/smoke_tests.txt",
+      "skills/revisao-hostil-v8/relatorios_execucao/homologacao_v8.0-beta.6.3.md"
     ],
     "dirty_files_code": [],
     "dirty_files_excluded": [
-      "skills/revisao-hostil-v8/SHA256SUMS",
-      "skills/revisao-hostil-v8/relatorios_execucao/pytest_verbose.txt",
-      "skills/revisao-hostil-v8/relatorios_execucao/run_manifest.json",
       "skills/revisao-hostil-v8/relatorios_execucao/coverage_report.txt",
-      "skills/revisao-hostil-v8/relatorios_execucao/homologacao_v8.0-beta.6.2.md"
+      "skills/revisao-hostil-v8/relatorios_execucao/pytest_verbose.txt",
+      "skills/revisao-hostil-v8/relatorios_execucao/smoke_tests.txt",
+      "skills/revisao-hostil-v8/relatorios_execucao/homologacao_v8.0-beta.6.3.md"
     ],
     "dirty_exclusion_policy": "Arquivos de relatório gerados na própria execução de auditoria são listados em dirty_files_excluded e excluídos apenas de git_dirty_code; git_dirty_raw reflete sempre o estado real não filtrado da árvore Git."
   },
   "environment": {
     "python_version": "3.14.6",
+    "python_implementation": "CPython",
+    "os_name": "Windows",
+    "os_release": "11",
+    "os_build": "10.0.26300",
     "platform": "Windows-11-10.0.26300-SP0",
+    "architecture": "AMD64",
+    "virtual_env": "C:\\Users\\dafnh\\.gemini\\antigravity\\brain\\d4ef86c0-a49f-4a11-9b77-a243d5779eda\\scratch\\venv_b63",
     "dependencies": {
       "numpy": "2.5.5",
       "scipy": "1.18.1",
@@ -1621,15 +1979,296 @@
     "coverage": "7.17.5",
     "packaging": "26.4"
   },
+  "execution": {
+    "command": "C:\\Users\\dafnh\\.gemini\\antigravity\\brain\\d4ef86c0-a49f-4a11-9b77-a243d5779eda\\scratch\\venv_b63\\Scripts\\python.exe",
+    "args": [
+      "-m",
+      "pytest",
+      "-v",
+      "-p",
+      "tests._pytest_capture_plugin",
+      "--cov=scripts",
+      "--cov-report=term-missing",
+      "--cov-report=json:C:\\Users\\dafnh\\AppData\\Local\\Temp\\tmpeycx582v\\coverage.json"
+    ],
+    "exit_code": 0,
+    "overall_result": "PASSED"
+  },
+  "overall_result": "PASSED",
+  "test_results": {
+    "run_id": "BETA6.3-20261124T011635Z-000e37a7",
+    "pytest_version": "9.2.0",
+    "python_version": "3.14.6",
+    "python_implementation": "CPython",
+    "os_name": "Windows",
+    "os_release": "11",
+    "os_build": "10.0.26300",
+    "platform": "Windows-11-10.0.26300-SP0",
+    "architecture": "AMD64",
+    "virtual_env": "C:\\Users\\dafnh\\.gemini\\antigravity\\brain\\d4ef86c0-a49f-4a11-9b77-a243d5779eda\\scratch\\venv_b63",
+    "collected": 125,
+    "passed": 125,
+    "failed": 0,
+    "skipped": 0,
+    "collection_errors": 0,
+    "warnings": 0,
+    "duration_seconds": 13.449764199962374,
+    "exit_code": 0,
+    "command": "C:\\Users\\dafnh\\.gemini\\antigravity\\brain\\d4ef86c0-a49f-4a11-9b77-a243d5779eda\\scratch\\venv_b63\\Scripts\\python.exe",
+    "args": [
+      "C:\\Users\\dafnh\\.gemini\\antigravity\\brain\\d4ef86c0-a49f-4a11-9b77-a243d5779eda\\scratch\\venv_b63\\Lib\\site-packages\\pytest\\__main__.py",
+      "-v",
+      "-p",
+      "tests._pytest_capture_plugin",
+      "--cov=scripts",
+      "--cov-report=term-missing",
+      "--cov-report=json:C:\\Users\\dafnh\\AppData\\Local\\Temp\\tmpeycx582v\\coverage.json"
+    ]
+  },
+  "coverage": {
+    "global_percent": 82.15736040609137,
+    "total_statements": 3940,
+    "total_missing": 703,
+    "modules": {
+      "scripts/__init__.py": {
+        "stmts": 0,
+        "miss": 0,
+        "percent": 100.0
+      },
+      "scripts/auditor.py": {
+        "stmts": 184,
+        "miss": 42,
+        "percent": 77.17391304347827
+      },
+      "scripts/common/__init__.py": {
+        "stmts": 2,
+        "miss": 0,
+        "percent": 100.0
+      },
+      "scripts/common/citation.py": {
+        "stmts": 20,
+        "miss": 0,
+        "percent": 100.0
+      },
+      "scripts/common/dependencies.py": {
+        "stmts": 307,
+        "miss": 36,
+        "percent": 88.27361563517915
+      },
+      "scripts/common/evidence.py": {
+        "stmts": 67,
+        "miss": 11,
+        "percent": 83.58208955223881
+      },
+      "scripts/common/profile_loader.py": {
+        "stmts": 176,
+        "miss": 17,
+        "percent": 90.3409090909091
+      },
+      "scripts/common/provenance.py": {
+        "stmts": 247,
+        "miss": 29,
+        "percent": 88.25910931174089
+      },
+      "scripts/common/schema_validator.py": {
+        "stmts": 55,
+        "miss": 2,
+        "percent": 96.36363636363636
+      },
+      "scripts/common/statistics.py": {
+        "stmts": 13,
+        "miss": 1,
+        "percent": 92.3076923076923
+      },
+      "scripts/common/text_normalize.py": {
+        "stmts": 14,
+        "miss": 1,
+        "percent": 92.85714285714286
+      },
+      "scripts/common/units.py": {
+        "stmts": 16,
+        "miss": 2,
+        "percent": 87.5
+      },
+      "scripts/common/validation.py": {
+        "stmts": 54,
+        "miss": 8,
+        "percent": 85.18518518518519
+      },
+      "scripts/engines/__init__.py": {
+        "stmts": 0,
+        "miss": 0,
+        "percent": 100.0
+      },
+      "scripts/engines/motor_argumentacao.py": {
+        "stmts": 65,
+        "miss": 14,
+        "percent": 78.46153846153847
+      },
+      "scripts/engines/motor_consistencia_cruzada.py": {
+        "stmts": 91,
+        "miss": 17,
+        "percent": 81.31868131868131
+      },
+      "scripts/engines/motor_dados.py": {
+        "stmts": 170,
+        "miss": 30,
+        "percent": 82.3529411764706
+      },
+      "scripts/engines/motor_dimensional.py": {
+        "stmts": 259,
+        "miss": 63,
+        "percent": 75.67567567567568
+      },
+      "scripts/engines/motor_estatistico.py": {
+        "stmts": 270,
+        "miss": 41,
+        "percent": 84.81481481481481
+      },
+      "scripts/engines/motor_estetico.py": {
+        "stmts": 54,
+        "miss": 12,
+        "percent": 77.77777777777777
+      },
+      "scripts/engines/motor_etica.py": {
+        "stmts": 96,
+        "miss": 16,
+        "percent": 83.33333333333333
+      },
+      "scripts/engines/motor_evidencia.py": {
+        "stmts": 55,
+        "miss": 13,
+        "percent": 76.36363636363636
+      },
+      "scripts/engines/motor_figuras.py": {
+        "stmts": 106,
+        "miss": 18,
+        "percent": 83.01886792452831
+      },
+      "scripts/engines/motor_geometrico.py": {
+        "stmts": 207,
+        "miss": 40,
+        "percent": 80.67632850241546
+      },
+      "scripts/engines/motor_imagem_forense.py": {
+        "stmts": 105,
+        "miss": 28,
+        "percent": 73.33333333333333
+      },
+      "scripts/engines/motor_incerteza.py": {
+        "stmts": 157,
+        "miss": 40,
+        "percent": 74.52229299363057
+      },
+      "scripts/engines/motor_linguagem.py": {
+        "stmts": 85,
+        "miss": 16,
+        "percent": 81.17647058823529
+      },
+      "scripts/engines/motor_matematico.py": {
+        "stmts": 454,
+        "miss": 87,
+        "percent": 80.83700440528635
+      },
+      "scripts/engines/motor_metadados.py": {
+        "stmts": 57,
+        "miss": 16,
+        "percent": 71.9298245614035
+      },
+      "scripts/engines/motor_nomenclatura.py": {
+        "stmts": 57,
+        "miss": 12,
+        "percent": 78.94736842105263
+      },
+      "scripts/engines/motor_normas.py": {
+        "stmts": 92,
+        "miss": 18,
+        "percent": 80.43478260869566
+      },
+      "scripts/engines/motor_qualitativo.py": {
+        "stmts": 94,
+        "miss": 21,
+        "percent": 77.65957446808511
+      },
+      "scripts/engines/motor_reprodutibilidade.py": {
+        "stmts": 55,
+        "miss": 14,
+        "percent": 74.54545454545455
+      },
+      "scripts/engines/motor_risco.py": {
+        "stmts": 87,
+        "miss": 18,
+        "percent": 79.3103448275862
+      },
+      "scripts/engines/motor_temporal.py": {
+        "stmts": 169,
+        "miss": 20,
+        "percent": 88.16568047337279
+      }
+    }
+  },
+  "smoke_tests": {
+    "implemented_engines_tested": 21,
+    "auditor_tested": true,
+    "all_passed": true,
+    "duration_seconds": 9.307375400036108
+  },
+  "artifacts": [
+    {
+      "relative_path": "relatorios_execucao/pytest_verbose.txt",
+      "name": "pytest_verbose.txt",
+      "bytes": 20076,
+      "sha256": "e71bd09ff80b51c45112c80bb42b0463a818d8ec231a2a9a71ca6cd2d0b66f20",
+      "run_id": "BETA6.3-20261124T011635Z-000e37a7",
+      "type": "pytest_log",
+      "generation_status": "generated",
+      "verification_status": "verified"
+    },
+    {
+      "relative_path": "relatorios_execucao/coverage_report.txt",
+      "name": "coverage_report.txt",
+      "bytes": 4592,
+      "sha256": "fd38b7b83368664ce9b30b2479bd30a4598f06a99bbc4fb9b26e6559756f89e3",
+      "run_id": "BETA6.3-20261124T011635Z-000e37a7",
+      "type": "coverage_report",
+      "generation_status": "generated",
+      "verification_status": "verified"
+    },
+    {
+      "relative_path": "relatorios_execucao/smoke_tests.txt",
+      "name": "smoke_tests.txt",
+      "bytes": 2575,
+      "sha256": "25c4bf45b6f34b32cfa139dfeae76a9d309d43b36f36611eb74ab15261d88c89",
+      "run_id": "BETA6.3-20261124T011635Z-000e37a7",
+      "type": "smoke_tests",
+      "generation_status": "generated",
+      "verification_status": "verified"
+    },
+    {
+      "relative_path": "relatorios_execucao/homologacao_v8.0-beta.6.3.md",
+      "name": "homologacao_v8.0-beta.6.3.md",
+      "bytes": 9676,
+      "sha256": "00e139ff2e2c60838d84e3bdcf359d9bbc80ee25e8d972adc127940b334a1c7e",
+      "run_id": "BETA6.3-20261124T011635Z-000e37a7",
+      "type": "homologation_report",
+      "generation_status": "generated",
+      "verification_status": "verified"
+    }
+  ],
   "config": {
     "pytest_args": [
+      "-m",
+      "pytest",
       "-v",
+      "-p",
+      "tests._pytest_capture_plugin",
       "--cov=scripts",
-      "--cov-report=term-missing"
+      "--cov-report=term-missing",
+      "--cov-report=json:C:\\Users\\dafnh\\AppData\\Local\\Temp\\tmpeycx582v\\coverage.json"
     ],
     "naive_timezone_policy": "strict",
     "profile_schema_enforced": "references/schemas/schema_profile.json",
-    "dependency_validation_source": "requirements.txt + references/catalogo_motores.yaml",
+    "dependency_validation_source": "requirements.txt (fail-closed) + references/catalogo_motores.yaml",
     "engines_cataloged": 23,
     "engines_implemented": 21,
     "engines_planned_phase8": 2
@@ -1645,7 +2284,7 @@
     "pytest_verbose": "relatorios_execucao/pytest_verbose.txt",
     "coverage_report": "relatorios_execucao/coverage_report.txt",
     "smoke_tests": "relatorios_execucao/smoke_tests.txt",
-    "homologation_report": "relatorios_execucao/homologacao_v8.0-beta.6.2.md",
+    "homologation_report": "relatorios_execucao/homologacao_v8.0-beta.6.3.md",
     "checksums": "SHA256SUMS"
   },
   "integrity": {
@@ -1653,7 +2292,7 @@
     "self_excluded_files": [
       "relatorios_execucao/run_manifest.json"
     ],
-    "inspected_file_count": 90
+    "inspected_file_count": 93
   },
   "inspected_files": [
     {
@@ -1881,8 +2520,8 @@
     {
       "relative_path": "relatorios_execucao/coverage_report.txt",
       "name": "coverage_report.txt",
-      "bytes": 4466,
-      "sha256": "b63a0c7cd0b2cbb299350d59c981cc75ce763c976f210ad4b5451c8d9ec750bd"
+      "bytes": 4592,
+      "sha256": "fd38b7b83368664ce9b30b2479bd30a4598f06a99bbc4fb9b26e6559756f89e3"
     },
     {
       "relative_path": "relatorios_execucao/homologacao_v8.0-beta.6.2.md",
@@ -1891,16 +2530,22 @@
       "sha256": "fa26e335329f508d7f78db0de5f03eea1fe11dff5806e8344815f6e0d5491be3"
     },
     {
+      "relative_path": "relatorios_execucao/homologacao_v8.0-beta.6.3.md",
+      "name": "homologacao_v8.0-beta.6.3.md",
+      "bytes": 9676,
+      "sha256": "00e139ff2e2c60838d84e3bdcf359d9bbc80ee25e8d972adc127940b334a1c7e"
+    },
+    {
       "relative_path": "relatorios_execucao/pytest_verbose.txt",
       "name": "pytest_verbose.txt",
-      "bytes": 15605,
-      "sha256": "13eb62fa1d0dc1eea7555b3f233b3aeadd6a8602acf0efdc887edead67f0a78b"
+      "bytes": 20076,
+      "sha256": "e71bd09ff80b51c45112c80bb42b0463a818d8ec231a2a9a71ca6cd2d0b66f20"
     },
     {
       "relative_path": "relatorios_execucao/smoke_tests.txt",
       "name": "smoke_tests.txt",
-      "bytes": 2532,
-      "sha256": "0b22f7cd4de4e3ce7c7392c4c90858029c496f8bca4d95242b63528205ab108a"
+      "bytes": 2575,
+      "sha256": "25c4bf45b6f34b32cfa139dfeae76a9d309d43b36f36611eb74ab15261d88c89"
     },
     {
       "relative_path": "requirements.txt",
@@ -1935,8 +2580,8 @@
     {
       "relative_path": "scripts/common/dependencies.py",
       "name": "dependencies.py",
-      "bytes": 19122,
-      "sha256": "203d4a77236e01a7a2812d83e3bbe904cf1029515a5b556b801659fd6dd3ebb0"
+      "bytes": 33010,
+      "sha256": "3577ffd94324e6ca20cc7671428c9a5633576d442284e9e8df8feb5bda636a5c"
     },
     {
       "relative_path": "scripts/common/evidence.py",
@@ -1947,14 +2592,14 @@
     {
       "relative_path": "scripts/common/profile_loader.py",
       "name": "profile_loader.py",
-      "bytes": 16683,
-      "sha256": "2724dbde3c862ca5b71d87aa465d187796f7e8b9e96c294b9dd59e5c94e3fbe0"
+      "bytes": 17418,
+      "sha256": "ee6940c27dcf814e7a3e259fef2343924048956ba4d050fbe6fc270322dbeb57"
     },
     {
       "relative_path": "scripts/common/provenance.py",
       "name": "provenance.py",
-      "bytes": 12392,
-      "sha256": "d413bb547a50450a9e29962be61d1dd155dd4f6eea51fad3922f89ce5b73ac00"
+      "bytes": 25860,
+      "sha256": "71342ed64ef83ef95b0c58b29882efe571911e3218047513315a26d813a6f9df"
     },
     {
       "relative_path": "scripts/common/schema_validator.py",
@@ -2121,8 +2766,14 @@
     {
       "relative_path": "scripts/tools/generate_audit_reports.py",
       "name": "generate_audit_reports.py",
-      "bytes": 12658,
-      "sha256": "3c4585e2acf74a52224c8c399bb974a765053f55d90f50f2e0d1445f2c38eb14"
+      "bytes": 25777,
+      "sha256": "7c27b7d7a9aa1a7c038d6c3b76bb48ea5ba787ffda9ae85a2ab7006ae935df38"
+    },
+    {
+      "relative_path": "tests/_pytest_capture_plugin.py",
+      "name": "_pytest_capture_plugin.py",
+      "bytes": 3032,
+      "sha256": "831a90e7e281c40747091d7330a382b8cc6be0400c57a4dc43d82a54d750ca04"
     },
     {
       "relative_path": "tests/test_auditor.py",
@@ -2151,8 +2802,14 @@
     {
       "relative_path": "tests/test_beta6_2_contratos_e_dependencias.py",
       "name": "test_beta6_2_contratos_e_dependencias.py",
-      "bytes": 20998,
-      "sha256": "b5fb9ea1119a108eaee362a816d8a9a0d0852c645376b85fd6c83c5c4a50fba0"
+      "bytes": 21057,
+      "sha256": "a9a2db7d5069380932c8e9a01fe385c390d7da1fdeb3cfc48fbc3247f3bfcb00"
+    },
+    {
+      "relative_path": "tests/test_beta6_3_requirements_provenance.py",
+      "name": "test_beta6_3_requirements_provenance.py",
+      "bytes": 18556,
+      "sha256": "e6bc201535482b8cd90e2ff1d21ae1d39ec195c020d4cf687b9f7fd59b1a37c8"
     },
     {
       "relative_path": "tests/test_beta6_perfis_e_normas.py",
