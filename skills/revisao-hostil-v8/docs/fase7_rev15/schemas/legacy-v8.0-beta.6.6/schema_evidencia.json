@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://revisao-hostil.v8/schemas/schema_evidencia.json",
+  "title": "Evidencia",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "evidencia_id",
+    "tipo",
+    "origem_arquivo",
+    "localizacao",
+    "conteudo"
+  ],
+  "properties": {
+    "evidencia_id": {
+      "type": "string",
+      "pattern": "^EV-[A-Z0-9_-]+$"
+    },
+    "tipo": {
+      "type": "string",
+      "enum": [
+        "textual",
+        "numerica",
+        "simbolica",
+        "tabular",
+        "visual",
+        "metadado",
+        "normativa",
+        "bibliografica",
+        "codigo"
+      ]
+    },
+    "origem_arquivo": {
+      "type": "string",
+      "minLength": 1
+    },
+    "hash_arquivo": {
+      "type": ["string", "null"],
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "localizacao": {
+      "type": "string",
+      "minLength": 1
+    },
+    "objeto_id": {
+      "type": ["string", "null"]
+    },
+    "conteudo": {
+      "type": "string",
+      "minLength": 1
+    },
+    "valor_observado": {},
+    "valor_calculado": {},
+    "tolerancia": {
+      "type": ["number", "null"],
+      "minimum": 0
+    },
+    "motor_origem": {
+      "type": ["string", "null"]
+    },
+    "timestamp": {
+      "type": ["string", "null"]
+    }
+  }
+}

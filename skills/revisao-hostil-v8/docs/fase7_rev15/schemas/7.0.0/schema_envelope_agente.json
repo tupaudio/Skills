@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://revisao-hostil.v8/schemas/7.0.0/schema_envelope_agente.json",
+  "title": "Envelope de Parecer de Agente (Fase 7)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "agent_id",
+    "input_manifest_sha256",
+    "parecer",
+    "parecer_sha256"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "pattern": "^(0|[1-9][0-9]{0,9})\\.(0|[1-9][0-9]{0,9})\\.(0|[1-9][0-9]{0,9})(?![\\r\\n])$"
+    },
+    "agent_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "input_manifest_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}(?![\\r\\n])$"
+    },
+    "parecer": {
+      "$ref": "./schema_agente.json"
+    },
+    "parecer_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}(?![\\r\\n])$"
+    }
+  }
+}
