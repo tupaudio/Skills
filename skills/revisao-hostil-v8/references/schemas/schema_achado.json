@@ -81,6 +81,7 @@
       "type": "array",
       "items": {
         "type": "object",
+        "additionalProperties": false,
         "required": ["de", "para", "motivo", "timestamp"],
         "properties": {
           "de": { "type": ["string", "null"] },

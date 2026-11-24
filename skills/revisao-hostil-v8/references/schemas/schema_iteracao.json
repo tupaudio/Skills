@@ -3,6 +3,7 @@
   "$id": "https://revisao-hostil.v8/schemas/schema_iteracao.json",
   "title": "IteracaoAuditoria",
   "type": "object",
+  "additionalProperties": false,
   "required": [
     "schema_version",
     "run_id",
@@ -22,6 +23,7 @@
     "hash_artefato": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
     "pontuacao_global": {
       "type": "object",
+      "additionalProperties": false,
       "required": ["nota_0_10"],
       "properties": {
         "nota_0_10": { "type": "number", "minimum": 0, "maximum": 10 },

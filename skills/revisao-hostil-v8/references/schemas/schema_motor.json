@@ -3,6 +3,7 @@
   "$id": "https://revisao-hostil.v8/schemas/schema_motor.json",
   "title": "SaidaMotor",
   "type": "object",
+  "additionalProperties": false,
   "required": [
     "schema_version",
     "motor_id",
@@ -47,10 +48,13 @@
       "type": ["string", "null"]
     },
     "metricas": {
-      "type": "object"
+      "type": "object",
+      "description": "Objeto deliberadamente extensível para métricas quantitativas específicas de cada motor.",
+      "additionalProperties": true
     },
     "resultados": {
-      "type": ["object", "array"]
+      "type": ["object", "array"],
+      "description": "Estrutura deliberadamente extensível para os resultados determinísticos específicos de cada motor."
     },
     "achados": {
       "type": "array",

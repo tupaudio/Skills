@@ -3,6 +3,7 @@
   "$id": "https://revisao-hostil.v8/schemas/schema_input.json",
   "title": "EntradaMotor",
   "type": "object",
+  "additionalProperties": false,
   "required": ["schema_version", "motor_id", "payload"],
   "properties": {
     "schema_version": {
@@ -23,13 +24,16 @@
       "type": ["string", "null"]
     },
     "tolerancias": {
-      "type": "object"
+      "type": "object",
+      "description": "Objeto deliberadamente extensível para tolerâncias numéricas ou físicas específicas de cada motor.",
+      "additionalProperties": true
     },
     "semente": {
       "type": ["integer", "null"]
     },
     "payload": {
-      "type": ["object", "array"]
+      "type": ["object", "array"],
+      "description": "Estrutura deliberadamente extensível para o payload de entrada específico de cada motor."
     }
   }
 }

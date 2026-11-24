@@ -3,6 +3,7 @@
   "$id": "https://revisao-hostil.v8/schemas/schema_relatorio_final.json",
   "title": "RelatorioFinalAuditoria",
   "type": "object",
+  "additionalProperties": false,
   "required": [
     "schema_version",
     "versao_skill",
@@ -26,6 +27,7 @@
     "hash_artefato": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
     "pontuacao": {
       "type": "object",
+      "additionalProperties": false,
       "required": ["nota_global_0_10", "notas_por_eixo"],
       "properties": {
         "nota_global_0_10": { "type": "number", "minimum": 0, "maximum": 10 },
@@ -38,6 +40,7 @@
     },
     "resumo_executivo": {
       "type": "object",
+      "additionalProperties": false,
       "required": ["total_achados", "criticos_abertos", "maiores_abertos", "nao_verificados_criticos"],
       "properties": {
         "total_achados": { "type": "integer", "minimum": 0 },

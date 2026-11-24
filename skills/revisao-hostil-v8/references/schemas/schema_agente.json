@@ -3,6 +3,7 @@
   "$id": "https://revisao-hostil.v8/schemas/schema_agente.json",
   "title": "ParecerAgente",
   "type": "object",
+  "additionalProperties": false,
   "required": [
     "schema_version",
     "agente_id",
@@ -24,6 +25,7 @@
     "escopo": { "type": "string", "minLength": 3 },
     "pontuacao_eixo": {
       "type": "object",
+      "additionalProperties": false,
       "required": ["nota_0_10"],
       "properties": {
         "nota_0_10": { "type": "number", "minimum": 0, "maximum": 10 },
