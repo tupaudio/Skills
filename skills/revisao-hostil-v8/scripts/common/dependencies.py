@@ -118,6 +118,17 @@ def _detect_specifier_conflict(dist_name: str, spec_set: SpecifierSet) -> str | 
             exact_pins.add(ver)
         elif op == "!=":
             excluded.add(ver)
+        elif op == "~=":
+            # PEP 440 compatible release: ~=X.Y equivale a >=X.Y, <(X+1).0; ~=X.Y.Z equivale a >=X.Y.Z, <X.(Y+1).0
+            if lower_bound is None or ver > lower_bound[0]:
+                lower_bound = (ver, True)
+            rel_parts = list(ver.release)
+            if len(rel_parts) >= 2:
+                prefix = rel_parts[:-1]
+                prefix[-1] += 1
+                upper_ver = Version(".".join(str(x) for x in prefix))
+                if upper_bound is None or upper_ver < upper_bound[0] or (upper_ver == upper_bound[0] and upper_bound[1]):
+                    upper_bound = (upper_ver, False)
         elif op == ">=":
             if lower_bound is None or ver > lower_bound[0]:
                 lower_bound = (ver, True)
