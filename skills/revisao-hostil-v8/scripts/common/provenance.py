@@ -1,13 +1,23 @@
-"""Proveniência, hashes SHA-256 e gerador oficial de run_manifest.json (Core v8.0 / ACH-013, ACH-014, ACH-B6.1-005)."""
+"""Proveniência, hashes SHA-256, gerador oficial de run_manifest.json e validação de consistência.
+
+Cobertura de requisitos:
+- ACH-013 / ACH-014: caminhos relativos, autoexclusão e separação git_dirty_raw vs git_dirty_code;
+- ACH-B6.1-005: rastreabilidade perfil -> motor -> dependência -> versão -> estado;
+- ACH-B6.2-001: fonte única de verdade por execução (`run_id`), captura ambiental direta do processo,
+  inventário `artifacts` com SHA-256 real e validação obrigatória `validate_run_consistency()`.
+"""
 
 from __future__ import annotations
 
 import hashlib
 import importlib.metadata
 import json
+import os
 import platform
 import subprocess
 import sys
+import uuid
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -15,7 +25,21 @@ from . import CORE_VERSION, SCHEMA_VERSION
 from .dependencies import ALLOWED_DEPENDENCY_STATUSES
 from .evidence import utc_now_iso
 
-MANIFEST_GENERATOR_VERSION = "8.0.0-beta.6.2"
+MANIFEST_GENERATOR_VERSION = "8.0.0-beta.6.3"
+
+
+class ConsistencyValidationError(ValueError):
+    """Erro levantado quando há divergência entre manifesto, ambiente, relatórios ou checksums."""
+
+    def __init__(self, errors: list[str]) -> None:
+        self.errors = list(errors)
+        super().__init__("Falha na validação de consistência da execução: " + "; ".join(self.errors))
+
+
+def generate_run_id(prefix: str = "BETA6.3") -> str:
+    """Gera identificador único por execução (fonte única de verdade para todos os artefatos)."""
+    stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    return f"{prefix}-{stamp}-{uuid.uuid4().hex[:8]}"
 
 
 def sha256_file(path: str | Path) -> str:
@@ -27,10 +51,10 @@ def sha256_file(path: str | Path) -> str:
     return h.hexdigest()
 
 
-def _detect_git_commit(cwd: Path | None = None) -> str | None:
+def _run_git(args: list[str], cwd: Path | None = None) -> str | None:
     try:
         proc = subprocess.run(
-            ["git", "rev-parse", "HEAD"],
+            ["git", *args],
             cwd=str(cwd) if cwd else None,
             capture_output=True,
             text=True,
@@ -41,6 +65,18 @@ def _detect_git_commit(cwd: Path | None = None) -> str | None:
     except Exception:
         pass
     return None
+
+
+def _detect_git_commit(cwd: Path | None = None) -> str | None:
+    return _run_git(["rev-parse", "HEAD"], cwd=cwd)
+
+
+def _detect_git_branch(cwd: Path | None = None) -> str | None:
+    return _run_git(["rev-parse", "--abbrev-ref", "HEAD"], cwd=cwd)
+
+
+def _detect_base_tag(cwd: Path | None = None) -> str | None:
+    return _run_git(["describe", "--tags", "--abbrev=0"], cwd=cwd)
 
 
 def _inspect_git_dirty_state(
@@ -122,15 +158,96 @@ def _installed_packages(names: tuple[str, ...]) -> dict[str, str | None]:
     return versions
 
 
-def validate_run_manifest(manifest: dict[str, Any]) -> None:
-    """Valida explicitamente o contrato estrutural do run_manifest.json (ACH-B6.1-005).
+def capture_runtime_environment(repo_root: str | Path | None = None) -> dict[str, Any]:
+    """Captura o ambiente real UMA ÚNICA VEZ diretamente do processo em execução (ACH-B6.2-001)."""
+    root_path = (Path(repo_root) if repo_root else Path(__file__).resolve().parents[2]).resolve()
+    deps = _installed_packages(
+        (
+            "numpy",
+            "scipy",
+            "sympy",
+            "python-docx",
+            "pypdf",
+            "Pillow",
+            "PyYAML",
+            "jsonschema",
+            "referencing",
+            "packaging",
+            "pytest",
+            "pytest-cov",
+            "coverage",
+        )
+    )
+    return {
+        "python_version": sys.version.split()[0],
+        "python_implementation": platform.python_implementation(),
+        "os_name": platform.system(),
+        "os_release": platform.release(),
+        "os_build": platform.version(),
+        "platform": platform.platform(),
+        "architecture": platform.machine(),
+        "virtual_env": os.environ.get("VIRTUAL_ENV") or sys.prefix,
+        "executable": sys.executable,
+        "git_branch": _detect_git_branch(root_path),
+        "base_tag": _detect_base_tag(root_path),
+        "dependencies": deps,
+        "test_tools": {
+            "pytest": deps["pytest"],
+            "pytest-cov": deps["pytest-cov"],
+            "coverage": deps["coverage"],
+            "packaging": deps["packaging"],
+        },
+    }
 
-    Levanta ValueError se faltar qualquer campo obrigatório de proveniência ou rastreabilidade.
-    """
+
+def build_artifact_record(
+    path: str | Path,
+    repo_root: str | Path,
+    *,
+    run_id: str,
+    artifact_type: str,
+    generation_status: str = "generated",
+    verification_status: str = "verified",
+) -> dict[str, Any]:
+    """Constrói registro de proveniência de um artefato finalizado (SHA-256 real dos bytes)."""
+    p = Path(path).resolve()
+    root = Path(repo_root).resolve()
+    try:
+        rel = p.relative_to(root).as_posix()
+    except ValueError:
+        rel = p.name
+    if not p.exists() or not p.is_file():
+        return {
+            "relative_path": rel,
+            "name": p.name,
+            "bytes": None,
+            "sha256": None,
+            "run_id": run_id,
+            "type": artifact_type,
+            "generation_status": "missing",
+            "verification_status": "failed",
+        }
+    return {
+        "relative_path": rel,
+        "name": p.name,
+        "bytes": p.stat().st_size,
+        "sha256": sha256_file(p),
+        "run_id": run_id,
+        "type": artifact_type,
+        "generation_status": generation_status,
+        "verification_status": verification_status,
+    }
+
+
+def validate_run_manifest(manifest: dict[str, Any]) -> None:
+    """Valida explicitamente o contrato estrutural do run_manifest.json (ACH-B6.1-005 / ACH-B6.2-001)."""
     required_top = (
         "schema_version",
         "run_id",
         "timestamp_utc",
+        "timestamp_start_utc",
+        "timestamp_end_utc",
+        "durations",
         "skill_version",
         "manifest_generator_version",
         "schema_validator_version",
@@ -141,6 +258,7 @@ def validate_run_manifest(manifest: dict[str, Any]) -> None:
         "profiles",
         "global_eligibility",
         "authorized_exceptions",
+        "artifacts",
         "inspected_files",
         "report_references",
         "integrity",
@@ -150,8 +268,9 @@ def validate_run_manifest(manifest: dict[str, Any]) -> None:
         raise ValueError(f"run_manifest.json inválido: campos obrigatórios ausentes: {missing_top}")
 
     env = manifest["environment"]
-    if not isinstance(env, dict) or not env.get("python_version") or not env.get("platform"):
-        raise ValueError("run_manifest.json inválido: environment deve conter python_version e platform.")
+    for req_env in ("python_version", "platform", "os_name", "os_build", "architecture"):
+        if not isinstance(env, dict) or not env.get(req_env):
+            raise ValueError(f"run_manifest.json inválido: environment sem campo obrigatório '{req_env}'.")
 
     profiles = manifest["profiles"]
     if not isinstance(profiles, list):
@@ -199,6 +318,176 @@ def validate_run_manifest(manifest: dict[str, Any]) -> None:
                     )
 
 
+def validate_run_consistency(
+    manifest: dict[str, Any],
+    *,
+    root_dir: str | Path | None = None,
+    sha256sums_path: str | Path | None = None,
+    expected_commit: str | None = None,
+    report_text: str | None = None,
+    required_artifact_names: tuple[str, ...] = (),
+    max_duration_drift_s: float = 0.05,
+) -> dict[str, Any]:
+    """Verifica coerência integral entre manifesto, ambiente, testes, relatórios e SHA-256 (ACH-B6.2-001).
+
+    Levanta `ConsistencyValidationError` diante de qualquer divergência.
+    """
+    errors: list[str] = []
+    try:
+        validate_run_manifest(manifest)
+    except ValueError as exc:
+        raise ConsistencyValidationError([str(exc)]) from exc
+
+    run_id = manifest["run_id"]
+    env = manifest["environment"]
+    durations = manifest.get("durations") or {}
+    test_res = manifest.get("test_results")
+
+    # 1. Commit auditado
+    if expected_commit is not None and manifest.get("audited_code_commit") != expected_commit:
+        errors.append(
+            f"Commit auditado divergente: manifesto={manifest.get('audited_code_commit')!r} "
+            f"!= esperado={expected_commit!r}."
+        )
+    if manifest.get("git_commit") != manifest.get("audited_code_commit"):
+        errors.append("Divergência interna entre git_commit e audited_code_commit.")
+
+    # 2. Consistência entre ambiente do manifesto e resultados programáticos do pytest
+    if isinstance(test_res, dict) and test_res:
+        if test_res.get("run_id") and test_res["run_id"] != run_id:
+            errors.append(
+                f"Divergência de run_id entre manifesto ({run_id!r}) e pytest ({test_res.get('run_id')!r})."
+            )
+        if test_res.get("python_version") != env.get("python_version"):
+            errors.append(
+                f"Divergência de Python: manifesto={env.get('python_version')!r} "
+                f"!= pytest={test_res.get('python_version')!r}."
+            )
+        if test_res.get("os_name") != env.get("os_name"):
+            errors.append(
+                f"Divergência de SO: manifesto={env.get('os_name')!r} != pytest={test_res.get('os_name')!r}."
+            )
+        if test_res.get("os_build") != env.get("os_build"):
+            errors.append(
+                f"Divergência de build do SO: manifesto={env.get('os_build')!r} "
+                f"!= pytest={test_res.get('os_build')!r}."
+            )
+
+        # Código de saída vs resultado geral
+        exit_code = test_res.get("exit_code")
+        overall = manifest.get("overall_result")
+        failed = int(test_res.get("failed", 0))
+        coll_err = int(test_res.get("collection_errors", 0))
+        if overall == "PASSED" and (exit_code != 0 or failed > 0 or coll_err > 0):
+            errors.append(
+                f"Status 'PASSED' incompatível com exit_code={exit_code}, failed={failed}, collection_errors={coll_err}."
+            )
+        if exit_code == 0 and (failed > 0 or coll_err > 0):
+            errors.append(f"exit_code=0 incompatível com failed={failed} ou collection_errors={coll_err}.")
+
+        # Consistência de duração
+        t_pytest = test_res.get("duration_seconds")
+        t_suite = durations.get("test_suite_seconds")
+        t_total = durations.get("total_seconds")
+        if t_pytest is not None and t_suite is not None:
+            if abs(float(t_pytest) - float(t_suite)) > max_duration_drift_s:
+                errors.append(
+                    f"Divergência de duração da suíte: pytest={t_pytest}s vs durations={t_suite}s."
+                )
+        if t_total is not None and t_suite is not None and float(t_total) + 1e-6 < float(t_suite):
+            errors.append(
+                f"Duração total ({t_total}s) menor que duração da suíte de testes ({t_suite}s)."
+            )
+
+    # 3. Coerência com texto do relatório de homologação (quando fornecido)
+    if report_text is not None:
+        if run_id not in report_text:
+            errors.append(f"Relatório de homologação não contém o run_id da execução ({run_id!r}).")
+        if str(env["python_version"]) not in report_text:
+            errors.append(f"Relatório de homologação não contém a versão Python ({env['python_version']!r}).")
+        if str(env["os_build"]) not in report_text:
+            errors.append(f"Relatório de homologação não contém o build do SO ({env['os_build']!r}).")
+        if isinstance(test_res, dict) and test_res:
+            passed_str = f"{test_res['passed']} passed"
+            if passed_str not in report_text:
+                errors.append(f"Relatório de homologação diverge na contagem de testes (esperado {passed_str!r}).")
+            warn_str = f"Warnings: `{test_res['warnings']}`"
+            if warn_str not in report_text:
+                errors.append(f"Relatório de homologação diverge na contagem de warnings (esperado {warn_str!r}).")
+
+    # 4. Artefatos: run_id idêntico, presença obrigatória e SHA-256 real em disco
+    artifacts = manifest.get("artifacts") or []
+    present_names: set[str] = set()
+    root = Path(root_dir).resolve() if root_dir else None
+    for art in artifacts:
+        present_names.add(str(art.get("name", "")))
+        if art.get("run_id") != run_id:
+            errors.append(
+                f"Artefato '{art.get('relative_path')}' possui run_id={art.get('run_id')!r} != {run_id!r}."
+            )
+        if root is not None:
+            art_path = root / str(art["relative_path"])
+            if not art_path.exists() or not art_path.is_file():
+                errors.append(f"Artefato ausente em disco: {art['relative_path']}.")
+            else:
+                actual_bytes = art_path.stat().st_size
+                actual_hash = sha256_file(art_path)
+                if art.get("bytes") != actual_bytes:
+                    errors.append(
+                        f"Tamanho divergente em '{art['relative_path']}': "
+                        f"manifesto={art.get('bytes')} != disco={actual_bytes}."
+                    )
+                if art.get("sha256") != actual_hash:
+                    errors.append(
+                        f"Hash SHA-256 divergente em '{art['relative_path']}': "
+                        f"manifesto={art.get('sha256')} != disco={actual_hash}."
+                    )
+
+    for req_name in required_artifact_names:
+        if req_name not in present_names:
+            errors.append(f"Artefato obrigatório ausente no manifesto: {req_name}.")
+
+    # 5. Verificação integral de SHA256SUMS (recalculando bytes)
+    sha_checked = 0
+    sha_failed = 0
+    if sha256sums_path is not None and root is not None:
+        sf = Path(sha256sums_path)
+        if not sf.exists():
+            errors.append(f"Arquivo SHA256SUMS ausente: {sf}.")
+        else:
+            for line in sf.read_text(encoding="utf-8").splitlines():
+                if not line.strip():
+                    continue
+                expected_h, rel = line.split("  ", 1)
+                if rel == "SHA256SUMS":
+                    errors.append("SHA256SUMS não pode conter a si próprio.")
+                    sha_failed += 1
+                    continue
+                target = root / rel
+                if not target.exists():
+                    errors.append(f"Arquivo listado em SHA256SUMS ausente: {rel}.")
+                    sha_failed += 1
+                    continue
+                actual_h = sha256_file(target)
+                if actual_h == expected_h:
+                    sha_checked += 1
+                else:
+                    errors.append(f"Divergência SHA-256 em {rel}: esperado={expected_h} != atual={actual_h}.")
+                    sha_failed += 1
+
+    if errors:
+        raise ConsistencyValidationError(errors)
+
+    return {
+        "valid": True,
+        "run_id": run_id,
+        "checked_artifacts": len(artifacts),
+        "sha256_verified": sha_checked,
+        "sha256_failed": sha_failed,
+        "errors": [],
+    }
+
+
 def build_run_manifest(
     run_id: str,
     inspected_files: list[str | Path],
@@ -210,6 +499,18 @@ def build_run_manifest(
     authorized_exceptions: list[dict[str, Any]] | None = None,
     report_references: dict[str, str] | None = None,
     integrity_info: dict[str, Any] | None = None,
+    runtime_environment: dict[str, Any] | None = None,
+    timestamp_start_utc: str | None = None,
+    timestamp_end_utc: str | None = None,
+    durations: dict[str, float] | None = None,
+    test_results: dict[str, Any] | None = None,
+    coverage_summary: dict[str, Any] | None = None,
+    smoke_tests_summary: dict[str, Any] | None = None,
+    artifacts: list[dict[str, Any]] | None = None,
+    execution_command: str | None = None,
+    execution_args: list[str] | None = None,
+    exit_code: int | None = None,
+    overall_result: str | None = None,
     config: dict[str, Any] | None = None,
     seeds: dict[str, int] | None = None,
     limitations: list[str] | None = None,
@@ -219,6 +520,9 @@ def build_run_manifest(
 ) -> dict[str, Any]:
     """Cria o manifesto determinístico de execução (run_manifest.json) com proveniência completa."""
     root_path = (Path(repo_root) if repo_root else Path(__file__).resolve().parents[2]).resolve()
+    now_iso = utc_now_iso()
+    env_data = dict(runtime_environment) if runtime_environment is not None else capture_runtime_environment(root_path)
+
     file_records: list[dict[str, Any]] = []
     for item in inspected_files:
         p = Path(item)
@@ -247,30 +551,8 @@ def build_run_manifest(
                 }
             )
 
-    deps = _installed_packages(
-        (
-            "numpy",
-            "scipy",
-            "sympy",
-            "python-docx",
-            "pypdf",
-            "Pillow",
-            "PyYAML",
-            "jsonschema",
-            "referencing",
-            "packaging",
-            "pytest",
-            "pytest-cov",
-            "coverage",
-        )
-    )
-    test_tools = {
-        "pytest": deps["pytest"],
-        "pytest-cov": deps["pytest-cov"],
-        "coverage": deps["coverage"],
-        "packaging": deps["packaging"],
-    }
-
+    deps = dict(env_data.get("dependencies") or {})
+    test_tools = dict(env_data.get("test_tools") or {})
     git_commit = _detect_git_commit(root_path)
     git_state = _inspect_git_dirty_state(root_path, excluded_dirty_paths=excluded_dirty_paths)
 
@@ -298,10 +580,13 @@ def build_run_manifest(
     manifest = {
         "schema_version": SCHEMA_VERSION,
         "run_id": run_id,
-        "timestamp_utc": utc_now_iso(),
+        "timestamp_utc": timestamp_end_utc or now_iso,
+        "timestamp_start_utc": timestamp_start_utc or now_iso,
+        "timestamp_end_utc": timestamp_end_utc or now_iso,
+        "durations": dict(durations or {}),
         "skill_version": skill_version,
         "manifest_generator_version": MANIFEST_GENERATOR_VERSION,
-        "schema_validator_version": deps["jsonschema"],
+        "schema_validator_version": deps.get("jsonschema"),
         "engine_versions": dict(engine_versions or {}),
         "profile_versions": dict(profile_versions or {}),
         "profiles": profiles_list,
@@ -309,19 +594,38 @@ def build_run_manifest(
         "authorized_exceptions": list(authorized_exceptions or []),
         "git_commit": git_commit,
         "audited_code_commit": git_commit,
+        "git_branch": env_data.get("git_branch"),
+        "base_tag": env_data.get("base_tag"),
         "artifact_commit_note": (
             "O commit que publica os artefatos de relatório (pytest_verbose.txt, coverage_report.txt, "
-            "smoke_tests.txt, run_manifest.json, homologacao_v8.0-beta.6.2.md e SHA256SUMS) é criado "
+            "smoke_tests.txt, run_manifest.json, homologacao_v8.0-beta.6.3.md e SHA256SUMS) é criado "
             "após esta geração tendo audited_code_commit como pai direto."
         ),
         "git_dirty": git_state["git_dirty_raw"],
         "git_state": git_state,
         "environment": {
-            "python_version": sys.version.split()[0],
-            "platform": platform.platform(),
+            "python_version": env_data["python_version"],
+            "python_implementation": env_data["python_implementation"],
+            "os_name": env_data["os_name"],
+            "os_release": env_data["os_release"],
+            "os_build": env_data["os_build"],
+            "platform": env_data["platform"],
+            "architecture": env_data["architecture"],
+            "virtual_env": env_data["virtual_env"],
             "dependencies": deps,
         },
         "test_tools": test_tools,
+        "execution": {
+            "command": execution_command or sys.executable,
+            "args": list(execution_args or []),
+            "exit_code": exit_code,
+            "overall_result": overall_result,
+        },
+        "overall_result": overall_result,
+        "test_results": dict(test_results) if test_results is not None else None,
+        "coverage": dict(coverage_summary) if coverage_summary is not None else None,
+        "smoke_tests": dict(smoke_tests_summary) if smoke_tests_summary is not None else None,
+        "artifacts": list(artifacts or []),
         "config": dict(config) if config is not None else {"status": "no_custom_config_used"},
         "seeds": dict(seeds) if seeds is not None else {"status": "no_stochastic_seed_used"},
         "self_excluded_files": list(self_excluded_files or []),
