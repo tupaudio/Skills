@@ -25,6 +25,7 @@ import yaml
 
 from .dependencies import (
     ExecutionBlockedError,
+    RequirementsParseError,
     parse_requirements_file,
     validate_environment_for_profile,
     validate_single_dependency,
@@ -76,7 +77,26 @@ def verify_environment_dependencies(
     if not all_deps:
         return {"_summary": {"status": "not_applicable", "all_available": True}}
 
-    req_map = parse_requirements_file(requirements_path)
+    try:
+        req_map = parse_requirements_file(requirements_path)
+    except RequirementsParseError as exc:
+        report: dict[str, dict[str, Any]] = {}
+        for raw_dep in all_deps:
+            report[raw_dep] = {
+                "distribution": raw_dep,
+                "import_name": None,
+                "version_specifier": None,
+                "status": "unknown",
+                "installed_version": None,
+                "reason": str(exc),
+                "validation_timestamp": None,
+            }
+        report["_summary"] = {
+            "status": "unknown",
+            "all_available": False,
+            "requirements_error": str(exc),
+        }
+        return report
     report: dict[str, dict[str, Any]] = {}
     all_ok = True
     worst_status = "available"
@@ -356,6 +376,7 @@ def load_profile(
             for eng in env_audit["engines"]
         ],
         "profile_dependencies": env_audit["profile_dependencies"],
+        "requirements_error": env_audit.get("requirements_error"),
         "blocking_reasons": blocking_reasons,
         "optional_unmet_warnings": env_audit["optional_unmet_warnings"],
     }
