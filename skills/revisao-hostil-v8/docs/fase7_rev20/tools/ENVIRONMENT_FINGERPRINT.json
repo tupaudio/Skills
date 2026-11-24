@@ -1,0 +1,19 @@
+{
+  "collected_at_utc": "2026-11-24T10:21:31Z",
+  "python_version": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+  "python_implementation": "CPython",
+  "os": "Windows",
+  "os_release": "11",
+  "os_version": "10.0.26300",
+  "architecture": "AMD64",
+  "lock_file": "tools/requirements-validation.lock",
+  "lock_sha256": "d7270cbb1feeb640ef75321b856adcad048477e6bfa4456e680f3bd8ce693585",
+  "installed_versions": {
+    "rfc8785": "0.1.4",
+    "jcs": "0.3.0",
+    "cryptography": "50.0.2",
+    "jsonschema": "4.26.0",
+    "pytest": "9.2.0",
+    "pip": "26.1.2"
+  }
+}

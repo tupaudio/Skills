@@ -1,0 +1,74 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://revisao-hostil.v8/schemas/7.0.0/schema_evidence_qualification.json",
+  "title": "Qualificacao Probatoria de Evidencia (Fase 7)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "evidence_ref",
+    "validity_status",
+    "applicability_status",
+    "origin_integrity_status",
+    "interpretation_status",
+    "confinement_platform",
+    "single_buffer_sha256",
+    "link_count_verified"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "pattern": "^(0|[1-9][0-9]{0,9})\\.(0|[1-9][0-9]{0,9})\\.(0|[1-9][0-9]{0,9})(?![\\r\\n])$"
+    },
+    "evidence_ref": {
+      "$ref": "./schema_evidencia.json"
+    },
+    "validity_status": {
+      "type": "string",
+      "enum": [
+        "valida",
+        "invalida",
+        "indeterminada"
+      ]
+    },
+    "applicability_status": {
+      "type": "string",
+      "enum": [
+        "aplicavel",
+        "nao_aplicavel",
+        "parcial"
+      ]
+    },
+    "origin_integrity_status": {
+      "type": "string",
+      "enum": [
+        "integra",
+        "comprometida",
+        "nao_verificada"
+      ]
+    },
+    "interpretation_status": {
+      "type": "string",
+      "enum": [
+        "correta",
+        "contestada",
+        "incorreta"
+      ]
+    },
+    "confinement_platform": {
+      "type": "string",
+      "enum": [
+        "windows_ntfs",
+        "linux_openat2_5_6_plus"
+      ]
+    },
+    "single_buffer_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}(?![\\r\\n])$"
+    },
+    "link_count_verified": {
+      "type": "integer",
+      "const": 1
+    }
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "name": "v16_non_finite_negative",
+  "input_description": "float('nan'), float('inf'), float('-inf')",
+  "expected_error": "ValueError",
+  "origin": "project_rev18",
+  "normative_ref": "RFC 8785 Section 3.2.2.3",
+  "classification": "negative"
+}

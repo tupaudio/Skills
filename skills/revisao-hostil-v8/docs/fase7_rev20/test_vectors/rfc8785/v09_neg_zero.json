@@ -1,0 +1,11 @@
+{
+  "name": "v09_neg_zero",
+  "input": {
+    "v": -0.0
+  },
+  "expected_jcs_utf8": "{\"v\":0}",
+  "expected_sha256": "ec4f95abcb4e2e3dbe856c3eb2f81995eacb3823d40aa2e78ed4c5e1798f664d",
+  "origin": "official_rfc8785",
+  "normative_ref": "RFC 8785 Section 3.2.2.3",
+  "classification": "positive"
+}

@@ -1,0 +1,70 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://revisao-hostil.v8/schemas/7.0.0/schema_revocation_list.json",
+  "title": "Lista Assinada de Revogacao de Chaves (Fase 7 - Rev 19)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "revocation_list_version",
+    "issued_at_utc",
+    "valid_until_utc",
+    "authority_key_id",
+    "revoked_keys",
+    "signature_algorithm",
+    "signature_b64"
+  ],
+  "properties": {
+    "revocation_list_version": {
+      "type": "string",
+      "pattern": "^(0|[1-9][0-9]{0,31})(?![\\r\\n])$"
+    },
+    "issued_at_utc": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "valid_until_utc": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "authority_key_id": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}(?![\\r\\n])$"
+    },
+    "revoked_keys": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "key_id",
+          "revoked_at_utc",
+          "reason"
+        ],
+        "properties": {
+          "key_id": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}(?![\\r\\n])$"
+          },
+          "revoked_at_utc": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "signature_algorithm": {
+      "type": "string",
+      "const": "Ed25519"
+    },
+    "signature_b64": {
+      "type": "string",
+      "minLength": 86,
+      "maxLength": 88
+    }
+  }
+}

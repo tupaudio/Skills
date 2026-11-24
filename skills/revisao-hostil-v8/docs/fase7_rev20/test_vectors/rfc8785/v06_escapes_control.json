@@ -1,0 +1,11 @@
+{
+  "name": "v06_escapes_control",
+  "input": {
+    "s": "quote:\" slash:\\ nl:\n tab:\t ctrl:\u0001"
+  },
+  "expected_jcs_utf8": "{\"s\":\"quote:\\\" slash:\\\\ nl:\\n tab:\\t ctrl:\\u0001\"}",
+  "expected_sha256": "e5ca42d1a4a2495ccfd811ec33d0fbf63073634c0bdc80dda36f52cdbdae2265",
+  "origin": "project_rev18",
+  "normative_ref": "RFC 8785 Section 3.2.2.2",
+  "classification": "positive"
+}

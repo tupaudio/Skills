@@ -1,0 +1,9 @@
+{
+  "revocation_list_version": "1",
+  "issued_at_utc": "2026-11-24T00:00:00Z",
+  "valid_until_utc": "2027-11-24T00:00:00Z",
+  "authority_key_id": "36fbfebf8113f1254b39f57b9a51ac537044844ac64fdb527f4ec6254abe98ba",
+  "revoked_keys": [],
+  "signature_algorithm": "Ed25519",
+  "signature_b64": "e6LSNbcXfGIRIW6enmfqWvi1wdaU+gSzv3MD8iwqj6+xWGaE0kVKeWYiYknO99MZXrrhprAt0BiR+NQDETUGDw=="
+}

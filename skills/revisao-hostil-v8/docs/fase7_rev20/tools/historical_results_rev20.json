@@ -1,0 +1,78 @@
+{
+  "reconciled_at_utc": "2026-11-24T10:55:48Z",
+  "historical_ids_verified": 199,
+  "rev20_executed_results": [
+    {
+      "test_id": "T-R20-200",
+      "status": "PASS",
+      "expected_result": "ACCEPT",
+      "actual_result": "ACCEPT",
+      "exit_code": 0,
+      "test_module": "tests.test_historical_preservation",
+      "test_function": "test_historical_id_sets_preserved",
+      "stdout_sha256": "63913c5c60e33ce88079098f8e6da16dbe1ff66bf8acf28e228c95050e0aa65e",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "artifact_sha256": "9b11b36431e2c3f7bef06e730138b0cb986ade26d525a95675e7dac203526bca"
+    },
+    {
+      "test_id": "T-R20-201",
+      "status": "PASS",
+      "expected_result": "REJECT",
+      "actual_result": "REJECT",
+      "exit_code": 0,
+      "test_module": "tests.test_rev20_all",
+      "test_function": "test_trusted_utc_clock_and_operational_guard",
+      "stdout_sha256": "63913c5c60e33ce88079098f8e6da16dbe1ff66bf8acf28e228c95050e0aa65e",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "artifact_sha256": "9b11b36431e2c3f7bef06e730138b0cb986ade26d525a95675e7dac203526bca"
+    },
+    {
+      "test_id": "T-R20-202",
+      "status": "PASS",
+      "expected_result": "REJECT",
+      "actual_result": "REJECT",
+      "exit_code": 0,
+      "test_module": "tests.test_rev20_all",
+      "test_function": "test_dossier_trust_binding_and_providers",
+      "stdout_sha256": "63913c5c60e33ce88079098f8e6da16dbe1ff66bf8acf28e228c95050e0aa65e",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "artifact_sha256": "9b11b36431e2c3f7bef06e730138b0cb986ade26d525a95675e7dac203526bca"
+    },
+    {
+      "test_id": "T-R20-203",
+      "status": "PASS",
+      "expected_result": "ACCEPT",
+      "actual_result": "ACCEPT",
+      "exit_code": 0,
+      "test_module": "tests.test_rev20_all",
+      "test_function": "test_windows_qpc_lifecycle_with_boot_id",
+      "stdout_sha256": "63913c5c60e33ce88079098f8e6da16dbe1ff66bf8acf28e228c95050e0aa65e",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "artifact_sha256": "9b11b36431e2c3f7bef06e730138b0cb986ade26d525a95675e7dac203526bca"
+    },
+    {
+      "test_id": "T-R20-204",
+      "status": "BLOCKED_ENVIRONMENT",
+      "expected_result": "ACCEPT",
+      "actual_result": "BLOCKED_ENVIRONMENT",
+      "exit_code": 0,
+      "test_module": "tests.test_rev20_all",
+      "test_function": "test_linux_monotonic_raw_lifecycle_with_boot_id",
+      "stdout_sha256": "63913c5c60e33ce88079098f8e6da16dbe1ff66bf8acf28e228c95050e0aa65e",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "artifact_sha256": "9b11b36431e2c3f7bef06e730138b0cb986ade26d525a95675e7dac203526bca"
+    },
+    {
+      "test_id": "T-R20-205",
+      "status": "PASS",
+      "expected_result": "REJECT",
+      "actual_result": "REJECT",
+      "exit_code": 0,
+      "test_module": "tests.test_rev20_all",
+      "test_function": "test_revocation_list_individual_entries",
+      "stdout_sha256": "63913c5c60e33ce88079098f8e6da16dbe1ff66bf8acf28e228c95050e0aa65e",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "artifact_sha256": "9b11b36431e2c3f7bef06e730138b0cb986ade26d525a95675e7dac203526bca"
+    }
+  ]
+}
