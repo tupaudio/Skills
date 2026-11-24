@@ -1,0 +1,59 @@
+{
+  "dossier_id": "dossier-tv-001",
+  "issued_at_utc": "2026-11-24T00:00:00Z",
+  "revocation_list_ref": "revocation-list-v1",
+  "schema_version": "7.0.0",
+  "scope": "administrative_independence_2of2_checkpoint",
+  "valid_from_utc": "2026-11-24T00:00:00Z",
+  "valid_until_utc": "2027-11-24T00:00:00Z",
+  "domains": [
+    {
+      "administrative_domain": "store.org-a.example",
+      "documentary_evidence_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "independent_rotation_recovery_ref": "runbook-store-v1",
+      "infrastructure_provider": "provider-a",
+      "key_custodian_id": "custodian-a",
+      "kms_hsm_id": "kms-a-01",
+      "legal_entity_id": "LEI-ORG-A",
+      "legal_entity_name": "Org A Ltda",
+      "no_shared_admin_credentials": true,
+      "operator_key_id": "1111111111111111111111111111111111111111111111111111111111111111",
+      "role": "checkpoint_store"
+    },
+    {
+      "administrative_domain": "witness-a.org-b.example",
+      "documentary_evidence_sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "independent_rotation_recovery_ref": "runbook-wa-v1",
+      "infrastructure_provider": "provider-b",
+      "key_custodian_id": "custodian-b",
+      "kms_hsm_id": "kms-b-01",
+      "legal_entity_id": "LEI-ORG-B",
+      "legal_entity_name": "Org B S.A.",
+      "no_shared_admin_credentials": true,
+      "operator_key_id": "2222222222222222222222222222222222222222222222222222222222222222",
+      "role": "witness_a"
+    },
+    {
+      "administrative_domain": "witness-b.org-c.example",
+      "documentary_evidence_sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "independent_rotation_recovery_ref": "runbook-wb-v1",
+      "infrastructure_provider": "provider-c",
+      "key_custodian_id": "custodian-c",
+      "kms_hsm_id": "kms-c-01",
+      "legal_entity_id": "LEI-ORG-C",
+      "legal_entity_name": "Org C Corp",
+      "no_shared_admin_credentials": true,
+      "operator_key_id": "3333333333333333333333333333333333333333333333333333333333333333",
+      "role": "witness_b"
+    }
+  ],
+  "authority_signature": {
+    "authority_id": "independent-audit-authority-tv",
+    "signer_id": "auditor-tv-01",
+    "authority_key_id": "d2e6845244863abf2042aeadcb920305981642ec81db48f7c31502c40d2f4e52",
+    "public_key_spki_der_b64": "MCowBQYDK2VwAyEAks2g1aiYhAEjtUt+khC7VVMQxFNRELRs6OGufvvr7vE=",
+    "signature_algorithm": "Ed25519",
+    "signature_b64": "B1YfTqHzXeIjBIGxmRJTwp5xwU9RbTouZV+DDg7trr2iFw4x7gEYYzxGyvdYaurZ8MLWejkVJ9VV8M2M8fywDw=="
+  },
+  "dossier_jcs_sha256": "e322b6ae5d9b60084f115ee078c5eac6c48a0d3871e7739980556b2841a9ca8f"
+}

@@ -1,0 +1,10 @@
+{
+  "test_vector_id": "dossier-tv-001",
+  "note": "Chave Ed25519 deterministica exclusiva para vetor de teste documental (nao e chave de producao).",
+  "jcs_byte_length": 1788,
+  "dossier_jcs_sha256": "e322b6ae5d9b60084f115ee078c5eac6c48a0d3871e7739980556b2841a9ca8f",
+  "authority_key_id": "d2e6845244863abf2042aeadcb920305981642ec81db48f7c31502c40d2f4e52",
+  "public_key_spki_der_b64": "MCowBQYDK2VwAyEAks2g1aiYhAEjtUt+khC7VVMQxFNRELRs6OGufvvr7vE=",
+  "signature_algorithm": "Ed25519",
+  "signature_b64": "B1YfTqHzXeIjBIGxmRJTwp5xwU9RbTouZV+DDg7trr2iFw4x7gEYYzxGyvdYaurZ8MLWejkVJ9VV8M2M8fywDw=="
+}
