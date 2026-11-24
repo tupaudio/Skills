@@ -1,0 +1,13 @@
+{
+  "name": "v14_boundary_floats",
+  "input": {
+    "max": 1e+30,
+    "min": -1e+30,
+    "small": 5e-324
+  },
+  "expected_jcs_utf8": "{\"max\":1e+30,\"min\":-1e+30,\"small\":5e-324}",
+  "expected_sha256": "0ca4db6bab88421d8383d5557667e82c8ca131531c4c8e2e6abbcba728e844ab",
+  "origin": "official_rfc8785",
+  "normative_ref": "RFC 8785 Appendix B",
+  "classification": "positive"
+}

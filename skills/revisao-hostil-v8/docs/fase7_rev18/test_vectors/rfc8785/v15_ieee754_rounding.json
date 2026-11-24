@@ -1,0 +1,13 @@
+{
+  "name": "v15_ieee754_rounding",
+  "input": {
+    "v1": 333333333.3333333,
+    "v2": 4.5,
+    "v3": 0.002
+  },
+  "expected_jcs_utf8": "{\"v1\":333333333.3333333,\"v2\":4.5,\"v3\":0.002}",
+  "expected_sha256": "2221cffffa6ce0c47a172c1883837b7e8db2a1571d15dd4fd437c0392a46bf2a",
+  "origin": "official_rfc8785",
+  "normative_ref": "RFC 8785 Appendix B",
+  "classification": "positive"
+}

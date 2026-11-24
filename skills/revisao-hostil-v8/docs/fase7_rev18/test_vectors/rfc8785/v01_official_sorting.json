@@ -1,0 +1,15 @@
+{
+  "name": "v01_official_sorting",
+  "input": {
+    "\r": "Carriage Return",
+    "1": "One string",
+    "": "Control",
+    "דּ": "Hebrew Letter Dalet With Dagesh",
+    "😀": "Emoji: Grinning Face"
+  },
+  "expected_jcs_utf8": "{\"\\r\":\"Carriage Return\",\"1\":\"One string\",\"\":\"Control\",\"😀\":\"Emoji: Grinning Face\",\"דּ\":\"Hebrew Letter Dalet With Dagesh\"}",
+  "expected_sha256": "303f894cf0144699929531a9407e07a6c9b9cfd555d36ee67bf5f0324544626c",
+  "origin": "official_rfc8785",
+  "normative_ref": "RFC 8785 Section 3.2.3",
+  "classification": "positive"
+}

@@ -1,0 +1,266 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://revisao-hostil.v8/schemas/7.0.0/schema_monotonic_checkpoint_receipt.json",
+  "title": "Recibo Monotonico de Checkpoint com Quórum 2-of-2 (Fase 7)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "signed_store_receipt",
+    "witness_assertions",
+    "administrative_independence_dossier_sha256",
+    "nonce_consumption_receipts"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "pattern": "^(0|[1-9][0-9]{0,9})\\.(0|[1-9][0-9]{0,9})\\.(0|[1-9][0-9]{0,9})(?![\\r\\n])$"
+    },
+    "signed_store_receipt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "protocol",
+        "store_id",
+        "namespace",
+        "previous_revision",
+        "new_revision",
+        "previous_checkpoint_sha256",
+        "new_checkpoint_sha256",
+        "policy_seq",
+        "policy_jcs_sha256",
+        "receipt_timestamp_utc",
+        "store_key_id",
+        "signature_algorithm",
+        "signature_b64"
+      ],
+      "properties": {
+        "protocol": {
+          "type": "string",
+          "const": "signed_store_receipt_v1"
+        },
+        "store_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "namespace": {
+          "type": "string",
+          "minLength": 1
+        },
+        "previous_revision": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]{0,31})(?![\\r\\n])$"
+        },
+        "new_revision": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]{0,31})(?![\\r\\n])$"
+        },
+        "previous_checkpoint_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}(?![\\r\\n])$"
+        },
+        "new_checkpoint_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}(?![\\r\\n])$"
+        },
+        "policy_seq": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]{0,31})(?![\\r\\n])$"
+        },
+        "policy_jcs_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}(?![\\r\\n])$"
+        },
+        "receipt_timestamp_utc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "store_key_id": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}(?![\\r\\n])$"
+        },
+        "signature_algorithm": {
+          "type": "string",
+          "const": "Ed25519"
+        },
+        "signature_b64": {
+          "type": "string",
+          "minLength": 86,
+          "maxLength": 88
+        }
+      }
+    },
+    "witness_assertions": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 2,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "protocol",
+          "witness_id",
+          "witness_key_id",
+          "store_id",
+          "namespace",
+          "policy_seq",
+          "checkpoint_revision",
+          "checkpoint_sha256",
+          "receipt_sha256",
+          "challenge_nonce_b64",
+          "issued_at_utc",
+          "signature_algorithm",
+          "signature_b64"
+        ],
+        "properties": {
+          "protocol": {
+            "type": "string",
+            "const": "checkpoint_freshness_assertion_v1"
+          },
+          "witness_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "witness_key_id": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}(?![\\r\\n])$"
+          },
+          "store_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "namespace": {
+            "type": "string",
+            "minLength": 1
+          },
+          "policy_seq": {
+            "type": "string",
+            "pattern": "^(0|[1-9][0-9]{0,31})(?![\\r\\n])$"
+          },
+          "checkpoint_revision": {
+            "type": "string",
+            "pattern": "^(0|[1-9][0-9]{0,31})(?![\\r\\n])$"
+          },
+          "checkpoint_sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}(?![\\r\\n])$"
+          },
+          "receipt_sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}(?![\\r\\n])$"
+          },
+          "challenge_nonce_b64": {
+            "type": "string",
+            "minLength": 43,
+            "maxLength": 44
+          },
+          "issued_at_utc": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "signature_algorithm": {
+            "type": "string",
+            "const": "Ed25519"
+          },
+          "signature_b64": {
+            "type": "string",
+            "minLength": 86,
+            "maxLength": 88
+          }
+        }
+      },
+      "uniqueItems": true
+    },
+    "administrative_independence_dossier_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}(?![\\r\\n])$",
+      "description": "SHA-256 do dossie documental verificavel de independencia administrativa entre Store, Testemunha A e Testemunha B (ACH-B7-R12-001)."
+    },
+    "nonce_consumption_receipts": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 2,
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "nonce_sha256",
+          "protocol_scope",
+          "campaign_id",
+          "witness_id",
+          "expires_at_monotonic_context",
+          "persisted_tx_id",
+          "bound_witness_key_id",
+          "store_epoch"
+        ],
+        "properties": {
+          "nonce_sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}(?![\\r\\n])$"
+          },
+          "protocol_scope": {
+            "type": "string",
+            "const": "checkpoint_freshness_assertion_v1"
+          },
+          "campaign_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "witness_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "expires_at_monotonic_context": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "clock_source",
+              "unit",
+              "clock_context_id",
+              "store_epoch",
+              "deadline_ns"
+            ],
+            "properties": {
+              "clock_source": {
+                "type": "string",
+                "enum": [
+                  "linux_clock_monotonic_raw",
+                  "windows_query_performance_counter"
+                ]
+              },
+              "unit": {
+                "type": "string",
+                "const": "nanoseconds"
+              },
+              "clock_context_id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "store_epoch": {
+                "type": "string",
+                "minLength": 1
+              },
+              "deadline_ns": {
+                "type": "integer",
+                "minimum": 0
+              }
+            }
+          },
+          "persisted_tx_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "bound_witness_key_id": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}(?![\\r\\n])$"
+          },
+          "store_epoch": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    }
+  }
+}

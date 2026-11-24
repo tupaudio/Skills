@@ -1,0 +1,9 @@
+{
+  "name": "rfc8032_section_7_1_test1",
+  "normative_ref": "RFC 8032 Section 7.1 TEST 1",
+  "message_hex": "",
+  "public_key_spki_der_b64": "MCowBQYDK2VwAyEA11qYAYKxCrfVS/7TyWQHOg7hcvPapiMlrwIaaPcHURo=",
+  "authority_key_id": "06e3fd8fda29bb60ab59557de61edb0aecdb231134be30e75b455f8e1b792fa9",
+  "signature_b64": "5VZDAMNgrHKQhuLMgG6CioSHfx645dl02HPgZSJJAVVfuIIVkKM7rMYeOXAc+bRr0lv18FlbviRlUUFDjnoQCw==",
+  "signature_algorithm": "Ed25519"
+}

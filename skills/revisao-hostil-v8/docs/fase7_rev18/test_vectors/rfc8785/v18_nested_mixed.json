@@ -1,0 +1,23 @@
+{
+  "name": "v18_nested_mixed",
+  "input": {
+    "arr": [
+      true,
+      false,
+      null,
+      {
+        "b": 1,
+        "a": [
+          0,
+          -0.0,
+          "x"
+        ]
+      }
+    ]
+  },
+  "expected_jcs_utf8": "{\"arr\":[true,false,null,{\"a\":[0,0,\"x\"],\"b\":1}]}",
+  "expected_sha256": "279505f0b307d668096ea9e5ba7869ca3458c591333f20e2934c337f8156a960",
+  "origin": "project_rev18",
+  "normative_ref": "RFC 8785 Section 3.2",
+  "classification": "positive"
+}

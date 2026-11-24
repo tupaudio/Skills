@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://revisao-hostil.v8/schemas/7.0.0/schema_adjudication_record.json",
+  "title": "Registro de Adjudicacao (Fase 7)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "adjudication_id",
+    "mechanical_check_passed",
+    "interpretive_decision",
+    "contestations_reviewed",
+    "qualified_evidences",
+    "record_jcs_sha256"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "pattern": "^(0|[1-9][0-9]{0,9})\\.(0|[1-9][0-9]{0,9})\\.(0|[1-9][0-9]{0,9})(?![\\r\\n])$"
+    },
+    "adjudication_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "mechanical_check_passed": {
+      "type": "boolean"
+    },
+    "interpretive_decision": {
+      "type": "string",
+      "enum": [
+        "mantido",
+        "reformado",
+        "anulado",
+        "bloqueado"
+      ]
+    },
+    "contestations_reviewed": {
+      "type": "array",
+      "items": {
+        "$ref": "./schema_adversarial_contestation.json"
+      }
+    },
+    "qualified_evidences": {
+      "type": "array",
+      "items": {
+        "$ref": "./schema_evidence_qualification.json"
+      }
+    },
+    "record_jcs_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}(?![\\r\\n])$"
+    }
+  }
+}

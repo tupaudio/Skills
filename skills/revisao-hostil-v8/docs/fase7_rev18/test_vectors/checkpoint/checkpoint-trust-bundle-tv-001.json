@@ -1,0 +1,22 @@
+{
+  "campaign_id": "camp-tv-001",
+  "protocol_scope": "checkpoint_freshness_assertion_v1",
+  "expected_dossier_sha256": "9e6c0a4261151b55a65579b1062a3aa8e561f83e5e65eecb385dd625a73b737b",
+  "authorized_dossier_authorities": {
+    "a041ce4dfbef680d6bb7aa32091b44b40a7a74a617d14c939830bad29c29475e": "MCowBQYDK2VwAyEAShcgYB8101jeVuXrOWvzBB2SDKAoKphRtQunoBQ1Un4="
+  },
+  "store_key": {
+    "key_id": "71a84ac30e1db3bdb793072e4d87cc41fc2c428b679e5a5619900e1eaa9b8b09",
+    "public_key_spki_der_b64": "MCowBQYDK2VwAyEAPYA8yY4df3Jf2QwGI9hYHbTLPDrXpExdTax0LmdPXDI="
+  },
+  "witness_keys": {
+    "witness-a": {
+      "key_id": "b4394cc5ecfd4eb7097f048b11e0d25b8e832fa2fbd57fdf45e12ad95a34c470",
+      "public_key_spki_der_b64": "MCowBQYDK2VwAyEABOmGDlEq/xGD4sB2+Xi/zYn/yB6wH2MReVsOm56setE="
+    },
+    "witness-b": {
+      "key_id": "5219481e6fb09c9b8ed76ea329f59ac31448e58373fd51ff9e8a1ee7b9dd54d2",
+      "public_key_spki_der_b64": "MCowBQYDK2VwAyEAn1493jjCSC6uaX8XM4s0jkUB+/Zv456A6EsQwnua0ME="
+    }
+  }
+}
