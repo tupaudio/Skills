@@ -29,7 +29,12 @@ from scripts.common.profile_loader import (
     load_profile,
     validate_semver_strict,
 )
-from scripts.common.provenance import build_run_manifest, save_run_manifest, validate_run_manifest
+from scripts.common.provenance import (
+    MANIFEST_GENERATOR_VERSION,
+    build_run_manifest,
+    save_run_manifest,
+    validate_run_manifest,
+)
 from scripts.common.schema_validator import SchemaValidationError, SchemaValidator, validate_contract
 
 
@@ -442,7 +447,7 @@ def test_ach_b61_005_manifest_full_profile_engine_dependency_provenance(tmp_path
         report_references={"pytest_verbose": "relatorios_execucao/pytest_verbose.txt"},
     )
 
-    assert manifest["manifest_generator_version"] == "8.0.0-beta.6.2"
+    assert manifest["manifest_generator_version"] == MANIFEST_GENERATOR_VERSION
     assert manifest["schema_validator_version"] is not None
     assert manifest["test_tools"]["pytest"] is not None
     assert manifest["test_tools"]["packaging"] is not None
