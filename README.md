@@ -1,9 +1,9 @@
 # Skills do Antigravity — Tupã Audio & Academic Framework
 
 [![Status](https://img.shields.io/badge/Antigravity-Skills%20Repository-blue)](https://github.com/tupaudio/Skills)
-[![Revisão Hostil](https://img.shields.io/badge/Revis%C3%A3o%20Hostil-v6.0%20%7C%20v8.0--beta.6.5-orange)](./skills/revisao-hostil-v8)
+[![Revisão Hostil](https://img.shields.io/badge/Revis%C3%A3o%20Hostil-v6.0%20%7C%20v8.0--beta.6.6-orange)](./skills/revisao-hostil-v8)
 [![Alucinação-OFF](https://img.shields.io/badge/Alucina%C3%A7%C3%A3o--OFF-v2.1.0-green)](./skills/alucinacao-off)
-[![Tests](https://img.shields.io/badge/pytest-160%20passed-brightgreen)](./skills/revisao-hostil-v8/relatorios_execucao/pytest_verbose.txt)
+[![Tests](https://img.shields.io/badge/pytest-178%20passed-brightgreen)](./skills/revisao-hostil-v8/relatorios_execucao/pytest_verbose.txt)
 
 Repositório oficial de **Skills autorais para o Google Antigravity**, focadas em **rigor epistêmico radical**, **auditoria científica e técnica determinística** e **verificação orientada a evidências**.
 
@@ -15,7 +15,7 @@ Repositório oficial de **Skills autorais para o Google Antigravity**, focadas e
 | :--- | :---: | :--- | :--- |
 | **`alucinacao-off`** | `v2.1.0` | [`skills/alucinacao-off/`](./skills/alucinacao-off) | Honestidade epistêmica e rigor técnico (taxonomia de 8 categorias, protocolo de lacunas críticas, 9 módulos disciplinares, modo criativo explícito e homologação comportamental 18/18 em [`homologacao_v2.1.md`](./skills/alucinacao-off/homologacao_v2.1.md)). |
 | **`revisao-hostil`** | `v6.0` | [`skills/revisao-hostil/`](./skills/revisao-hostil) | Versão estável de produção para revisão científica crítica e forense (`.tex`, `.docx`, `.pdf`, `.md`, `.txt`) com `auditor.py`, `motor_matematico.py` (*Zero-Trust Numerical Plug-In*) e 10 Portões de Qualidade. |
-| **`revisao-hostil-v8`** | `v8.0-beta.6.5` | [`skills/revisao-hostil-v8/`](./skills/revisao-hostil-v8) | Plataforma modular multidisciplinar em desenvolvimento incremental (Beta → RC → 8.0), orientada a contratos JSON fechados (8 schemas), com **21 motores implementados** (de 23 catalogados; 2 planejados para a Fase 8), **7 perfis-piloto YAML**, parser fail-closed de `requirements.txt`, bloqueio efetivo de dependências/versões (`packaging`), cabeçalho `RUN_ID=` + `validate_artifact_run_id()` + `build_expected_checksum_inventory()`, máquina formal de 10 estados e **160 testes `pytest` aprovados** em ambiente limpo. |
+| **`revisao-hostil-v8`** | `v8.0-beta.6.6` | [`skills/revisao-hostil-v8/`](./skills/revisao-hostil-v8) | Plataforma modular multidisciplinar em desenvolvimento incremental (Beta → RC → 8.0), orientada a contratos JSON fechados (8 schemas), com **21 motores implementados** (de 23 catalogados; 2 planejados para a Fase 8), **7 perfis-piloto YAML**, parser fail-closed de `requirements.txt`, bloqueio efetivo de dependências/versões (`packaging`), validação estrita de cabeçalho `RUN_ID=` (`validate_artifact_run_id`) + inventário independente (`build_expected_checksum_inventory`), máquina formal de 10 estados e **178 testes `pytest` aprovados** em ambiente limpo. |
 
 ---
 
@@ -33,17 +33,17 @@ Skills/
     │   └── scripts/
     │       ├── auditor.py
     │       └── motor_matematico.py
-    └── revisao-hostil-v8/                # v8.0-beta.6.5 (RUN_ID= Verificado + Inventário Independente SHA256SUMS)
+    └── revisao-hostil-v8/                # v8.0-beta.6.6 (Cabeçalho Estrito RUN_ID= & Inventário Independente SHA256SUMS)
         ├── 00_diagnostico/               # Inventário, defeitos da v6.0 e SHA256SUMS
         ├── docs/                         # ARQUITETURA_V8.md e critérios de aceitação
         ├── references/                   # 8 JSON Schemas fechados, 7 perfis-piloto YAML, normas, vocabulários e checklists
-        ├── relatorios_execucao/          # Saída do pytest -v, coverage_report.txt, smoke_tests.txt, run_manifest.json e homologacao_v8.0-beta.6.5.md
+        ├── relatorios_execucao/          # Saída do pytest -v, coverage_report.txt, smoke_tests.txt, run_manifest.json e homologacao_v8.0-beta.6.6.md
         ├── scripts/
         │   ├── auditor.py                # Extrator e triador modular (v8.0-beta.2)
         │   ├── common/                   # Validador de schemas, carregador SemVer 2.0.0, parser fail-closed + bloqueio (`packaging`), estados e proveniência/consistência
         │   ├── engines/                  # 21 motores determinísticos implementados (23 catalogados; 2 da Fase 8 planejados)
         │   └── tools/                    # Gerador reproduzível de relatórios com fonte única de verdade (`run_id`) e SHA256SUMS
-        ├── tests/                        # Suíte pytest (160 testes: unitários, integração, negativos, adversariais, contratos, perfis e proveniência)
+        ├── tests/                        # Suíte pytest (178 testes: unitários, integração, negativos, adversariais, contratos, perfis e proveniência)
         ├── versions/v6.0-legacy/         # Base legada congelada com SHA256SUMS
         ├── pytest.ini
         ├── requirements.txt
@@ -62,7 +62,7 @@ Skills/
 | **Fase 4 (`v8.0-beta.4`)** | Linguagem, figuras + inventário visual, imagem forense e consistência cruzada | Concluída |
 | **Fase 5 (`v8.0-beta.5`)** | Ética, argumentação, evidência, temporal, nomenclatura, metadados, reprodutibilidade e qualitativo (tag histórica) | Concluída |
 | **Estabilização (`v8.0-beta.5.1` → `v8.0-beta.5.3`)** | Remediação completa da auditoria externa (`ACH-001` a `ACH-017`), 52 testes (0 warnings), cobertura `pytest-cov`, venv limpo validado e manifesto portável | Concluída |
-| **Fase 6 (`v8.0-beta.6` → `v8.0-beta.6.5`)** | 7 perfis-piloto YAML, 8 schemas JSON fechados (`additionalProperties: false`), SemVer 2.0.0 `fullmatch()`, parser fail-closed de `requirements.txt` + detecção de conflitos (incl. `~=`), bloqueio efetivo de dependências (`packaging`), `RUN_ID=` + `validate_artifact_run_id()` + `build_expected_checksum_inventory()` + segurança de caminhos, `motor_normas`, `motor_risco`, `motor_estetico` (21/23, 160 testes em venv limpo) | Concluída (aguardando reauditoria) |
+| **Fase 6 (`v8.0-beta.6` → `v8.0-beta.6.6`)** | 7 perfis-piloto YAML, 8 schemas JSON fechados (`additionalProperties: false`), SemVer 2.0.0 `fullmatch()`, parser fail-closed de `requirements.txt` + detecção de conflitos (incl. `~=`), bloqueio efetivo de dependências (`packaging`), cabeçalho estrito `RUN_ID=` (`validate_artifact_run_id`) + inventário independente (`build_expected_checksum_inventory`) + segurança de caminhos, `motor_normas`, `motor_risco`, `motor_estetico` (21/23, 178 testes em venv limpo) | Concluída (aguardando reauditoria) |
 | **Fase 7 (`v8.0-beta.7`)** | Banca multiagente independente, Challenger, Adversarial e Adjudicador | Planejada |
 | **Fase 8 (`v8.0-beta.8`)** | `motor_integracao`, `motor_meta`, `orchestrator.py` e `SKILL.md` v8.0 | Planejada |
 | **Fase 9 + 10 (`v8.0-rc.1` → `v8.0.0`)** | Benchmark experimental, revisão adversarial externa, instalação limpa e congelamento | Planejada |
@@ -107,7 +107,7 @@ python scripts/auditor.py caminho/para/manuscrito.tex --out relatorio_auditor.js
 python scripts/engines/motor_matematico.py --input payload.json --out resultado_motor.json
 ```
 
-> **Nota sobre a `revisao-hostil-v8`:** até o marco `v8.0-beta.6.5`, os 21 motores implementados (de 23 catalogados; 2 planejados para a Fase 8), os 7 perfis-piloto YAML, os 8 contratos JSON fechados e o `auditor.py` já podem ser executados diretamente via Python/CLI com parser fail-closed de `requirements.txt`, bloqueio efetivo de dependências e proveniência `RUN_ID=` + inventário independente `SHA256SUMS`; o `SKILL.md` orquestrador da v8.0 será integrado na **Fase 8**. Para uso imediato como skill completa em agentes hoje, utilize `skills/revisao-hostil/` (v6.0 estável) e `skills/alucinacao-off/` (v2.1.0 homologada).
+> **Nota sobre a `revisao-hostil-v8`:** até o marco `v8.0-beta.6.6`, os 21 motores implementados (de 23 catalogados; 2 planejados para a Fase 8), os 7 perfis-piloto YAML, os 8 contratos JSON fechados e o `auditor.py` já podem ser executados diretamente via Python/CLI com parser fail-closed de `requirements.txt`, bloqueio efetivo de dependências e validação estrita de cabeçalho `RUN_ID=` + inventário independente `SHA256SUMS`; o `SKILL.md` orquestrador da v8.0 será integrado na **Fase 8**. Para uso imediato como skill completa em agentes hoje, utilize `skills/revisao-hostil/` (v6.0 estável) e `skills/alucinacao-off/` (v2.1.0 homologada).
 
 ---
 
