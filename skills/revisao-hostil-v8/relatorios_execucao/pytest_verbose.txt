@@ -1,71 +1,103 @@
 ============================= test session starts =============================
-platform win32 -- Python 3.14.6, pytest-9.2.0, pluggy-1.7.0 -- C:\Python314\python.exe
+platform win32 -- Python 3.14.6, pytest-9.2.0, pluggy-1.7.0 -- C:\Users\dafnh\.gemini\antigravity\brain\d4ef86c0-a49f-4a11-9b77-a243d5779eda\scratch\venv_b62\Scripts\python.exe
 cachedir: .pytest_cache
 rootdir: C:\ZZ - Antigravity\tupaudio-Skills\skills\revisao-hostil-v8
 configfile: pytest.ini
 testpaths: tests
 plugins: cov-7.1.0
-collecting ... collected 61 items
+collecting ... collected 93 items
 
 tests/test_auditor.py::test_def_a01_100_percent_and_epistemic_overclaim_detected PASSED [  1%]
-tests/test_auditor.py::test_domain_rules_decoupled_from_generic_auditor PASSED [  3%]
-tests/test_auditor.py::test_docx_forensics_double_blind_and_latex_leak PASSED [  4%]
-tests/test_auditoria_externa_regressao.py::test_ach001_nan_and_inf_rejected_in_scoring_and_freeze_gate PASSED [  6%]
-tests/test_auditoria_externa_regressao.py::test_ach002_zero_pooled_variance_and_tost_unit_sample PASSED [  8%]
-tests/test_auditoria_externa_regressao.py::test_ach003_kelvin_absolute_vs_interval_algebra PASSED [  9%]
-tests/test_auditoria_externa_regressao.py::test_ach004_ethics_separates_humans_animals_and_consent_waiver PASSED [ 11%]
-tests/test_auditoria_externa_regressao.py::test_ach005_temporal_preserves_time_and_rejects_trailing_garbage PASSED [ 13%]
-tests/test_auditoria_externa_regressao.py::test_ach006_unmapped_study_design_returns_unverified PASSED [ 14%]
-tests/test_auditoria_externa_regressao.py::test_ach007_argumentation_scope_accurately_documented PASSED [ 16%]
-tests/test_auditoria_externa_regressao.py::test_ach008_pillow_in_requirements_and_all_18_engines_importable PASSED [ 18%]
-tests/test_auditoria_externa_regressao.py::test_ach009_temporal_timezone_ambiguity_and_policies PASSED [ 19%]
-tests/test_auditoria_externa_regressao.py::test_ach010_manifest_records_pillow_pytest_cov_and_explicit_params PASSED [ 21%]
-tests/test_auditoria_externa_regressao.py::test_geometric_and_data_extended_coverage PASSED [ 22%]
-tests/test_auditoria_externa_regressao.py::test_ach011_two_naive_two_utc_and_different_timezones PASSED [ 24%]
-tests/test_auditoria_externa_regressao.py::test_ach011_ambiguous_without_and_with_precedence_rules_no_fake_order PASSED [ 26%]
-tests/test_auditoria_externa_regressao.py::test_ach011_over_26h_and_mixed_day_vs_datetime PASSED [ 27%]
-tests/test_auditoria_externa_regressao.py::test_ach013_manifest_relative_paths_self_exclusion_and_git_dirty PASSED [ 29%]
-tests/test_auditoria_externa_regressao.py::test_ach014_provenance_git_dirty_policy_all_five_scenarios PASSED [ 31%]
-tests/test_auditoria_externa_regressao.py::test_ach015_t_test_paired_degenerate_and_no_scipy_warnings PASSED [ 32%]
-tests/test_auditoria_externa_regressao.py::test_ach016_engine_versions_match_catalog PASSED [ 34%]
-tests/test_beta4_visual_consistencia.py::test_motor_linguagem_interventions_without_auto_rewrite PASSED [ 36%]
-tests/test_beta4_visual_consistencia.py::test_motor_figuras_resolution_dpi_and_visual_inventory PASSED [ 37%]
-tests/test_beta4_visual_consistencia.py::test_motor_imagem_forense_duplicates_and_no_auto_fraud PASSED [ 39%]
-tests/test_beta4_visual_consistencia.py::test_motor_consistencia_cruzada_domino_and_legitimate_conversions PASSED [ 40%]
-tests/test_beta5_integridade.py::test_motor_etica_declarations_similarity_and_guardrails PASSED [ 42%]
-tests/test_beta5_integridade.py::test_motor_argumentacao_and_evidencia PASSED [ 44%]
-tests/test_beta5_integridade.py::test_motor_temporal_and_nomenclatura PASSED [ 45%]
-tests/test_beta5_integridade.py::test_motor_metadados_separated_from_reprodutibilidade PASSED [ 47%]
-tests/test_beta5_integridade.py::test_motor_qualitativo_kappa_and_krippendorff PASSED [ 49%]
-tests/test_beta6_perfis_e_normas.py::test_all_seven_pilot_profiles_load_and_validate PASSED [ 50%]
-tests/test_beta6_perfis_e_normas.py::test_motor_normas_safety_rule_never_presumes_compliance PASSED [ 52%]
-tests/test_beta6_perfis_e_normas.py::test_motor_risco_and_motor_estetico PASSED [ 54%]
-tests/test_beta6_perfis_e_normas.py::test_exit_criterion_four_epistemological_families_execute_without_core_changes PASSED [ 55%]
-tests/test_beta6_perfis_e_normas.py::test_ach_b6_002_profile_loader_rejects_planned_required_engines_and_negative_inputs PASSED [ 57%]
-tests/test_beta6_perfis_e_normas.py::test_ach_b6_005_profile_schema_enforced_for_all_required_fields PASSED [ 59%]
-tests/test_beta6_perfis_e_normas.py::test_ach_b6_006_strict_semver_2_0_0 PASSED [ 60%]
-tests/test_beta6_perfis_e_normas.py::test_ach_b6_007_draft_and_deprecated_blocked_unless_explicit_override PASSED [ 62%]
-tests/test_beta6_perfis_e_normas.py::test_ach_b6_008_environment_dependencies_verified PASSED [ 63%]
-tests/test_contracts_and_common.py::test_all_seven_schemas_load PASSED   [ 65%]
-tests/test_contracts_and_common.py::test_finding_state_machine_and_reaudit_gate PASSED [ 67%]
-tests/test_contracts_and_common.py::test_unified_scoring_and_freeze_gate PASSED [ 68%]
-tests/test_contracts_and_common.py::test_run_manifest_generation PASSED  [ 70%]
-tests/test_contracts_and_common.py::test_profile_loader_and_catalog PASSED [ 72%]
-tests/test_contracts_and_common.py::test_schema_rejects_invalid_finding PASSED [ 73%]
-tests/test_contracts_and_common.py::test_common_helpers PASSED           [ 75%]
-tests/test_motor_matematico.py::test_all_13_operations_batch_and_schema_contract PASSED [ 77%]
-tests/test_motor_matematico.py::test_def_m01_non_finite_matrix_and_linear_system_rejected PASSED [ 78%]
-tests/test_motor_matematico.py::test_def_m02_complex_result_flagged_against_real_reported PASSED [ 80%]
-tests/test_motor_matematico.py::test_def_m03_integrate_infinite_limit PASSED [ 81%]
-tests/test_motor_matematico.py::test_def_m04_ode_bvp_validates_interval_and_supports_parameters PASSED [ 83%]
-tests/test_motor_matematico.py::test_def_m05_ode_ivp_rejects_non_numeric_parameter PASSED [ 85%]
-tests/test_motor_matematico.py::test_def_m06_lowercase_e_not_hijacked_as_euler PASSED [ 86%]
-tests/test_motor_matematico.py::test_def_m07_ahp_invalid_reciprocity_produces_finding_and_valid_schema PASSED [ 88%]
-tests/test_motor_matematico.py::test_def_s03_ast_security_limits PASSED  [ 90%]
-tests/test_motores_universais_beta3.py::test_dimensional_homogeneity_and_incompatibility PASSED [ 91%]
-tests/test_motores_universais_beta3.py::test_dimensional_temperature_and_power_vs_energy PASSED [ 93%]
-tests/test_motores_universais_beta3.py::test_statistical_operations_and_invalid_input_rejection PASSED [ 95%]
-tests/test_motores_universais_beta3.py::test_geometric_polygon_solid_view_factor_and_invalid_matrix PASSED [ 96%]
+tests/test_auditor.py::test_domain_rules_decoupled_from_generic_auditor PASSED [  2%]
+tests/test_auditor.py::test_docx_forensics_double_blind_and_latex_leak PASSED [  3%]
+tests/test_auditoria_externa_regressao.py::test_ach001_nan_and_inf_rejected_in_scoring_and_freeze_gate PASSED [  4%]
+tests/test_auditoria_externa_regressao.py::test_ach002_zero_pooled_variance_and_tost_unit_sample PASSED [  5%]
+tests/test_auditoria_externa_regressao.py::test_ach003_kelvin_absolute_vs_interval_algebra PASSED [  6%]
+tests/test_auditoria_externa_regressao.py::test_ach004_ethics_separates_humans_animals_and_consent_waiver PASSED [  7%]
+tests/test_auditoria_externa_regressao.py::test_ach005_temporal_preserves_time_and_rejects_trailing_garbage PASSED [  8%]
+tests/test_auditoria_externa_regressao.py::test_ach006_unmapped_study_design_returns_unverified PASSED [  9%]
+tests/test_auditoria_externa_regressao.py::test_ach007_argumentation_scope_accurately_documented PASSED [ 10%]
+tests/test_auditoria_externa_regressao.py::test_ach008_pillow_in_requirements_and_all_18_engines_importable PASSED [ 11%]
+tests/test_auditoria_externa_regressao.py::test_ach009_temporal_timezone_ambiguity_and_policies PASSED [ 12%]
+tests/test_auditoria_externa_regressao.py::test_ach010_manifest_records_pillow_pytest_cov_and_explicit_params PASSED [ 13%]
+tests/test_auditoria_externa_regressao.py::test_geometric_and_data_extended_coverage PASSED [ 15%]
+tests/test_auditoria_externa_regressao.py::test_ach011_two_naive_two_utc_and_different_timezones PASSED [ 16%]
+tests/test_auditoria_externa_regressao.py::test_ach011_ambiguous_without_and_with_precedence_rules_no_fake_order PASSED [ 17%]
+tests/test_auditoria_externa_regressao.py::test_ach011_over_26h_and_mixed_day_vs_datetime PASSED [ 18%]
+tests/test_auditoria_externa_regressao.py::test_ach013_manifest_relative_paths_self_exclusion_and_git_dirty PASSED [ 19%]
+tests/test_auditoria_externa_regressao.py::test_ach014_provenance_git_dirty_policy_all_five_scenarios PASSED [ 20%]
+tests/test_auditoria_externa_regressao.py::test_ach015_t_test_paired_degenerate_and_no_scipy_warnings PASSED [ 21%]
+tests/test_auditoria_externa_regressao.py::test_ach016_engine_versions_match_catalog PASSED [ 22%]
+tests/test_beta4_visual_consistencia.py::test_motor_linguagem_interventions_without_auto_rewrite PASSED [ 23%]
+tests/test_beta4_visual_consistencia.py::test_motor_figuras_resolution_dpi_and_visual_inventory PASSED [ 24%]
+tests/test_beta4_visual_consistencia.py::test_motor_imagem_forense_duplicates_and_no_auto_fraud PASSED [ 25%]
+tests/test_beta4_visual_consistencia.py::test_motor_consistencia_cruzada_domino_and_legitimate_conversions PASSED [ 26%]
+tests/test_beta5_integridade.py::test_motor_etica_declarations_similarity_and_guardrails PASSED [ 27%]
+tests/test_beta5_integridade.py::test_motor_argumentacao_and_evidencia PASSED [ 29%]
+tests/test_beta5_integridade.py::test_motor_temporal_and_nomenclatura PASSED [ 30%]
+tests/test_beta5_integridade.py::test_motor_metadados_separated_from_reprodutibilidade PASSED [ 31%]
+tests/test_beta5_integridade.py::test_motor_qualitativo_kappa_and_krippendorff PASSED [ 32%]
+tests/test_beta6_2_contratos_e_dependencias.py::test_ach_b61_001_required_dep_installed_and_compatible_allows_execution PASSED [ 33%]
+tests/test_beta6_2_contratos_e_dependencias.py::test_ach_b61_001_required_dep_missing_blocks_execution_and_no_engine_runs PASSED [ 34%]
+tests/test_beta6_2_contratos_e_dependencias.py::test_ach_b61_001_required_dep_incompatible_blocks_execution PASSED [ 35%]
+tests/test_beta6_2_contratos_e_dependencias.py::test_ach_b61_001_optional_dep_missing_tolerated_when_not_requested_and_blocked_when_requested PASSED [ 36%]
+tests/test_beta6_2_contratos_e_dependencias.py::test_ach_b61_001_unknown_dep_never_treated_as_available_and_bypass_attempts_fail PASSED [ 37%]
+tests/test_beta6_2_contratos_e_dependencias.py::test_ach_b61_002_semver_valid_cases[1.0.0] PASSED [ 38%]
+tests/test_beta6_2_contratos_e_dependencias.py::test_ach_b61_002_semver_valid_cases[2.3.4] PASSED [ 39%]
+tests/test_beta6_2_contratos_e_dependencias.py::test_ach_b61_002_semver_valid_cases[0.0.0] PASSED [ 40%]
+tests/test_beta6_2_contratos_e_dependencias.py::test_ach_b61_002_semver_valid_cases[1.0.0-alpha] PASSED [ 41%]
+tests/test_beta6_2_contratos_e_dependencias.py::test_ach_b61_002_semver_valid_cases[1.0.0-alpha.1] PASSED [ 43%]
+tests/test_beta6_2_contratos_e_dependencias.py::test_ach_b61_002_semver_valid_cases[1.0.0-0] PASSED [ 44%]
+tests/test_beta6_2_contratos_e_dependencias.py::test_ach_b61_002_semver_valid_cases[1.0.0-0a] PASSED [ 45%]
+tests/test_beta6_2_contratos_e_dependencias.py::test_ach_b61_002_semver_valid_cases[1.0.0+build.5] PASSED [ 46%]
+tests/test_beta6_2_contratos_e_dependencias.py::test_ach_b61_002_semver_valid_cases[1.0.0-alpha+build.5] PASSED [ 47%]
+tests/test_beta6_2_contratos_e_dependencias.py::test_ach_b61_002_semver_valid_cases[1.0.0-alpha.1+exp.sha.5114f85] PASSED [ 48%]
+tests/test_beta6_2_contratos_e_dependencias.py::test_ach_b61_002_semver_invalid_cases_rejected_without_normalization[01.02.03] PASSED [ 49%]
+tests/test_beta6_2_contratos_e_dependencias.py::test_ach_b61_002_semver_invalid_cases_rejected_without_normalization[1.0] PASSED [ 50%]
+tests/test_beta6_2_contratos_e_dependencias.py::test_ach_b61_002_semver_invalid_cases_rejected_without_normalization[1.0.0.] PASSED [ 51%]
+tests/test_beta6_2_contratos_e_dependencias.py::test_ach_b61_002_semver_invalid_cases_rejected_without_normalization[v1.0.0] PASSED [ 52%]
+tests/test_beta6_2_contratos_e_dependencias.py::test_ach_b61_002_semver_invalid_cases_rejected_without_normalization[1.0.0\n] PASSED [ 53%]
+tests/test_beta6_2_contratos_e_dependencias.py::test_ach_b61_002_semver_invalid_cases_rejected_without_normalization[1.0.0 ] PASSED [ 54%]
+tests/test_beta6_2_contratos_e_dependencias.py::test_ach_b61_002_semver_invalid_cases_rejected_without_normalization[ 1.0.0] PASSED [ 55%]
+tests/test_beta6_2_contratos_e_dependencias.py::test_ach_b61_002_semver_invalid_cases_rejected_without_normalization[1.0.0-alpha..1] PASSED [ 56%]
+tests/test_beta6_2_contratos_e_dependencias.py::test_ach_b61_002_semver_invalid_cases_rejected_without_normalization[1.0.0-01] PASSED [ 58%]
+tests/test_beta6_2_contratos_e_dependencias.py::test_ach_b61_002_semver_invalid_cases_rejected_without_normalization[1.0.0+] PASSED [ 59%]
+tests/test_beta6_2_contratos_e_dependencias.py::test_ach_b61_002_semver_invalid_cases_rejected_without_normalization[1.0.0-] PASSED [ 60%]
+tests/test_beta6_2_contratos_e_dependencias.py::test_ach_b61_002_semver_invalid_cases_rejected_without_normalization[] PASSED [ 61%]
+tests/test_beta6_2_contratos_e_dependencias.py::test_ach_b61_002_semver_invalid_cases_rejected_without_normalization[None] PASSED [ 62%]
+tests/test_beta6_2_contratos_e_dependencias.py::test_ach_b61_002_semver_invalid_cases_rejected_without_normalization[100] PASSED [ 63%]
+tests/test_beta6_2_contratos_e_dependencias.py::test_ach_b61_003_version_compatibility_matrix PASSED [ 64%]
+tests/test_beta6_2_contratos_e_dependencias.py::test_ach_b61_004_all_eight_schemas_and_seven_profiles_valid_and_closed PASSED [ 65%]
+tests/test_beta6_2_contratos_e_dependencias.py::test_ach_b61_005_manifest_full_profile_engine_dependency_provenance PASSED [ 66%]
+tests/test_beta6_perfis_e_normas.py::test_all_seven_pilot_profiles_load_and_validate PASSED [ 67%]
+tests/test_beta6_perfis_e_normas.py::test_motor_normas_safety_rule_never_presumes_compliance PASSED [ 68%]
+tests/test_beta6_perfis_e_normas.py::test_motor_risco_and_motor_estetico PASSED [ 69%]
+tests/test_beta6_perfis_e_normas.py::test_exit_criterion_four_epistemological_families_execute_without_core_changes PASSED [ 70%]
+tests/test_beta6_perfis_e_normas.py::test_ach_b6_002_profile_loader_rejects_planned_required_engines_and_negative_inputs PASSED [ 72%]
+tests/test_beta6_perfis_e_normas.py::test_ach_b6_005_profile_schema_enforced_for_all_required_fields PASSED [ 73%]
+tests/test_beta6_perfis_e_normas.py::test_ach_b6_006_strict_semver_2_0_0 PASSED [ 74%]
+tests/test_beta6_perfis_e_normas.py::test_ach_b6_007_draft_and_deprecated_blocked_unless_explicit_override PASSED [ 75%]
+tests/test_beta6_perfis_e_normas.py::test_ach_b6_008_environment_dependencies_verified PASSED [ 76%]
+tests/test_contracts_and_common.py::test_all_seven_schemas_load PASSED   [ 77%]
+tests/test_contracts_and_common.py::test_finding_state_machine_and_reaudit_gate PASSED [ 78%]
+tests/test_contracts_and_common.py::test_unified_scoring_and_freeze_gate PASSED [ 79%]
+tests/test_contracts_and_common.py::test_run_manifest_generation PASSED  [ 80%]
+tests/test_contracts_and_common.py::test_profile_loader_and_catalog PASSED [ 81%]
+tests/test_contracts_and_common.py::test_schema_rejects_invalid_finding PASSED [ 82%]
+tests/test_contracts_and_common.py::test_common_helpers PASSED           [ 83%]
+tests/test_motor_matematico.py::test_all_13_operations_batch_and_schema_contract PASSED [ 84%]
+tests/test_motor_matematico.py::test_def_m01_non_finite_matrix_and_linear_system_rejected PASSED [ 86%]
+tests/test_motor_matematico.py::test_def_m02_complex_result_flagged_against_real_reported PASSED [ 87%]
+tests/test_motor_matematico.py::test_def_m03_integrate_infinite_limit PASSED [ 88%]
+tests/test_motor_matematico.py::test_def_m04_ode_bvp_validates_interval_and_supports_parameters PASSED [ 89%]
+tests/test_motor_matematico.py::test_def_m05_ode_ivp_rejects_non_numeric_parameter PASSED [ 90%]
+tests/test_motor_matematico.py::test_def_m06_lowercase_e_not_hijacked_as_euler PASSED [ 91%]
+tests/test_motor_matematico.py::test_def_m07_ahp_invalid_reciprocity_produces_finding_and_valid_schema PASSED [ 92%]
+tests/test_motor_matematico.py::test_def_s03_ast_security_limits PASSED  [ 93%]
+tests/test_motores_universais_beta3.py::test_dimensional_homogeneity_and_incompatibility PASSED [ 94%]
+tests/test_motores_universais_beta3.py::test_dimensional_temperature_and_power_vs_energy PASSED [ 95%]
+tests/test_motores_universais_beta3.py::test_statistical_operations_and_invalid_input_rejection PASSED [ 96%]
+tests/test_motores_universais_beta3.py::test_geometric_polygon_solid_view_factor_and_invalid_matrix PASSED [ 97%]
 tests/test_motores_universais_beta3.py::test_uncertainty_gum_and_monte_carlo_reference PASSED [ 98%]
 tests/test_motores_universais_beta3.py::test_data_integrity_missing_leakage_and_ethical_guardrails PASSED [100%]
 
@@ -78,10 +110,11 @@ scripts\__init__.py                                 0      0   100%
 scripts\auditor.py                                184     42    77%   30, 34, 159-160, 206-224, 245-248, 268, 503-535, 539
 scripts\common\__init__.py                          2      0   100%
 scripts\common\citation.py                         20      0   100%
+scripts\common\dependencies.py                    164     17    90%   77, 86-87, 114, 126, 136, 147-148, 191, 233-234, 402, 452-453, 462, 467, 492
 scripts\common\evidence.py                         67     11    84%   101, 103, 105, 143, 193, 199, 217, 219, 221, 225, 227
-scripts\common\profile_loader.py                  109      8    93%   72, 75, 89, 118, 128, 164-165, 168
-scripts\common\provenance.py                       78      9    88%   38-39, 72-73, 86, 90, 124-125, 163
-scripts\common\schema_validator.py                 55      3    95%   36, 48, 80
+scripts\common\profile_loader.py                  169     17    90%   116, 119, 133, 161, 170, 182, 189-192, 198, 205, 254-255, 259, 279, 284
+scripts\common\provenance.py                      114     15    87%   41-42, 69-70, 83, 86, 120-121, 154, 158, 171, 177, 191, 196, 240
+scripts\common\schema_validator.py                 55      2    96%   36, 48
 scripts\common\statistics.py                       13      1    92%   32
 scripts\common\text_normalize.py                   14      1    93%   16
 scripts\common\units.py                            16      2    88%   37-38
@@ -109,6 +142,6 @@ scripts\engines\motor_reprodutibilidade.py         55     14    75%   26, 47, 49
 scripts\engines\motor_risco.py                     87     18    79%   27, 58, 60, 86, 126, 166-167, 193-203, 207
 scripts\engines\motor_temporal.py                 169     20    88%   35, 53, 93, 97, 186, 194, 235, 237, 243, 372-382, 386
 -----------------------------------------------------------------------------
-TOTAL                                            3397    639    81%
-============================= 61 passed in 6.69s ==============================
+TOTAL                                            3657    670    82%
+============================= 93 passed in 7.95s ==============================
 
