@@ -1,0 +1,167 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://revisao-hostil.v8/schemas/7.0.0/schema_administrative_independence_dossier.json",
+  "title": "Dossie Verificavel de Independencia Administrativa (Fase 7 - Rev 14)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "dossier_id",
+    "scope",
+    "issued_at_utc",
+    "valid_from_utc",
+    "valid_until_utc",
+    "revocation_list_ref",
+    "domains",
+    "authority_signature",
+    "dossier_jcs_sha256"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "pattern": "^(0|[1-9][0-9]{0,9})\\.(0|[1-9][0-9]{0,9})\\.(0|[1-9][0-9]{0,9})(?![\\r\\n])$"
+    },
+    "dossier_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "scope": {
+      "type": "string",
+      "const": "administrative_independence_2of2_checkpoint"
+    },
+    "issued_at_utc": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "valid_from_utc": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "valid_until_utc": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "revocation_list_ref": {
+      "type": "string",
+      "minLength": 1
+    },
+    "domains": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "role",
+          "legal_entity_id",
+          "legal_entity_name",
+          "infrastructure_provider",
+          "administrative_domain",
+          "kms_hsm_id",
+          "key_custodian_id",
+          "operator_key_id",
+          "no_shared_admin_credentials",
+          "independent_rotation_recovery_ref",
+          "documentary_evidence_sha256"
+        ],
+        "properties": {
+          "role": {
+            "type": "string",
+            "enum": [
+              "checkpoint_store",
+              "witness_a",
+              "witness_b"
+            ]
+          },
+          "legal_entity_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "legal_entity_name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "infrastructure_provider": {
+            "type": "string",
+            "minLength": 1
+          },
+          "administrative_domain": {
+            "type": "string",
+            "minLength": 1
+          },
+          "kms_hsm_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "key_custodian_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "operator_key_id": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}(?![\\r\\n])$"
+          },
+          "no_shared_admin_credentials": {
+            "type": "boolean",
+            "const": true
+          },
+          "independent_rotation_recovery_ref": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentary_evidence_sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}(?![\\r\\n])$"
+          }
+        }
+      }
+    },
+    "authority_signature": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "authority_id",
+        "signer_id",
+        "authority_key_id",
+        "public_key_spki_der_b64",
+        "signature_algorithm",
+        "signature_b64"
+      ],
+      "properties": {
+        "authority_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "signer_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "authority_key_id": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}(?![\\r\\n])$"
+        },
+        "public_key_spki_der_b64": {
+          "type": "string",
+          "minLength": 1
+        },
+        "signature_algorithm": {
+          "type": "string",
+          "enum": [
+            "Ed25519",
+            "ECDSA-P256-SHA256"
+          ]
+        },
+        "signature_b64": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "dossier_jcs_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}(?![\\r\\n])$"
+    }
+  }
+}
