@@ -1,0 +1,147 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://revisao-hostil.v8/schemas/7.0.0/compatibility_policy.schema.json",
+  "title": "Schema Fechado da Politica de Compatibilidade (Fase 7 - Rev 12)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "policy_version",
+    "policy_status",
+    "baseline_tag",
+    "baseline_commit",
+    "default_decision",
+    "entries",
+    "compatibility_policy_jcs_sha256"
+  ],
+  "properties": {
+    "policy_version": {
+      "type": "string",
+      "pattern": "^(0|[1-9][0-9]{0,9})\\.(0|[1-9][0-9]{0,9})\\.(0|[1-9][0-9]{0,9})(?![\\r\\n])$"
+    },
+    "policy_status": {
+      "type": "string",
+      "enum": [
+        "normative_specification_template",
+        "frozen_executable"
+      ]
+    },
+    "baseline_tag": {
+      "type": "string",
+      "const": "v8.0-beta.6.6"
+    },
+    "baseline_commit": {
+      "type": "string",
+      "const": "11e91b6f3d517707326357868cc34ff97ab8327d"
+    },
+    "default_decision": {
+      "type": "string",
+      "const": "deny"
+    },
+    "compatibility_policy_jcs_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}(?![\\r\\n])$"
+    },
+    "entries": {
+      "type": "array",
+      "minItems": 18,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "schema_name",
+          "schema_path",
+          "contract_version",
+          "schema_sha256",
+          "ref_hashes",
+          "instance_version_source",
+          "allowed_instance_versions",
+          "backward_validation"
+        ],
+        "properties": {
+          "schema_name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "schema_path": {
+            "type": "string",
+            "pattern": "^schemas/7\\.0\\.0/schema_[a-z0-9_]+\\.json(?![\\r\\n])$"
+          },
+          "contract_version": {
+            "type": "string",
+            "pattern": "^(0|[1-9][0-9]{0,9})\\.(0|[1-9][0-9]{0,9})\\.(0|[1-9][0-9]{0,9})(?![\\r\\n])$"
+          },
+          "schema_sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}(?![\\r\\n])$"
+          },
+          "ref_hashes": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "ref_schema_name",
+                "ref_path",
+                "ref_sha256"
+              ],
+              "properties": {
+                "ref_schema_name": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "ref_path": {
+                  "type": "string",
+                  "pattern": "^schemas/7\\.0\\.0/schema_[a-z0-9_]+\\.json(?![\\r\\n])$"
+                },
+                "ref_sha256": {
+                  "type": "string",
+                  "pattern": "^[0-9a-f]{64}(?![\\r\\n])$"
+                }
+              }
+            }
+          },
+          "instance_version_source": {
+            "type": "string",
+            "enum": [
+              "instance_schema_version_field",
+              "inherited_from_root_schema",
+              "loader_constant_PROFILE_CONTRACT_VERSION"
+            ]
+          },
+          "allowed_instance_versions": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "instance_schema_version",
+                "evidence_status",
+                "backward_validation"
+              ],
+              "properties": {
+                "instance_schema_version": {
+                  "type": "string",
+                  "pattern": "^(0|[1-9][0-9]{0,9})\\.(0|[1-9][0-9]{0,9})\\.(0|[1-9][0-9]{0,9})(?![\\r\\n])$"
+                },
+                "evidence_status": {
+                  "type": "string",
+                  "enum": [
+                    "COMPROVADO_FASE7",
+                    "COMPROVADO_BETA66"
+                  ]
+                },
+                "backward_validation": {
+                  "type": "boolean"
+                }
+              }
+            }
+          },
+          "backward_validation": {
+            "type": "boolean"
+          }
+        }
+      }
+    }
+  }
+}
