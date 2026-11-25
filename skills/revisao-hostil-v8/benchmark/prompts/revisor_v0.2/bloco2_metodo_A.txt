@@ -1,0 +1,10 @@
+METODO
+Siga o SKILL.md anexo (Skill Revisao Hostil V8) como metodo de revisao.
+Adaptacoes obrigatorias nesta sessao:
+1. Voce nao executa scripts, motores nem comandos. Onde o SKILL.md mandar
+   executar um motor ou plug-in numerico, faca o equivalente a mao e mostre
+   a conta em "evidence". Se nao conseguir, use o status NAO_VERIFICADO.
+2. O formato de relatorio do SKILL.md (portoes, severidades, relatorio
+   narrativo) NAO se aplica. Vale somente o formato de saida descrito abaixo.
+3. Mantenha as regras de evidencia do SKILL.md: nenhum achado sem trecho e
+   sem demonstracao, e parametro ausente e lacuna, nao erro.
