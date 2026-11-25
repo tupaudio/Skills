@@ -28,3 +28,18 @@
 ## 4. Higiene e Privacidade
 - Nenhum texto de manuscrito, parecer ou `lock.json` entra no Git.
 - Todas as âncoras de `cases.json` usam `line_start`/`line_end` + `line_sha256` (0 caracteres literais do manuscrito no Git).
+
+## 5. Registro do Lock — Rodada 3 (2026-11-25)
+
+- **Data UTC:** `2026-11-25T05:16:57.056471+00:00`
+- **Commit HEAD no momento do lock:** `b131b8a887fb84152ae0b16ac4ed342380af857e`
+- **SHA-256 de `benchmark/lock.json` (local, fora do Git):** `bc79c871a6cbffbfc6c444d310e3d7c782803daa0edd0205b9724791b6cf5670`
+- **`validation_cases_sha256`:** `7dc49f2a707c36d4d92d0e75b61f0624d586765a67af2c2160e60587e100040a`
+- **`thresholds_sha256`:** `4a53739bd25c9415326684f9c644b6856b5c2716e2b5f6c43b5073ec1604ca16`
+- **`manifest_sha256`:** `a3351a2981bbed6022521f59a4b46dfa2ddab7d7cd10f56b1614c54c2c285100`
+- **`frozen_files_sha256`:**
+  - `../scripts/auditor.py`: `bcbf39be01a7188c6f10fac67a6d0406e68aaa60b3999764f2a15f0c9300974c`
+  - `bench.py`: `d44566182092ec98fac204a251caa7ecd5aa8caede9c07eba3da6dab67d0d408`
+  - `adapters/estrutural_json.py`: `2ae5952f47f64d53c171944dec07a0fd380aef69b35c6944cfa6a5b73fd190c5`
+  - `adapters/achados_arquivo.py`: `6d13143d50c4c1dbd7e9ecf1f823154968024bec6ad1571fb329e4666605b9a5`
+
