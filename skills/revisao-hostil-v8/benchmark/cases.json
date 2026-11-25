@@ -5,7 +5,7 @@
     "type": "DEFECT",
     "domain": "cientifico",
     "category": "unidades",
-    "split": "validacao",
+    "split": "calibracao",
     "anchor": {
       "line_start": 238,
       "line_end": 238,
@@ -24,7 +24,7 @@
     "type": "DEFECT",
     "domain": "cientifico",
     "category": "resultado_numerico",
-    "split": "validacao",
+    "split": "calibracao",
     "anchor": {
       "line_start": 99,
       "line_end": 99,
@@ -43,7 +43,7 @@
     "type": "DEFECT",
     "domain": "cientifico",
     "category": "resultado_numerico",
-    "split": "validacao",
+    "split": "calibracao",
     "anchor": {
       "line_start": 101,
       "line_end": 101,
@@ -62,7 +62,7 @@
     "type": "NEGATIVE_CONTROL",
     "domain": "cientifico",
     "category": "geral",
-    "split": "validacao",
+    "split": "calibracao",
     "anchor": {
       "line_start": 97,
       "line_end": 97,
@@ -75,30 +75,12 @@
     "evidence": "recalc_casos.py: 5500*10 = 55000 e 15*365 = 5475 (~5500); aritmetica conferida"
   },
   {
-    "id": "B04-NEG-002",
-    "document": "A04",
-    "type": "NEGATIVE_CONTROL",
-    "domain": "cientifico",
-    "category": "geral",
-    "split": "validacao",
-    "anchor": {
-      "line_start": 66,
-      "line_end": 66,
-      "line_sha256": "2a850c3dc5118d440925f619c77363d14b0d84b4f3fd3d561d47baa62ad65a20"
-    },
-    "rationale": "360/365,25 = 0,9856 graus/dia",
-    "origin": "recalculo independente",
-    "adjudicated": true,
-    "validated_by": "Dafnhê Thor",
-    "evidence": "recalc_casos.py: 360/365.25 = 0.985626 graus/dia; taxa media solar conferida"
-  },
-  {
     "id": "B04-NEG-003",
     "document": "A04",
     "type": "NEGATIVE_CONTROL",
     "domain": "cientifico",
     "category": "geral",
-    "split": "validacao",
+    "split": "calibracao",
     "anchor": {
       "line_start": 86,
       "line_end": 86,
@@ -116,7 +98,7 @@
     "type": "NEGATIVE_CONTROL",
     "domain": "cientifico",
     "category": "geral",
-    "split": "validacao",
+    "split": "calibracao",
     "anchor": {
       "line_start": 206,
       "line_end": 206,
@@ -134,7 +116,7 @@
     "type": "NEGATIVE_CONTROL",
     "domain": "cientifico",
     "category": "geral",
-    "split": "validacao",
+    "split": "calibracao",
     "anchor": {
       "line_start": 145,
       "line_end": 145,
@@ -152,7 +134,7 @@
     "type": "NEGATIVE_CONTROL",
     "domain": "cientifico",
     "category": "geral",
-    "split": "validacao",
+    "split": "calibracao",
     "anchor": {
       "line_start": 205,
       "line_end": 205,
@@ -170,7 +152,7 @@
     "type": "INCONCLUSIVE",
     "domain": "cientifico",
     "category": "parametro_externo",
-    "split": "validacao",
+    "split": "calibracao",
     "anchor": {
       "line_start": 186,
       "line_end": 186,
@@ -181,5 +163,745 @@
     "adjudicated": true,
     "validated_by": "Dafnhê Thor",
     "evidence": "Linha 186 declara UF sem equacao ou serie temporal de despacho no texto; nao verificavel a partir do manuscrito"
+  },
+  {
+    "id": "R3-A01-NEG-01",
+    "document": "A01_INJ",
+    "type": "NEGATIVE_CONTROL",
+    "domain": "cientifico",
+    "category": "geral",
+    "split": "validacao",
+    "anchor": {
+      "line_start": 125,
+      "line_end": 125,
+      "line_sha256": "10e3f0dfd8a2fb9532249ed5a4b0d50b434a55c83bafd92d4bf68709c0b16466"
+    },
+    "rationale": "1.45 kg * 896 J/(kg K) = 1299.2 J/K",
+    "origin": "recalculo independente",
+    "adjudicated": true,
+    "validated_by": "Dafnhê Thor",
+    "evidence": "Verificado em Python (R3-2): 1.45 kg * 896 J/(kg K) = 1299.2 J/K"
+  },
+  {
+    "id": "R3-A01-NEG-02",
+    "document": "A01_INJ",
+    "type": "NEGATIVE_CONTROL",
+    "domain": "cientifico",
+    "category": "geral",
+    "split": "validacao",
+    "anchor": {
+      "line_start": 127,
+      "line_end": 127,
+      "line_sha256": "b3da6436189538944220a3aef05cbbbcd1860fa97af7e85a8f34a2932631a20d"
+    },
+    "rationale": "2*pi*sqrt(6871^3/398600.4418) = 5668.14 s",
+    "origin": "recalculo independente",
+    "adjudicated": true,
+    "validated_by": "Dafnhê Thor",
+    "evidence": "Verificado em Python (R3-2): 2*pi*sqrt(6871^3/398600.4418) = 5668.14 s"
+  },
+  {
+    "id": "R3-A01-NEG-03",
+    "document": "A01_INJ",
+    "type": "NEGATIVE_CONTROL",
+    "domain": "cientifico",
+    "category": "geral",
+    "split": "validacao",
+    "anchor": {
+      "line_start": 131,
+      "line_end": 131,
+      "line_sha256": "bc2054d8be5a5e01c9f044b1c706aed1a711f9fc9cd3e373eb957eca1af8a53d"
+    },
+    "rationale": "Hc = 8*2.0 = 16 s; Hp = 30*2.0 = 60 s",
+    "origin": "recalculo independente",
+    "adjudicated": true,
+    "validated_by": "Dafnhê Thor",
+    "evidence": "Verificado em Python (R3-2): Hc = 8*2.0 = 16 s; Hp = 30*2.0 = 60 s"
+  },
+  {
+    "id": "R3-A01-NEG-04",
+    "document": "A01_INJ",
+    "type": "NEGATIVE_CONTROL",
+    "domain": "cientifico",
+    "category": "geral",
+    "split": "validacao",
+    "anchor": {
+      "line_start": 157,
+      "line_end": 157,
+      "line_sha256": "3948ab1ac8c1ac2716d86698743406f34a327e0afc832c7cc58a6a7e4df7d2b6"
+    },
+    "rationale": "E_tfr = 5143.3 / 181.21 = 28.38 kJ s/fr",
+    "origin": "recalculo independente",
+    "adjudicated": true,
+    "validated_by": "Dafnhê Thor",
+    "evidence": "Verificado em Python (R3-2): E_tfr = 5143.3 / 181.21 = 28.38 kJ s/fr"
+  },
+  {
+    "id": "R3-A01-NEG-05",
+    "document": "A01_INJ",
+    "type": "NEGATIVE_CONTROL",
+    "domain": "cientifico",
+    "category": "geral",
+    "split": "validacao",
+    "anchor": {
+      "line_start": 159,
+      "line_end": 159,
+      "line_sha256": "f4fa2f8f685725545b9ac48ca3084269e10556eaea2d28c29b5862cc4f75bbf3"
+    },
+    "rationale": "E_tfr = 905.6 / 119.58 = 7.57 kJ s/fr",
+    "origin": "recalculo independente",
+    "adjudicated": true,
+    "validated_by": "Dafnhê Thor",
+    "evidence": "Verificado em Python (R3-2): E_tfr = 905.6 / 119.58 = 7.57 kJ s/fr"
+  },
+  {
+    "id": "R3-A01-NEG-06",
+    "document": "A01_INJ",
+    "type": "NEGATIVE_CONTROL",
+    "domain": "cientifico",
+    "category": "geral",
+    "split": "validacao",
+    "anchor": {
+      "line_start": 160,
+      "line_end": 160,
+      "line_sha256": "f84f0df6d06529d82fd6b32f3af240e7640cbe005f6edd622d6d829657e22832"
+    },
+    "rationale": "E_tfr = 885.4 / 118.75 = 7.46 kJ s/fr",
+    "origin": "recalculo independente",
+    "adjudicated": true,
+    "validated_by": "Dafnhê Thor",
+    "evidence": "Verificado em Python (R3-2): E_tfr = 885.4 / 118.75 = 7.46 kJ s/fr"
+  },
+  {
+    "id": "R3-A01-NEG-07",
+    "document": "A01_INJ",
+    "type": "NEGATIVE_CONTROL",
+    "domain": "cientifico",
+    "category": "geral",
+    "split": "validacao",
+    "anchor": {
+      "line_start": 161,
+      "line_end": 161,
+      "line_sha256": "51595248ab81106399d97fa0d60e57eb04840680c73f02bcb9978338a0a41fd6"
+    },
+    "rationale": "E_tfr = 920.5 / 123.24 = 7.47 kJ s/fr",
+    "origin": "recalculo independente",
+    "adjudicated": true,
+    "validated_by": "Dafnhê Thor",
+    "evidence": "Verificado em Python (R3-2): E_tfr = 920.5 / 123.24 = 7.47 kJ s/fr"
+  },
+  {
+    "id": "R3-A01-NEG-08",
+    "document": "A01_INJ",
+    "type": "NEGATIVE_CONTROL",
+    "domain": "cientifico",
+    "category": "geral",
+    "split": "validacao",
+    "anchor": {
+      "line_start": 163,
+      "line_end": 163,
+      "line_sha256": "88d689af837d233fb1d5dbf9f66f19830cc19b1b12f0f34b9e3c6902e8fd9f95"
+    },
+    "rationale": "E_tfr = 932.4 / 116.16 = 8.03 kJ s/fr",
+    "origin": "recalculo independente",
+    "adjudicated": true,
+    "validated_by": "Dafnhê Thor",
+    "evidence": "Verificado em Python (R3-2): E_tfr = 932.4 / 116.16 = 8.03 kJ s/fr"
+  },
+  {
+    "id": "R3-A01-NEG-09",
+    "document": "A01_INJ",
+    "type": "NEGATIVE_CONTROL",
+    "domain": "cientifico",
+    "category": "geral",
+    "split": "validacao",
+    "anchor": {
+      "line_start": 164,
+      "line_end": 164,
+      "line_sha256": "3c6ae4219443242760240f79f8ce33e0d7f1cd0f66dd197bec35736ee4e75a78"
+    },
+    "rationale": "E_tfr = 928.6 / 124.62 = 7.45 kJ s/fr",
+    "origin": "recalculo independente",
+    "adjudicated": true,
+    "validated_by": "Dafnhê Thor",
+    "evidence": "Verificado em Python (R3-2): E_tfr = 928.6 / 124.62 = 7.45 kJ s/fr"
+  },
+  {
+    "id": "R3-A01-NEG-10",
+    "document": "A01_INJ",
+    "type": "NEGATIVE_CONTROL",
+    "domain": "cientifico",
+    "category": "geral",
+    "split": "validacao",
+    "anchor": {
+      "line_start": 202,
+      "line_end": 202,
+      "line_sha256": "44d96add02bd2745eae9a4b242a54c6e9dcc963d1cab3fd91b2ecae68529d4d2"
+    },
+    "rationale": "11337 * 0.5 s = 5668.5 s",
+    "origin": "recalculo independente",
+    "adjudicated": true,
+    "validated_by": "Dafnhê Thor",
+    "evidence": "Verificado em Python (R3-2): 11337 * 0.5 s = 5668.5 s"
+  },
+  {
+    "id": "R3-A02-NEG-01",
+    "document": "A02_INJ",
+    "type": "NEGATIVE_CONTROL",
+    "domain": "cientifico",
+    "category": "geral",
+    "split": "validacao",
+    "anchor": {
+      "line_start": 38,
+      "line_end": 38,
+      "line_sha256": "9031b1fc2fed2bdf405d67ae26efa4daef71d80c3ec8aa2c44167e89a5e5a902"
+    },
+    "rationale": "96.7 - 35.2 = 61.5 min sunlit",
+    "origin": "recalculo independente",
+    "adjudicated": true,
+    "validated_by": "Dafnhê Thor",
+    "evidence": "Verificado em Python (R3-2): 96.7 - 35.2 = 61.5 min sunlit"
+  },
+  {
+    "id": "R3-A02-NEG-02",
+    "document": "A02_INJ",
+    "type": "NEGATIVE_CONTROL",
+    "domain": "cientifico",
+    "category": "geral",
+    "split": "validacao",
+    "anchor": {
+      "line_start": 48,
+      "line_end": 48,
+      "line_sha256": "b3121a9efd29d29a93328625554875c91de9a175feccc23c195b53caddeb5466"
+    },
+    "rationale": "3850 - 18747 = -14897 kg (-79.5%)",
+    "origin": "recalculo independente",
+    "adjudicated": true,
+    "validated_by": "Dafnhê Thor",
+    "evidence": "Verificado em Python (R3-2): 3850 - 18747 = -14897 kg (-79.5%)"
+  },
+  {
+    "id": "R3-A02-NEG-03",
+    "document": "A02_INJ",
+    "type": "NEGATIVE_CONTROL",
+    "domain": "cientifico",
+    "category": "geral",
+    "split": "validacao",
+    "anchor": {
+      "line_start": 49,
+      "line_end": 49,
+      "line_sha256": "497226d8518ae02bd5299220c5ba26d62af97e62088ffbf849785cae7193393c"
+    },
+    "rationale": "10870 - 20833 = -9963 kg (-47.8%)",
+    "origin": "recalculo independente",
+    "adjudicated": true,
+    "validated_by": "Dafnhê Thor",
+    "evidence": "Verificado em Python (R3-2): 10870 - 20833 = -9963 kg (-47.8%)"
+  },
+  {
+    "id": "R3-A02-NEG-04",
+    "document": "A02_INJ",
+    "type": "NEGATIVE_CONTROL",
+    "domain": "cientifico",
+    "category": "geral",
+    "split": "validacao",
+    "anchor": {
+      "line_start": 50,
+      "line_end": 50,
+      "line_sha256": "29971ad14cc5b0119b081038d24c212ed0a046c96c557e963e09b3a5086469a1"
+    },
+    "rationale": "138 - 3125 = -2987 kg (-95.6%)",
+    "origin": "recalculo independente",
+    "adjudicated": true,
+    "validated_by": "Dafnhê Thor",
+    "evidence": "Verificado em Python (R3-2): 138 - 3125 = -2987 kg (-95.6%)"
+  },
+  {
+    "id": "R3-A02-NEG-05",
+    "document": "A02_INJ",
+    "type": "NEGATIVE_CONTROL",
+    "domain": "cientifico",
+    "category": "geral",
+    "split": "validacao",
+    "anchor": {
+      "line_start": 51,
+      "line_end": 51,
+      "line_sha256": "8d9a12352d80f5314f5c22e09ebdec84b2c073ac5cb06c8025bfb5da8e1620a2"
+    },
+    "rationale": "92 - 2262 = -2170 kg (-95.9%)",
+    "origin": "recalculo independente",
+    "adjudicated": true,
+    "validated_by": "Dafnhê Thor",
+    "evidence": "Verificado em Python (R3-2): 92 - 2262 = -2170 kg (-95.9%)"
+  },
+  {
+    "id": "R3-A02-NEG-06",
+    "document": "A02_INJ",
+    "type": "NEGATIVE_CONTROL",
+    "domain": "cientifico",
+    "category": "geral",
+    "split": "validacao",
+    "anchor": {
+      "line_start": 52,
+      "line_end": 52,
+      "line_sha256": "32f55ec564a73963bc223e00ba3fce66de86cab8c1d90985b7787befb89ae7b6"
+    },
+    "rationale": "2410 - 1745 = +665 kg (+38.1%)",
+    "origin": "recalculo independente",
+    "adjudicated": true,
+    "validated_by": "Dafnhê Thor",
+    "evidence": "Verificado em Python (R3-2): 2410 - 1745 = +665 kg (+38.1%)"
+  },
+  {
+    "id": "R3-A02-NEG-07",
+    "document": "A02_INJ",
+    "type": "NEGATIVE_CONTROL",
+    "domain": "cientifico",
+    "category": "geral",
+    "split": "validacao",
+    "anchor": {
+      "line_start": 92,
+      "line_end": 92,
+      "line_sha256": "4f9b13f7b41fd5aa244e52bdb0a36012c2db57b94d14d756908ac41a50c91e5e"
+    },
+    "rationale": "1.2e-3 Ohm * 12000 F = 14.4 s",
+    "origin": "recalculo independente",
+    "adjudicated": true,
+    "validated_by": "Dafnhê Thor",
+    "evidence": "Verificado em Python (R3-2): 1.2e-3 Ohm * 12000 F = 14.4 s"
+  },
+  {
+    "id": "R3-A02-NEG-08",
+    "document": "A02_INJ",
+    "type": "NEGATIVE_CONTROL",
+    "domain": "cientifico",
+    "category": "geral",
+    "split": "validacao",
+    "anchor": {
+      "line_start": 93,
+      "line_end": 93,
+      "line_sha256": "f1a7babb0fcd8d466e1c4d9a7284a33374e731d8bc4a23d334ebce490a174130"
+    },
+    "rationale": "2.1e-3 Ohm * 45000 F = 94.5 s",
+    "origin": "recalculo independente",
+    "adjudicated": true,
+    "validated_by": "Dafnhê Thor",
+    "evidence": "Verificado em Python (R3-2): 2.1e-3 Ohm * 45000 F = 94.5 s"
+  },
+  {
+    "id": "R3-A02-NEG-09",
+    "document": "A02_INJ",
+    "type": "NEGATIVE_CONTROL",
+    "domain": "cientifico",
+    "category": "geral",
+    "split": "validacao",
+    "anchor": {
+      "line_start": 99,
+      "line_end": 99,
+      "line_sha256": "44b9c7745fa442bc68c958be08d182089c2496975058a9ffef831a1fc10d3e7e"
+    },
+    "rationale": "-400^2 / 1e6 = -0.16 Ohm",
+    "origin": "recalculo independente",
+    "adjudicated": true,
+    "validated_by": "Dafnhê Thor",
+    "evidence": "Verificado em Python (R3-2): -400^2 / 1e6 = -0.16 Ohm"
+  },
+  {
+    "id": "R3-A02-NEG-10",
+    "document": "A02_INJ",
+    "type": "NEGATIVE_CONTROL",
+    "domain": "cientifico",
+    "category": "geral",
+    "split": "validacao",
+    "anchor": {
+      "line_start": 223,
+      "line_end": 223,
+      "line_sha256": "3d9eabfe8f13a547992341d0e715c9681559456c57c7790179179ad26be914cc"
+    },
+    "rationale": "(3000*1.2e-3)/(2*55.3) = 32.55 mF",
+    "origin": "recalculo independente",
+    "adjudicated": true,
+    "validated_by": "Dafnhê Thor",
+    "evidence": "Verificado em Python (R3-2): (3000*1.2e-3)/(2*55.3) = 32.55 mF"
+  },
+  {
+    "id": "R3-A01-INJ-01",
+    "document": "A01_INJ",
+    "type": "DEFECT",
+    "domain": "cientifico",
+    "category": "resultado_numerico",
+    "split": "validacao",
+    "anchor": {
+      "line_start": 53,
+      "line_end": 53,
+      "line_sha256": "1a7ab031cc9985f803a38f34a468f77a0f61a198aeb36893d8a4440f5d677e4a"
+    },
+    "rationale": "R = 6371 + 500 = 6871 km, injetado 6971 km (+100 km)",
+    "origin": "injetado controlado (R3-2)",
+    "detectable_by": [],
+    "adjudicated": true,
+    "validated_by": "Dafnhê Thor",
+    "evidence": "Verificado em Python (R3-2): R = 6371 + 500 = 6871 km, injetado 6971 km (+100 km)"
+  },
+  {
+    "id": "R3-A01-INJ-02",
+    "document": "A01_INJ",
+    "type": "DEFECT",
+    "domain": "cientifico",
+    "category": "unidades",
+    "split": "validacao",
+    "anchor": {
+      "line_start": 66,
+      "line_end": 66,
+      "line_sha256": "4573470374dcf3ccfbc49b048ca91850c668318d983f077a674597981ec16196"
+    },
+    "rationale": "Unidade alterada de J/(kg K) para kJ/(kg K) (erro 1000x)",
+    "origin": "injetado controlado (R3-2)",
+    "detectable_by": [],
+    "adjudicated": true,
+    "validated_by": "Dafnhê Thor",
+    "evidence": "Verificado em Python (R3-2): Unidade alterada de J/(kg K) para kJ/(kg K) (erro 1000x)"
+  },
+  {
+    "id": "R3-A01-INJ-03",
+    "document": "A01_INJ",
+    "type": "DEFECT",
+    "domain": "cientifico",
+    "category": "resultado_numerico",
+    "split": "validacao",
+    "anchor": {
+      "line_start": 68,
+      "line_end": 68,
+      "line_sha256": "87168e98d98e51d462848fafcb8a39e6aad658f2c6bd085157fdee2c6deb8f90"
+    },
+    "rationale": "Inconsistencia com Tabela 2 L124 (2.10 K/W vs 4.20 K/W)",
+    "origin": "injetado controlado (R3-2)",
+    "detectable_by": [],
+    "adjudicated": true,
+    "validated_by": "Dafnhê Thor",
+    "evidence": "Verificado em Python (R3-2): Inconsistencia com Tabela 2 L124 (2.10 K/W vs 4.20 K/W)"
+  },
+  {
+    "id": "R3-A01-INJ-04",
+    "document": "A01_INJ",
+    "type": "DEFECT",
+    "domain": "cientifico",
+    "category": "inconsistencia_interna",
+    "split": "validacao",
+    "anchor": {
+      "line_start": 82,
+      "line_end": 82,
+      "line_sha256": "cd464904b578a584b5675e838196e6a938101cf79c57810b55a1e6d50cd46a12"
+    },
+    "rationale": "Inconsistencia com Tabela 2 L125 (18.5 J/K vs 38.5 J/K)",
+    "origin": "injetado controlado (R3-2)",
+    "detectable_by": [],
+    "adjudicated": true,
+    "validated_by": "Dafnhê Thor",
+    "evidence": "Verificado em Python (R3-2): Inconsistencia com Tabela 2 L125 (18.5 J/K vs 38.5 J/K)"
+  },
+  {
+    "id": "R3-A01-INJ-05",
+    "document": "A01_INJ",
+    "type": "DEFECT",
+    "domain": "cientifico",
+    "category": "resultado_numerico",
+    "split": "validacao",
+    "anchor": {
+      "line_start": 101,
+      "line_end": 101,
+      "line_sha256": "3379105ac9df05c2da9a0afecf28ae747f3695ed147d9ae331c7c2a1c5405ef1"
+    },
+    "rationale": "Hp=30 passos x 2.0 s = 60.0 s, injetado 90.0 s",
+    "origin": "injetado controlado (R3-2)",
+    "detectable_by": [],
+    "adjudicated": true,
+    "validated_by": "Dafnhê Thor",
+    "evidence": "Verificado em Python (R3-2): Hp=30 passos x 2.0 s = 60.0 s, injetado 90.0 s"
+  },
+  {
+    "id": "R3-A01-INJ-06",
+    "document": "A01_INJ",
+    "type": "DEFECT",
+    "domain": "cientifico",
+    "category": "unidades",
+    "split": "validacao",
+    "anchor": {
+      "line_start": 126,
+      "line_end": 126,
+      "line_sha256": "aad4f17a512871c76f8b63e2e22b95aec60958cdb3defc5952f5bf795ae79e2e"
+    },
+    "rationale": "Area do radiador inflada 100x (0.12 m2 -> 12.0 m2)",
+    "origin": "injetado controlado (R3-2)",
+    "detectable_by": [],
+    "adjudicated": true,
+    "validated_by": "Dafnhê Thor",
+    "evidence": "Verificado em Python (R3-2): Area do radiador inflada 100x (0.12 m2 -> 12.0 m2)"
+  },
+  {
+    "id": "R3-A01-INJ-07",
+    "document": "A01_INJ",
+    "type": "DEFECT",
+    "domain": "cientifico",
+    "category": "resultado_numerico",
+    "split": "validacao",
+    "anchor": {
+      "line_start": 158,
+      "line_end": 158,
+      "line_sha256": "4d0d672b602d52025ec3efbd87911008f208e132c8b19e73d72b6d984a13716a"
+    },
+    "rationale": "E_tfr = 1011.5 / 117.27 = 8.63, injetado 12.63",
+    "origin": "injetado controlado (R3-2)",
+    "detectable_by": [],
+    "adjudicated": true,
+    "validated_by": "Dafnhê Thor",
+    "evidence": "Verificado em Python (R3-2): E_tfr = 1011.5 / 117.27 = 8.63, injetado 12.63"
+  },
+  {
+    "id": "R3-A01-INJ-08",
+    "document": "A01_INJ",
+    "type": "DEFECT",
+    "domain": "cientifico",
+    "category": "resultado_numerico",
+    "split": "validacao",
+    "anchor": {
+      "line_start": 162,
+      "line_end": 162,
+      "line_sha256": "31fb62b65f3ada9fd8922d7f0ed0e20d2f1af6f3d436682e56f8efa7609e76f0"
+    },
+    "rationale": "E_tfr = 1081.3 / 126.49 = 8.55, injetado 4.55",
+    "origin": "injetado controlado (R3-2)",
+    "detectable_by": [],
+    "adjudicated": true,
+    "validated_by": "Dafnhê Thor",
+    "evidence": "Verificado em Python (R3-2): E_tfr = 1081.3 / 126.49 = 8.55, injetado 4.55"
+  },
+  {
+    "id": "R3-A01-INJ-09",
+    "document": "A01_INJ",
+    "type": "DEFECT",
+    "domain": "cientifico",
+    "category": "resultado_numerico",
+    "split": "validacao",
+    "anchor": {
+      "line_start": 168,
+      "line_end": 168,
+      "line_sha256": "14dd381a334173232a673df4e47ebb3d5994d211971c72ed9aabf1ce53ce92f2"
+    },
+    "rationale": "(124.62-119.58)/119.58 = +4.21%, injetado +14.2%",
+    "origin": "injetado controlado (R3-2)",
+    "detectable_by": [],
+    "adjudicated": true,
+    "validated_by": "Dafnhê Thor",
+    "evidence": "Verificado em Python (R3-2): (124.62-119.58)/119.58 = +4.21%, injetado +14.2%"
+  },
+  {
+    "id": "R3-A01-INJ-10",
+    "document": "A01_INJ",
+    "type": "DEFECT",
+    "domain": "cientifico",
+    "category": "inconsistencia_interna",
+    "split": "validacao",
+    "anchor": {
+      "line_start": 176,
+      "line_end": 176,
+      "line_sha256": "3ff18baf799fc85a0c97710555f8040823cf2290b97839f02c69d16c41c6ec26"
+    },
+    "rationale": "Inconsistencia com Tabela 3 L164 (124.62 vs 134.62 FPS)",
+    "origin": "injetado controlado (R3-2)",
+    "detectable_by": [],
+    "adjudicated": true,
+    "validated_by": "Dafnhê Thor",
+    "evidence": "Verificado em Python (R3-2): Inconsistencia com Tabela 3 L164 (124.62 vs 134.62 FPS)"
+  },
+  {
+    "id": "R3-A02-INJ-01",
+    "document": "A02_INJ",
+    "type": "DEFECT",
+    "domain": "cientifico",
+    "category": "unidades",
+    "split": "validacao",
+    "anchor": {
+      "line_start": 39,
+      "line_end": 39,
+      "line_sha256": "4d462f873c57c010aad53f1e1697c109b2e7add4f41e4611783c16b31066f0ec"
+    },
+    "rationale": "Constante solar alterada para kW/m2 (erro 1000x)",
+    "origin": "injetado controlado (R3-2)",
+    "detectable_by": [],
+    "adjudicated": true,
+    "validated_by": "Dafnhê Thor",
+    "evidence": "Verificado em Python (R3-2): Constante solar alterada para kW/m2 (erro 1000x)"
+  },
+  {
+    "id": "R3-A02-INJ-02",
+    "document": "A02_INJ",
+    "type": "DEFECT",
+    "domain": "cientifico",
+    "category": "resultado_numerico",
+    "split": "validacao",
+    "anchor": {
+      "line_start": 53,
+      "line_end": 53,
+      "line_sha256": "0808a55846e14929f906efec21d65902e3a9fdea176aadaa29300efbef7c3f85"
+    },
+    "rationale": "-29352 / 46712 = -62.84%, injetado -42.8%",
+    "origin": "injetado controlado (R3-2)",
+    "detectable_by": [],
+    "adjudicated": true,
+    "validated_by": "Dafnhê Thor",
+    "evidence": "Verificado em Python (R3-2): -29352 / 46712 = -62.84%, injetado -42.8%"
+  },
+  {
+    "id": "R3-A02-INJ-03",
+    "document": "A02_INJ",
+    "type": "DEFECT",
+    "domain": "cientifico",
+    "category": "resultado_numerico",
+    "split": "validacao",
+    "anchor": {
+      "line_start": 72,
+      "line_end": 72,
+      "line_sha256": "be477979af39bb6e58f89ed929ff8d0b77e90383723cceaa21f3f6c6f0b0dc95"
+    },
+    "rationale": "1.90 + 1.42 + 0.67 = 3.99 eV, injetado 4.59 eV",
+    "origin": "injetado controlado (R3-2)",
+    "detectable_by": [],
+    "adjudicated": true,
+    "validated_by": "Dafnhê Thor",
+    "evidence": "Verificado em Python (R3-2): 1.90 + 1.42 + 0.67 = 3.99 eV, injetado 4.59 eV"
+  },
+  {
+    "id": "R3-A02-INJ-04",
+    "document": "A02_INJ",
+    "type": "DEFECT",
+    "domain": "cientifico",
+    "category": "resultado_numerico",
+    "split": "validacao",
+    "anchor": {
+      "line_start": 73,
+      "line_end": 73,
+      "line_sha256": "065093c2d838a95990cc5a63841ef3b404b1c6a2f2fb998bfeb71531bc6cf9f7"
+    },
+    "rationale": "140 * (-16.5 mV/K) = -2.310 V/K, injetado -3.317 V/K",
+    "origin": "injetado controlado (R3-2)",
+    "detectable_by": [],
+    "adjudicated": true,
+    "validated_by": "Dafnhê Thor",
+    "evidence": "Verificado em Python (R3-2): 140 * (-16.5 mV/K) = -2.310 V/K, injetado -3.317 V/K"
+  },
+  {
+    "id": "R3-A02-INJ-05",
+    "document": "A02_INJ",
+    "type": "DEFECT",
+    "domain": "cientifico",
+    "category": "resultado_numerico",
+    "split": "validacao",
+    "anchor": {
+      "line_start": 86,
+      "line_end": 86,
+      "line_sha256": "c49ce6bbee95825cdd20faaa3ad47265f7dfb26a2debe9dd2d844c24406c8deb"
+    },
+    "rationale": "2.5 MWh / 400 V = 6250 Ah, injetado 4240 Ah",
+    "origin": "injetado controlado (R3-2)",
+    "detectable_by": [],
+    "adjudicated": true,
+    "validated_by": "Dafnhê Thor",
+    "evidence": "Verificado em Python (R3-2): 2.5 MWh / 400 V = 6250 Ah, injetado 4240 Ah"
+  },
+  {
+    "id": "R3-A02-INJ-06",
+    "document": "A02_INJ",
+    "type": "DEFECT",
+    "domain": "cientifico",
+    "category": "resultado_numerico",
+    "split": "validacao",
+    "anchor": {
+      "line_start": 165,
+      "line_end": 165,
+      "line_sha256": "d07095186435c98d505f278dbc5586cfbd28deec424749f9c6bc6b78c0d9173a"
+    },
+    "rationale": "44 / 500 = 8.80%, injetado 18.80%",
+    "origin": "injetado controlado (R3-2)",
+    "detectable_by": [],
+    "adjudicated": true,
+    "validated_by": "Dafnhê Thor",
+    "evidence": "Verificado em Python (R3-2): 44 / 500 = 8.80%, injetado 18.80%"
+  },
+  {
+    "id": "R3-A02-INJ-07",
+    "document": "A02_INJ",
+    "type": "DEFECT",
+    "domain": "cientifico",
+    "category": "resultado_numerico",
+    "split": "validacao",
+    "anchor": {
+      "line_start": 167,
+      "line_end": 167,
+      "line_sha256": "02be1e32c1cbacbb864697e4b58147600bc423b7c26811aca8afe099cb62b824"
+    },
+    "rationale": "500 - 44 = 456 runs finitos, injetado 412",
+    "origin": "injetado controlado (R3-2)",
+    "detectable_by": [],
+    "adjudicated": true,
+    "validated_by": "Dafnhê Thor",
+    "evidence": "Verificado em Python (R3-2): 500 - 44 = 456 runs finitos, injetado 412"
+  },
+  {
+    "id": "R3-A02-INJ-08",
+    "document": "A02_INJ",
+    "type": "DEFECT",
+    "domain": "cientifico",
+    "category": "resultado_numerico",
+    "split": "validacao",
+    "anchor": {
+      "line_start": 188,
+      "line_end": 188,
+      "line_sha256": "831a01e0f501f66a203c7075642fd3a062f5aa3c80fb22013b724d1c5b4306bf"
+    },
+    "rationale": "54.1 - (-92.6) = 146.7 C, injetado 126.7 C",
+    "origin": "injetado controlado (R3-2)",
+    "detectable_by": [],
+    "adjudicated": true,
+    "validated_by": "Dafnhê Thor",
+    "evidence": "Verificado em Python (R3-2): 54.1 - (-92.6) = 146.7 C, injetado 126.7 C"
+  },
+  {
+    "id": "R3-A02-INJ-09",
+    "document": "A02_INJ",
+    "type": "DEFECT",
+    "domain": "cientifico",
+    "category": "resultado_numerico",
+    "split": "validacao",
+    "anchor": {
+      "line_start": 189,
+      "line_end": 189,
+      "line_sha256": "922dd645cc4c391446201e260a21e9b18b50cdd13c02177918473553749b971e"
+    },
+    "rationale": "636.5 - 296.6 = 339.9 V, injetado 239.9 V",
+    "origin": "injetado controlado (R3-2)",
+    "detectable_by": [],
+    "adjudicated": true,
+    "validated_by": "Dafnhê Thor",
+    "evidence": "Verificado em Python (R3-2): 636.5 - 296.6 = 339.9 V, injetado 239.9 V"
+  },
+  {
+    "id": "R3-A02-INJ-10",
+    "document": "A02_INJ",
+    "type": "DEFECT",
+    "domain": "cientifico",
+    "category": "resultado_numerico",
+    "split": "validacao",
+    "anchor": {
+      "line_start": 209,
+      "line_end": 209,
+      "line_sha256": "cd33d1e31998927f7b5965c962ad98d23109d742de80c7e430d2569d61ca7fb8"
+    },
+    "rationale": "98.46 - 93.68 = +4.78 pp, injetado +9.78 pp",
+    "origin": "injetado controlado (R3-2)",
+    "detectable_by": [],
+    "adjudicated": true,
+    "validated_by": "Dafnhê Thor",
+    "evidence": "Verificado em Python (R3-2): 98.46 - 93.68 = +4.78 pp, injetado +9.78 pp"
   }
 ]
