@@ -37,7 +37,10 @@
 
 ## 6. Pendências de Decisão do Usuário Antes do Lock
 
-- **Destino do histórico sensível (`homologation/etapas-0-1-rev20`):** decidir entre Opção A (aceitar exposição e registrar aqui), Opção B (reescrever histórico com autorização explícita) e/ou Opção C (solicitar remoção de cache por SHA ao suporte do GitHub).
+- **Destino do histórico sensível (`homologation/etapas-0-1-rev20`) — EXECUTADO (Opção B + C, 2026-11-24):**
+  - Branch `homologation/etapas-0-1-rev20` reescrita com `--force-with-lease` de `b36b49910b91a4a82c805634b708400ce05dca36` para `1483e398791303cdfc6ea1d08c87d91fe2ce80b1` (removendo `84a56a7` e `b36b499`; `main`, `v8.0-beta.6.6` e `homologation/etapa2-benchmark-limpo` intocados).
+  - Pedido de purga de cache dos SHAs `84a56a7b1e159d5c763cdc70dcfafc8094eab212` e `b36b49910b91a4a82c805634b708400ce05dca36` redigido para o Suporte do GitHub (Opção C).
+  - **Exposição residual aceita (Opção A):** o caminho local `ZZ - Antigravity` permanece em 9 commits históricos que fazem parte de `main` e da baseline `v8.0-beta.6.6` (não contém texto do artigo).
 - **Escopo da rodada:** escolher entre (a) piloto descritivo (aceitar `NOT_VERIFIED` com o gabarito atual) ou (b) ampliar o gabarito antes do lock.
 - **Limiares (`thresholds.json`):** valores a definir pelo usuário (não pelo agente) antes do lock.
 - **Métrica do gate:** `recall` por linha (já registrado) e `recall_categoria` apenas como reporte paralelo.
