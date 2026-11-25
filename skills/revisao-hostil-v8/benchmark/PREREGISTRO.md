@@ -153,6 +153,8 @@ a segunda afirmação da linha. Status: **NÃO ADJUDICADA**.
 - Rodada 3: o caso sai do gabarito (nem controle, nem defeito).
 - Os 4 sinais são reportados como "achados fora do gabarito, pendentes".
 - `artigo04_numerado.txt` (usado nos 3 revisores web): SHA-256 `11186235e45104039317d20236195dc0d7d7698e54399898f27286eff96cd261`, verificado linha a linha (`309/309`) contra `artigo04.md` (`splitlines()`).
+- Rodadas 1 e 2 foram medidas com `bench.py` (`BENCH_VERSION = "0.1.0"`) do commit `fb7d52018129817e83c7ff358b0c4ad2a072ab80`; hash do lock: `0214d45d4dee456617c9f0c2a92ae0b6939925a32feb2c78cc4734fc1472898b` (cópia arquivada fora do Git em `../benchmark_privado/lock_rodadas_1_2.json`).
+
 
 
 
