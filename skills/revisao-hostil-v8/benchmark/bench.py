@@ -21,7 +21,10 @@ from collections import defaultdict
 from datetime import datetime, timezone
 from pathlib import Path
 
-BENCH_VERSION = "0.1.0"
+if __name__ == "__main__":
+    sys.modules.setdefault("bench", sys.modules["__main__"])
+
+BENCH_VERSION = "0.2.0"
 TYPES = ("DEFECT", "NEGATIVE_CONTROL", "INCONCLUSIVE")
 SPLITS = ("calibracao", "validacao")
 DOMAINS = ("cientifico", "proveniencia")
@@ -32,6 +35,7 @@ THRESHOLD_KEYS = (
     "recall_lower_bound_min",
     "specificity_lower_bound_min",
     "precision_pessimistic_min",
+    "max_span_lines",
 )
 
 
@@ -204,8 +208,31 @@ def normalize_finding(f, did):
     return out
 
 
-def validate(docs, cases):
+def resolve_case_anchors(lines, c):
+    has_a = "anchor" in c and c["anchor"] is not None
+    has_as = "anchors" in c and c["anchors"] is not None
+    need(has_a != has_as, "informe exatamente um de 'anchor' ou 'anchors'")
+    if has_as:
+        ancs = c["anchors"]
+        need(isinstance(ancs, list) and len(ancs) >= 1, "anchors deve ser lista nao vazia")
+        return [resolve_anchor(lines, a) for a in ancs]
+    return [resolve_anchor(lines, c["anchor"])]
+
+
+def parse_max_span(thr):
+    v = thr.get("max_span_lines") if isinstance(thr, dict) else None
+    need(isinstance(v, int) and not isinstance(v, bool) and v >= 1,
+         f"max_span_lines ausente ou invalido em thresholds.json: {v!r}")
+    return v
+
+
+def validate(docs, cases, thr=None):
     problems, warnings, seen = [], [], set()
+    resolved_by_doc = defaultdict(list)
+    if thr is not None:
+        v = thr.get("max_span_lines")
+        if not (isinstance(v, int) and not isinstance(v, bool) and v >= 1):
+            problems.append(f"thresholds.json: max_span_lines ausente ou invalido ({v!r})")
     for c in cases:
         cid = c.get("id", "<sem id>")
         if cid in seen:
@@ -235,9 +262,17 @@ def validate(docs, cases):
             warnings.append(f"{cid}: documento {d['status']} - ancora NOT_VERIFIED")
             continue
         try:
-            resolve_anchor(d["lines"], c.get("anchor"))
+            rs = resolve_case_anchors(d["lines"], c)
+            resolved_by_doc[c["document"]].append((cid, rs))
         except BenchError as e:
             problems.append(f"{cid}: {e}")
+    for did, items in resolved_by_doc.items():
+        for i in range(len(items)):
+            cid1, rs1 = items[i]
+            for j in range(i + 1, len(items)):
+                cid2, rs2 = items[j]
+                if any(_overlap(a, b) for a in rs1 for b in rs2):
+                    warnings.append(f"colisao entre casos em {did}: {cid1} e {cid2}")
     return problems, warnings
 
 
@@ -294,21 +329,25 @@ def _group(active, detected, neg_flagged, over, keyfn, detected_cat=None):
     return {k: _fmt(v) for k, v in g.items()}, _fmt(zero())
 
 
-def evaluate(docs, cases, findings, split):
+def evaluate(docs, cases, findings, split, max_span_lines=None):
     need(split in SPLITS, "split invalido")
+    if max_span_lines is not None:
+        need(isinstance(max_span_lines, int) and not isinstance(max_span_lines, bool) and max_span_lines >= 1,
+             f"max_span_lines invalido: {max_span_lines!r}")
     ranges, excluded, active = {}, [], []
     for c in cases:
         d = docs[c["document"]]
         if d["status"] != "OK":
             excluded.append({"id": c["id"], "motivo": "documento " + d["status"]})
             continue
-        ranges[c["id"]] = resolve_anchor(d["lines"], c["anchor"])
+        ranges[c["id"]] = resolve_case_anchors(d["lines"], c)
         if c.get("adjudicated") is not True:
             excluded.append({"id": c["id"], "motivo": "nao adjudicado"})
             continue
         if c["split"] == split:
             active.append(c)
     active_ids = {c["id"] for c in active}
+    active_docs = {c["document"] for c in active}
     by_doc = defaultdict(list)
     for c in cases:
         if c["id"] in ranges:
@@ -317,16 +356,33 @@ def evaluate(docs, cases, findings, split):
     detected, neg_flagged, over = defaultdict(list), defaultdict(list), defaultdict(list)
     detected_cat = defaultdict(list)
     tp, fp, ov_set, unadj, unloc, ign, handled, blocked = (set() for _ in range(8))
+    span_dropped = set()
+    span_by_doc, span_by_cat = defaultdict(int), defaultdict(int)
+    drop_no_cases = defaultdict(int)
+    loc_excerpt = 0
+    multi_label = []
+
     for k, f in enumerate(findings):
         d = docs.get(f["document"])
         if d is None or d["status"] != "OK":
             blocked.add(k)
             continue
+        if f["document"] not in active_docs:
+            drop_no_cases[f["document"]] += 1
+            continue
         r = finding_range(d["lines"], f)
         if r is None:
             unloc.add(k)
             continue
-        ov = [c for c in by_doc[f["document"]] if _overlap(r, ranges[c["id"]])]
+        if f.get("line_start") is None:
+            loc_excerpt += 1
+        elif max_span_lines is not None and (r[1] - r[0] + 1) > max_span_lines:
+            span_dropped.add(k)
+            span_by_doc[f["document"]] += 1
+            span_by_cat[f["category"]] += 1
+            continue
+        ov = [c for c in by_doc[f["document"]]
+              if any(_overlap(r, cr) for cr in ranges[c["id"]])]
         scoped = [c for c in ov if c["id"] in active_ids]
         if ov and not scoped:
             ign.add(k)
@@ -334,24 +390,30 @@ def evaluate(docs, cases, findings, split):
         defects = [c for c in scoped if c["type"] == "DEFECT"]
         negs = [c for c in scoped if c["type"] == "NEGATIVE_CONTROL"]
         incs = [c for c in scoped if c["type"] == "INCONCLUSIVE"]
+        hit_types = 0
         if defects:
+            hit_types += 1
             tp.add(k)
             for c in defects:
                 detected[c["id"]].append(k)
                 if f["category"] in (c.get("detectable_by") or ()):
                     detected_cat[c["id"]].append(k)
-        elif negs:
+        if negs:
+            hit_types += 1
             fp.add(k)
             for c in negs:
                 neg_flagged[c["id"]].append(k)
-        elif incs:
+        if incs:
+            hit_types += 1
             if f["status"] == "CONFIRMADO":
                 ov_set.add(k)
                 for c in incs:
                     over[c["id"]].append(k)
             else:
                 handled.add(k)
-        else:
+        if hit_types > 1:
+            multi_label.append(sorted({c["id"] for c in scoped}))
+        if hit_types == 0:
             unadj.add(k)
 
     por_cat, _ = _group(active, detected, neg_flagged, over, lambda c: c["category"], detected_cat)
@@ -360,8 +422,10 @@ def evaluate(docs, cases, findings, split):
     total = tot.get("TOTAL", empty)
 
     n_tp, n_fp, n_ov, n_un = len(tp), len(fp), len(ov_set), len(unadj)
-    prec_opt = _safe(n_tp, n_tp + n_fp + n_ov)
-    prec_pes = _safe(n_tp, n_tp + n_fp + n_ov + n_un)
+    labeled_any = tp | fp | ov_set | handled
+    pess_set = labeled_any | unadj | span_dropped
+    prec_opt = _safe(n_tp, len(labeled_any))
+    prec_pes = _safe(n_tp, len(pess_set))
     rec = total["recall"]["valor"]
     f1 = None
     if prec_pes is not None and rec is not None and (prec_pes + rec) > 0:
@@ -378,10 +442,16 @@ def evaluate(docs, cases, findings, split):
             "confirmado_em_inconclusivo": n_ov,
             "inconclusivo_tratado": len(handled),
             "sem_rotulo": n_un,
+            "nao_localizado_span": len(span_dropped),
+            "nao_localizado_span_por_documento": dict(span_by_doc),
+            "nao_localizado_span_por_categoria": dict(span_by_cat),
+            "localizados_por_excerpt": loc_excerpt,
             "nao_localizaveis": len(unloc),
             "fora_do_escopo_da_execucao": len(ign),
             "em_documento_bloqueado": len(blocked),
+            "descartados_documento_sem_casos": dict(drop_no_cases),
         },
+        "achados_multi_rotulo": multi_label,
         "precisao_otimista": prec_opt,
         "precisao_pessimista": prec_pes,
         "f1_pessimista": f1,
@@ -531,7 +601,7 @@ def main(argv=None):
 
     try:
         root, manifest, docs, cases, thr = _inputs(a.root)
-        problems, warnings = validate(docs, cases)
+        problems, warnings = validate(docs, cases, thr)
         for w in warnings:
             print("AVISO:", w)
         if problems:
@@ -546,6 +616,7 @@ def main(argv=None):
             return 0
 
         need(a.repeat >= 1, "--repeat deve ser >= 1")
+        max_span = parse_max_span(thr)
         lock = check_lock(root, cases) if a.split == "validacao" else None
         adapter = load_adapter(a.adapter, root)
         runs = []
@@ -561,7 +632,7 @@ def main(argv=None):
                     d["status"] = "RESULTADO_INCOMPATIVEL"
                     d["motivo"] = str(e)
                     print(f"BLOQUEADO {did}: {e}")
-            runs.append(evaluate(docs, cases, findings, a.split))
+            runs.append(evaluate(docs, cases, findings, a.split, max_span_lines=max_span))
         verdict, reasons = gate(runs[0], thr)
         report = {
             "run_id": str(uuid.uuid4()),
