@@ -138,21 +138,35 @@ def _overlap(a, b):
 
 
 def resolve_anchor(lines, anchor):
+    """Resolve ancora para (line_start, line_end) 1-based.
+
+    Regra de line_sha256: SHA-256 hex (64 caracteres) de
+    "\\n".join(lines[line_start - 1:line_end]).encode("utf-8"),
+    onde `lines` vem de `splitlines()` (preserva espacos finais de cada linha e
+    normaliza quebras de linha para LF '\\n').
+    Se ambos `quote` e `line_sha256` estiverem presentes, ambos sao validados
+    (precedencia: intervalo de linhas -> quote -> line_sha256; qualquer falha
+    levanta BenchError).
+    """
     need(isinstance(anchor, dict) and anchor, "ancora ausente")
     quote = anchor.get("quote")
     ls = anchor.get("line_start")
     hits = locate(lines, quote) if quote else []
     if ls is not None:
         le = anchor.get("line_end") or ls
-        need(isinstance(ls, int) and isinstance(le, int) and 1 <= ls <= le <= len(lines),
+        need(isinstance(ls, int) and not isinstance(ls, bool)
+             and isinstance(le, int) and not isinstance(le, bool)
+             and 1 <= ls <= le <= len(lines),
              "line_start/line_end fora do documento")
         if quote:
             need(any(_overlap(h, (ls, le)) for h in hits),
                  "citacao nao encontrada no intervalo de linhas informado")
         lsha = anchor.get("line_sha256")
-        if lsha:
+        if lsha is not None:
+            need(isinstance(lsha, str) and re.fullmatch(r"[0-9a-fA-F]{64}", lsha),
+                 f"line_sha256 em formato invalido: {lsha!r}")
             actual = sha256_bytes("\n".join(lines[ls - 1:le]).encode("utf-8"))
-            need(actual == str(lsha).lower(),
+            need(actual == lsha.lower(),
                  f"line_sha256 divergente nas linhas {ls}-{le}")
         return (ls, le)
     need(quote, "ancora sem quote nem line_start")

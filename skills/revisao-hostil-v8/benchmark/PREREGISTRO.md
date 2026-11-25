@@ -34,3 +34,13 @@
 
 - Material sensível (`docs/benchmark_etapa2/`, textos dos artigos e pareceres) foi retirado do Git; os insumos ficam fora do repositório, e `manifest.json` guarda apenas os hashes SHA-256.
 - `cases.json` usa âncoras por `line_start`/`line_end` + `line_sha256` (Opção ii), sem trechos literais do manuscrito no Git.
+
+## 6. Pendências de Decisão do Usuário Antes do Lock
+
+- **Destino do histórico sensível (`homologation/etapas-0-1-rev20`):** decidir entre Opção A (aceitar exposição e registrar aqui), Opção B (reescrever histórico com autorização explícita) e/ou Opção C (solicitar remoção de cache por SHA ao suporte do GitHub).
+- **Escopo da rodada:** escolher entre (a) piloto descritivo (aceitar `NOT_VERIFIED` com o gabarito atual) ou (b) ampliar o gabarito antes do lock.
+- **Limiares (`thresholds.json`):** valores a definir pelo usuário (não pelo agente) antes do lock.
+- **Métrica do gate:** `recall` por linha (já registrado) e `recall_categoria` apenas como reporte paralelo.
+- **Registro do `lock.json`:** o hash SHA-256 do `lock.json` local deve ser anotado nesta seção depois do lock (`lock.json` não vai ao Git).
+- **Revisor cego:** deve ser sessão nova e modelo diferente do que montou o gabarito.
+

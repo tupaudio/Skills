@@ -13,5 +13,5 @@
       "origin": "versao 10 paginas; JSON do auditor referencia versao de 20 paginas"
     }
   },
-  "frozen_files": ["../scripts/auditor.py", "bench.py", "adapters/estrutural_json.py"]
+  "frozen_files": ["../scripts/auditor.py", "bench.py", "adapters/estrutural_json.py", "adapters/achados_arquivo.py"]
 }
