@@ -9,14 +9,14 @@
     "anchor": {
       "line_start": 238,
       "line_end": 238,
-      "line_sha256": "f2fd4cf7e5308834bf341a654d208788f975c451704c6ff528ce4712827cc5ab"
+      "line_sha256": "1ef430b5856c540908bf540328305a5d428f182353d4455d1c6e85374a6da40d"
     },
-    "rationale": "100 Gbps x 192/280/1440 min dao 144/210/1080 TB decimais; o texto divide por 1,024 (mistura decimal e binario)",
+    "rationale": "100 Gbps x 192/280/1440 min dao 144/210/1080 TB decimais; a formula na linha 211 divide por 1024 misturando decimal e binario (severidade menor)",
     "origin": "recalculo independente",
     "detectable_by": [],
-    "adjudicated": false,
-    "validated_by": "",
-    "evidence": ""
+    "adjudicated": true,
+    "validated_by": "Dafnhê Thor",
+    "evidence": "recalc_casos.py: LEO 144.0 TB_dec vs 140.625 (TB/1.024); SSO 210.0 vs 205.078; GEO 1080.0 vs 1054.688; convencao mista decimal/binaria"
   },
   {
     "id": "B04-003",
@@ -28,14 +28,14 @@
     "anchor": {
       "line_start": 99,
       "line_end": 99,
-      "line_sha256": "e57177db6567120edfc7abd805ba4f2d601c67a2b5d74608f9571793fd4ba60c"
+      "line_sha256": "b14a79b9c7198f3271122a4e2632888149257845cc498996281c510a27820d95"
     },
-    "rationale": "Recalculo com os parametros da linha 97 da 16,17 kg/kW, nao 16,50",
+    "rationale": "Recalculo com os parametros da linha 97 da 16,17 kg/kW, nao 16,50 (divergencia ~2,0% > tolerancia 1%; severidade menor)",
     "origin": "recalculo independente",
     "detectable_by": [],
-    "adjudicated": false,
-    "validated_by": "",
-    "evidence": ""
+    "adjudicated": true,
+    "validated_by": "Dafnhê Thor",
+    "evidence": "recalc_casos.py: (35.7/60)/(0.25*0.92*0.160) = 16.1685 kg/kW vs 16.50 kg/kW (erro relativo ~2.0%, acima da tolerancia preregistrada de 1%)"
   },
   {
     "id": "B04-006",
@@ -52,9 +52,9 @@
     "rationale": "3 min a DoD 70%, eta 0,92 e 160 Wh/kg dao 0,485 kg/kW, nao 1,80",
     "origin": "recalculo independente",
     "detectable_by": [],
-    "adjudicated": false,
-    "validated_by": "",
-    "evidence": ""
+    "adjudicated": true,
+    "validated_by": "Dafnhê Thor",
+    "evidence": "recalc_casos.py: (3/60)/(0.70*0.92*0.160) = 0.4852 kg/kW vs 1.80 kg/kW (razao ~3.7x, acima da tolerancia de 1%)"
   },
   {
     "id": "B04-NEG-001",
@@ -66,13 +66,13 @@
     "anchor": {
       "line_start": 97,
       "line_end": 97,
-      "line_sha256": "5da194d0f0553a391b8f5619e2158fecfa79a8316ba913a010dfd98bdfe3ef18"
+      "line_sha256": "ba5f5d5e195397e9a34ef689d9b492796a1c5f9b4d32c67f0606b89efad034b6"
     },
     "rationale": "5.500 x 10 = 55.000; cerca de 15 orbitas/dia x 365 e aproximadamente 5.500",
     "origin": "recalculo independente",
-    "adjudicated": false,
-    "validated_by": "",
-    "evidence": ""
+    "adjudicated": true,
+    "validated_by": "Dafnhê Thor",
+    "evidence": "recalc_casos.py: 5500*10 = 55000 e 15*365 = 5475 (~5500); aritmetica conferida"
   },
   {
     "id": "B04-NEG-002",
@@ -84,13 +84,13 @@
     "anchor": {
       "line_start": 66,
       "line_end": 66,
-      "line_sha256": "2a850c3dc5118d440925f619c77363d14b0d84b4f3fd3d561d47baa62ad65a20"
+      "line_sha256": "9c367c6a929e73f079803f787d4b378462194985a84b7d93cb5a264a0112a8a7"
     },
     "rationale": "360/365,25 = 0,9856 graus/dia",
     "origin": "recalculo independente",
-    "adjudicated": false,
-    "validated_by": "",
-    "evidence": ""
+    "adjudicated": true,
+    "validated_by": "Dafnhê Thor",
+    "evidence": "recalc_casos.py: 360/365.25 = 0.985626 graus/dia; taxa media solar conferida"
   },
   {
     "id": "B04-NEG-003",
@@ -102,13 +102,13 @@
     "anchor": {
       "line_start": 86,
       "line_end": 86,
-      "line_sha256": "4aa2e7abd6602510ee37a7394f53b4d19542f2258e2134109cd1c05e1feb12e6"
+      "line_sha256": "616d658c78a7f4f320dc9d45020bd4aa5550a2be374e0c86d78a6a2a0a6258bb"
     },
     "rationale": "1 + 35,7/(58,9*0,90) = 1,67 (valida apenas a aritmetica, nao a fisica)",
     "origin": "recalculo independente",
-    "adjudicated": false,
-    "validated_by": "",
-    "evidence": ""
+    "adjudicated": true,
+    "validated_by": "Dafnhê Thor",
+    "evidence": "recalc_casos.py: 1 + 35.7/(58.9*0.90) = 1.6735 (~1.67); valida apenas a aritmetica"
   },
   {
     "id": "B04-NEG-004",
@@ -118,15 +118,15 @@
     "category": "geral",
     "split": "validacao",
     "anchor": {
-      "line_start": 108,
-      "line_end": 108,
-      "line_sha256": "7e779a74f2d223587e923427abab3d9dd43b895afe2240041320524a67166d24"
+      "line_start": 206,
+      "line_end": 206,
+      "line_sha256": "5f0469021e1470006587a275438e4b58b8a5a635f7b8f65e5736b7d21df3e819"
     },
-    "rationale": "constante de Stefan-Boltzmann",
-    "origin": "constante fisica",
-    "adjudicated": false,
-    "validated_by": "",
-    "evidence": ""
+    "rationale": "RTT no zenite para SSO 700 km: 2*700/299792,458 = 4,67 ms (~4,7 ms; substitui controle trivial de Stefan-Boltzmann)",
+    "origin": "recalculo independente",
+    "adjudicated": true,
+    "validated_by": "Dafnhê Thor",
+    "evidence": "recalc_casos.py: 2*700/299792.458*1000 = 4.6699 ms (~4.7 ms); aritmetica RTT no zenite conferida"
   },
   {
     "id": "B04-NEG-005",
@@ -138,13 +138,13 @@
     "anchor": {
       "line_start": 145,
       "line_end": 145,
-      "line_sha256": "5604934baca9b8f2a1900bb5f1353920e0db2f4df51f175b1c163191057e546b"
+      "line_sha256": "08351cb9bc315bd5c102bfccff7c1317e9f1b908b36619d6d96e35c69072d83c"
     },
     "rationale": "2,8 x 10 = 28,0 (valida apenas a aritmetica, nao a fisica)",
     "origin": "recalculo independente",
-    "adjudicated": false,
-    "validated_by": "",
-    "evidence": ""
+    "adjudicated": true,
+    "validated_by": "Dafnhê Thor",
+    "evidence": "recalc_casos.py: 2.8*10 = 28.0; valida apenas a multiplicacao aritmetica"
   },
   {
     "id": "B04-NEG-006",
@@ -156,12 +156,30 @@
     "anchor": {
       "line_start": 205,
       "line_end": 205,
-      "line_sha256": "91a9463a28b4ea1d5d5792c23279c0934a82d9fadc52f6c0d08aff1d34ce365f"
+      "line_sha256": "8781b355622a40db201b57e712c9da60d2f0e8191e95257a4959c2a246858a57"
     },
     "rationale": "RTT no zenite (theta_el=90): 2*500 km / 299792,458 km/s = 3,34 ms",
     "origin": "recalculo independente",
-    "adjudicated": false,
-    "validated_by": "",
-    "evidence": ""
+    "adjudicated": true,
+    "validated_by": "Dafnhê Thor",
+    "evidence": "recalc_casos.py: 2*500/299792.458*1000 = 3.3356 ms (~3.3 ms); RTT no zenite conferido"
+  },
+  {
+    "id": "B04-INC-001",
+    "document": "A04",
+    "type": "INCONCLUSIVE",
+    "domain": "cientifico",
+    "category": "parametro_externo",
+    "split": "validacao",
+    "anchor": {
+      "line_start": 186,
+      "line_end": 186,
+      "line_sha256": "ad4368c65ec0c22f72839b759152fa4068f6ace131ccab9907eeba417d0da50a"
+    },
+    "rationale": "Fator de utilizacao operacional em LEO depende de politica de despacho/eclipse nao formulada no texto",
+    "origin": "inspecao independente",
+    "adjudicated": true,
+    "validated_by": "Dafnhê Thor",
+    "evidence": "Linha 186 declara UF sem equacao ou serie temporal de despacho no texto; nao verificavel a partir do manuscrito"
   }
 ]

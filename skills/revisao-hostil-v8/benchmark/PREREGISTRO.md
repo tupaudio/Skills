@@ -47,12 +47,12 @@
 - **Registro do `lock.json`:** o hash SHA-256 do `lock.json` local deve ser anotado nesta seção depois do lock (`lock.json` não vai ao Git).
 - **Revisor cego:** deve ser sessão nova e modelo diferente do que montou o gabarito.
 
-## 7. Critérios de Adjudicação (a preencher pelo usuário ANTES de adjudicar)
+## 7. Critérios de Adjudicação (preenchidos pelo usuário ANTES do lock)
 
-- **Tolerância relativa para considerar divergência numérica um defeito:** [vazio]
-- **Como tratar `B04-003` (divergência pequena):** [vazio]
+- **Tolerância relativa para considerar divergência numérica um defeito:** `1%`
+- **Como tratar `B04-003` (divergência pequena ~2,0%):** mantido como defeito de severidade menor (acima da tolerância de `1%`).
 - **Gate:** usa `recall` por linha; `recall_categoria` só como reporte (já decidido).
-- **Escopo — (a) piloto descritivo ou (b) ampliar gabarito:** [vazio]
+- **Escopo:** **(a) piloto descritivo** (aceitar `NOT_VERIFIED` por dados insuficientes; `thresholds.json` definido com `min_defects=10`, `min_negatives=10`, `recall_lower_bound_min=0.50`, `specificity_lower_bound_min=0.70`, `precision_pessimistic_min=0.10`).
 - **Privacidade do campo `evidence`:** o campo `evidence` de `cases.json` é versionado e **não pode conter trecho do artigo**.
 
 

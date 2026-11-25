@@ -6,3 +6,4 @@ venv*/
 .venv/
 benchmark/results/
 benchmark/docs/
+benchmark/lock.json
