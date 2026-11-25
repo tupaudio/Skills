@@ -146,6 +146,15 @@ Tabela só do `A04` e com a regra "achado com span > 5 linhas não conta".
 Calculada fora do `bench.py`, sem alterar o lock. Não substitui a tabela
 principal e não pode ser usada para escolher o "melhor" modelo.
 
+### 10.6 Linha 66 (`B04-NEG-002`) e fechamento R3-0
+Os 4 revisores sinalizaram a linha 66. O autor não conseguiu adjudicar
+a segunda afirmação da linha. Status: **NÃO ADJUDICADA**.
+- Rodadas 1 e 2: o rótulo congelado (controle) não foi alterado.
+- Rodada 3: o caso sai do gabarito (nem controle, nem defeito).
+- Os 4 sinais são reportados como "achados fora do gabarito, pendentes".
+- `artigo04_numerado.txt` (usado nos 3 revisores web): SHA-256 `11186235e45104039317d20236195dc0d7d7698e54399898f27286eff96cd261`, verificado linha a linha (`309/309`) contra `artigo04.md` (`splitlines()`).
+
+
 
 
 

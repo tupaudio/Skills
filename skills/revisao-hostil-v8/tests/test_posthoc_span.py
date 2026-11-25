@@ -45,6 +45,13 @@ class PosthocSpanTests(unittest.TestCase):
         self.assertEqual(ph["descartados_span"], 0)
         self.assertEqual(ph["descartados_doc"], 0)
 
+    def test_collect_builtin_adapters_path(self):
+        root, _, docs, _, _ = mk(self.tmp)
+        nothing = ps._collect_builtin_or_estrutural(docs, bench.load_adapter("builtin:nothing", root))
+        every = ps._collect_builtin_or_estrutural(docs, bench.load_adapter("builtin:every_line", root))
+        self.assertEqual(nothing, [])
+        self.assertGreater(len(every), 0)
+
 
 if __name__ == "__main__":
     unittest.main()
