@@ -57,4 +57,22 @@
   - `adapters/estrutural_json.py`: `2ae5952f47f64d53c171944dec07a0fd380aef69b35c6944cfa6a5b73fd190c5`
   - `bench.py`: `3ce857cb90334f61297d21fb9a058baac5dbf8e1700545d02d6b4c878806d786`
 
+## 7. Desvios da Rodada 3 (registrados após as execuções)
+
+- **Rótulo da rodada:** diagnóstica, defeitos sintéticos. **Não é validação.**
+- Documentos `A01_INJ` e `A02_INJ` derivam de manuscritos anteriores do mestrado (REMUNOM); a base não foi verificada como limpa fora das 20 linhas de controle.
+- Injeção por script determinístico próprio, sem `inject.py` e sem `--base-is-clean`.
+- Pré-triagem de controles (seção 5): **NÃO EXECUTADA**.
+- Defeitos injetados usados como gabarito principal, contrariando a proposta original da seção 4.2(c).
+- `truth_value` ausente no gabarito congelado: `recall_demonstrado = 0/0`.
+- Braço C pontuado fora do modo estrito (strings numéricas viraram `null`; `session_id` vazio ajustado). Braço A: ajuste de cabeçalho (`document`, `document_sha256`) no `A02_INJ`.
+- JSONs brutos não foram arquivados como arquivos individuais no momento da execução (foram colados no chat e pontuados via scripts fora do Git).
+- Scripts de pontuação (`score_r3.py`, `score_r3_armC.py`) fora do Git e não congelados.
+- `ChatGPT`: execução incompleta (`A02_INJ` parcial L140–254); fora da comparação.
+- Identidade de modelo: autodeclarada, não verificada. `DeepSeek` A e C rodaram na mesma interface web.
+- Uma execução por configuração; o critério de 2 de 3 execuções não foi aplicável.
+- `max_span_lines = 10`, enquanto o prompt v0.2 pedia no máximo 5 linhas por achado.
+- **Configuração primária:** não definida antes das execuções.
+
+
 
