@@ -82,6 +82,71 @@
   2. Execução concluída via entrypoint por módulo (`import bench; bench.main(...)`), sem alterar nenhum arquivo congelado (`lock.json` mantido intacto).
   3. Todos os modelos da bateria piloto (`Gemini 4 Neon`, `Hermes 3` local, `ChatGPT`, `DeepSeek`) serão avaliados sob o **mesmo `lock.json`** (`0214d45d...`) para manter comparabilidade direta.
 
+## 10. Registro das Rodadas 1 e 2 (piloto descritivo, lock inalterado)
+
+Natureza: piloto descritivo. `n = 3` defeitos, `6` controles e `1` inconclusivo
+(`split=validacao`). O gate é `NOT_VERIFIED` em todas as execuções, como esperado.
+Nenhum arquivo congelado e nenhuma regra da Skill foi alterada com base
+nestes resultados. Não é validação independente.
+
+### 10.1 Rodada 1
+- Revisor: `Gemini 4 Neon (Low)`, com `auditor.py (--engineering-preset)` e
+  `motor_matematico.py`.
+- Cegueira: NÃO VERIFICADA. As três flags `saw_*` são autodeclaradas e o
+  revisor é da mesma família do agente que montou o gabarito.
+
+### 10.2 Rodada 2 (revisores externos)
+- `DeepSeek` (o JSON declarou `"OpenAI ChatGPT (API; version not exposed)"`; o campo de identidade
+  do modelo é NÃO CONFIÁVEL), sem ferramentas.
+- `M365 Copilot GPT-5`, sem ferramentas.
+- `Gemini 3.1 Pro` (online), sem ferramentas. Mesma família do agente
+  que montou o gabarito.
+- `Hermes 3` (modelo local): cancelado por decisão do usuário antes de
+  produzir resultado. Não conta como falha do modelo e não entra na tabela.
+- Termos de retenção/treino dos provedores externos: [preencher pelo usuário].
+
+### 10.3 Desvios de execução
+- A medição usou `import bench; bench.main(...)` em vez de
+  `python benchmark/bench.py run ...`, por causa da dupla importação
+  (`__main__` vs `bench`) que impede o `except BenchError` de capturar erros
+  dos adapters.
+- A primeira tentativa com `python benchmark/bench.py run` terminou com `exit 1`.
+  Causa: dupla importação `__main__.BenchError` vs `bench.BenchError` ao bloquear `A03` (`results/blind_A03.json` ausente).
+- SHA-256 dos JSONs arquivados (fora do Git):
+  - `blind_A04__gemini4_neon_low.json`: `c3e6b76c7e411a20ae61afac912dd42adca30697856aa71b3627e6d19cd4dfdf`
+  - `blind_A04__deepseek.json`: `8ba06756107c12da0b95166bbe612d2d7b8fd157137125498d0aa7de41df7782`
+  - `blind_A04__copilot_gpt5.json`: `1964c8c3298800da89953cdd475d434ffeda3ab9c1dd63151b5ec83b5bcc64f2`
+  - `blind_A04__gemini31_pro.json`: `7f85987e87c14851f668df5bd96b541acba7c59b3f068bba43b4b7ed00f3c0f2`
+
+### 10.4 Limitações específicas (reportar junto com qualquer número)
+1. Recall é por sobreposição de linha; não mede se o erro foi
+   corretamente demonstrado.
+2. O recall `1,000` do `Gemini 3.1 Pro` depende de um achado com span de
+   270 linhas (`10` a `281`) que toca os três defeitos. Classificado como
+   NÃO COMPARÁVEL. A especificidade dele também fica inflada, porque o
+   ramo de controles só é avaliado quando o achado não toca um defeito.
+3. A âncora de `B04-002` cobre só a linha da tabela; quem apontou o erro
+   no corpo do texto não recebe crédito.
+4. `B04-NEG-002` foi sinalizado pelos 4 revisores. A linha contém duas
+   afirmações. O rótulo congelado não foi alterado nesta rodada. Se o
+   usuário confirmar o erro, ele é "achado fora do gabarito" e a correção
+   vale apenas para a rodada 3, com novo lock.
+5. `B04-NEG-005` depende de modelo externo de radiação; candidato a
+   `INCONCLUSIVE` na rodada 3.
+6. A precisão pessimista de `builtin:every_line`, `estrutural` e
+   `estrutural_sem_informativos` soma achados do `A03` (documento sem casos).
+   A tabela principal não é comparável entre essas linhas. A versão só do
+   `A04` é pós-hoc (ver 10.5).
+7. Revisores da mesma família do agente que montou o gabarito: `Gemini 4
+   Neon` e `Gemini 3.1 Pro`.
+8. Viés de seleção e documento único, como já registrado.
+
+### 10.5 Análise pós-hoc (rotulada como tal)
+Tabela só do `A04` e com a regra "achado com span > 5 linhas não conta".
+Calculada fora do `bench.py`, sem alterar o lock. Não substitui a tabela
+principal e não pode ser usada para escolher o "melhor" modelo.
+
+
 
 
 
