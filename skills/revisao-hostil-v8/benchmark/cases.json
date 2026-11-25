@@ -9,7 +9,7 @@
     "anchor": {
       "line_start": 238,
       "line_end": 238,
-      "line_sha256": "1ef430b5856c540908bf540328305a5d428f182353d4455d1c6e85374a6da40d"
+      "line_sha256": "f2fd4cf7e5308834bf341a654d208788f975c451704c6ff528ce4712827cc5ab"
     },
     "rationale": "100 Gbps x 192/280/1440 min dao 144/210/1080 TB decimais; a formula na linha 211 divide por 1024 misturando decimal e binario (severidade menor)",
     "origin": "recalculo independente",
@@ -28,7 +28,7 @@
     "anchor": {
       "line_start": 99,
       "line_end": 99,
-      "line_sha256": "b14a79b9c7198f3271122a4e2632888149257845cc498996281c510a27820d95"
+      "line_sha256": "e57177db6567120edfc7abd805ba4f2d601c67a2b5d74608f9571793fd4ba60c"
     },
     "rationale": "Recalculo com os parametros da linha 97 da 16,17 kg/kW, nao 16,50 (divergencia ~2,0% > tolerancia 1%; severidade menor)",
     "origin": "recalculo independente",
@@ -66,7 +66,7 @@
     "anchor": {
       "line_start": 97,
       "line_end": 97,
-      "line_sha256": "ba5f5d5e195397e9a34ef689d9b492796a1c5f9b4d32c67f0606b89efad034b6"
+      "line_sha256": "5da194d0f0553a391b8f5619e2158fecfa79a8316ba913a010dfd98bdfe3ef18"
     },
     "rationale": "5.500 x 10 = 55.000; cerca de 15 orbitas/dia x 365 e aproximadamente 5.500",
     "origin": "recalculo independente",
@@ -84,7 +84,7 @@
     "anchor": {
       "line_start": 66,
       "line_end": 66,
-      "line_sha256": "9c367c6a929e73f079803f787d4b378462194985a84b7d93cb5a264a0112a8a7"
+      "line_sha256": "2a850c3dc5118d440925f619c77363d14b0d84b4f3fd3d561d47baa62ad65a20"
     },
     "rationale": "360/365,25 = 0,9856 graus/dia",
     "origin": "recalculo independente",
@@ -102,7 +102,7 @@
     "anchor": {
       "line_start": 86,
       "line_end": 86,
-      "line_sha256": "616d658c78a7f4f320dc9d45020bd4aa5550a2be374e0c86d78a6a2a0a6258bb"
+      "line_sha256": "4aa2e7abd6602510ee37a7394f53b4d19542f2258e2134109cd1c05e1feb12e6"
     },
     "rationale": "1 + 35,7/(58,9*0,90) = 1,67 (valida apenas a aritmetica, nao a fisica)",
     "origin": "recalculo independente",
@@ -138,7 +138,7 @@
     "anchor": {
       "line_start": 145,
       "line_end": 145,
-      "line_sha256": "08351cb9bc315bd5c102bfccff7c1317e9f1b908b36619d6d96e35c69072d83c"
+      "line_sha256": "5604934baca9b8f2a1900bb5f1353920e0db2f4df51f175b1c163191057e546b"
     },
     "rationale": "2,8 x 10 = 28,0 (valida apenas a aritmetica, nao a fisica)",
     "origin": "recalculo independente",
@@ -156,7 +156,7 @@
     "anchor": {
       "line_start": 205,
       "line_end": 205,
-      "line_sha256": "8781b355622a40db201b57e712c9da60d2f0e8191e95257a4959c2a246858a57"
+      "line_sha256": "91a9463a28b4ea1d5d5792c23279c0934a82d9fadc52f6c0d08aff1d34ce365f"
     },
     "rationale": "RTT no zenite (theta_el=90): 2*500 km / 299792,458 km/s = 3,34 ms",
     "origin": "recalculo independente",
