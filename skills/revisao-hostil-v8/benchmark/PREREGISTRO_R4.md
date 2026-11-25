@@ -121,7 +121,7 @@ comparado ao mesmo modelo, na mesma interface, sem Skill?
 frozen_files do manifest da R4 inclui: SKILL.md, scripts/,
 benchmark/prompts/revisor_v0.2/, montar_prompts.py, cases da R4 adjudicado,
 thresholds_r4.json e manifest.json. lock.json fica fora do Git; sha256 do
-lock: [PREENCHER apos o lock]. Commit do HEAD no lock: [PREENCHER apos o lock].
+lock: `042f25d5` (lock_r4.json, 57 arquivos congelados). Commit do HEAD no lock: `bf09ddc`.
 
 ## 12. Limitacoes e desvios
 Limitacoes:
@@ -134,4 +134,52 @@ Limitacoes:
 5. Pre-triagem por modelo possivelmente da mesma familia do agente que
    montou o gabarito.
 6. Recall localizado mede "tocou a linha", nao "viu o erro".
-Desvios (registrar com data, antes de ver o resultado): [nenhum ate agora]
+
+Desvios registrados (2026-11-25, antes da pontuacao):
+1. Corte da coleta primaria em 26/66 execucoes (cobrindo 11/11 documentos com
+   pareamento completo Braco A vs Braco C no DeepSeek Web) por limite de upload
+   de arquivos da plataforma DeepSeek Web.
+2. Duas sessoes iniciais com erro operacional no DeepSeek Web (`R4_IEEE_07_C_r1`
+   com documento trocado e `R4_C04_A_r1` com PDF em vez de XML JATS + JSON
+   truncado) foram re-executadas antes da pontuacao, mantendo os originais como
+   trilha de auditoria fora do Git.
+3. `R4_C04_C_r2` executou sobre o texto extraido de PDF (605 linhas) em vez do
+   XML JATS (346 linhas); mantido intacto e anotado.
+4. Na coleta exploratoria do Copilot Web, `R4_C05_C_r1` e `R4_C05_A_r1`
+   produziram JSON sintaticamente invalido (zeros a esquerda em inteiros);
+   mantidos intactos e contabilizados como invalidos.
+
+## 13. Resultado agregado da pontuacao (2026-11-25)
+- **Status:** `EXECUTADO` (gabarito adjudicado: 12 `DEFECT`, 17 `NEGATIVE_CONTROL`
+  nos 11 documentos com defeito, 4 `INCONCLUSIVE`; `thresholds_r4.json`).
+- **Veredito oficial R4:** **`FAIL`** (nao atingiu `recall_lower_bound_min >= 0.50`
+  nem `precision_pessimistic_min >= 0.10`).
+
+### Primario — DeepSeek Web (11/11 documentos pareados, `CONFIRMADO`, `span <= 12`)
+- **Braco A (Revisao Hostil v8.0):** 14/14 sessoes `JSON_OK`;
+  TP = 3/12; Recall = 25.0% (IC95% Wilson [0.089, 0.532]) — `FAIL`;
+  Especificidade = 100.0% (17/17, 0 FP; IC95% Wilson [0.816, 1.000]) — **`PASS`**;
+  Precisao pessimista = 1.4% (3/212) — `FAIL`.
+- **Braco C (Controle sem Skill):** 12/12 sessoes `JSON_OK`;
+  TP = 3/12; Recall = 25.0% (IC95% Wilson [0.089, 0.532]) — `FAIL`;
+  Especificidade = 76.5% (13/17, 4 FP; IC95% Wilson [0.527, 0.904]) — `FAIL`;
+  Precisao pessimista = 1.5% (3/202) — `FAIL`.
+- **Sensibilidade (`CONFIRMADO + TRIAGEM`, sem limite de span):**
+  Braco A: 4/12 TP, 2/17 FP em controles negativos.
+  Braco C: 4/12 TP, 6/17 FP em controles negativos.
+
+### Exploratorio — Copilot Web (`CONFIRMADO`, `span <= 12`)
+- **Braco A:** 8/11 docs, 10/11 `JSON_OK`; TP = 1/9; Recall = 11.1% [0.020, 0.435];
+  Especificidade = 100.0% (13/13) [0.772, 1.000]; Precisao pessimista = 8.3% (1/12).
+- **Braco C:** 10/11 docs, 10/11 `JSON_OK`; TP = 1/11; Recall = 9.1% [0.016, 0.377];
+  Especificidade = 100.0% (16/16) [0.806, 1.000]; Precisao pessimista = 4.8% (1/21).
+
+### Diagnostico principal
+1. Nos 11/11 documentos pareados, o Braco A eliminou 100% dos falsos positivos
+   em controles negativos (0/17 vs 4/17 no Braco C), passando no gate de
+   especificidade (`LB = 0.816 >= 0.70`) enquanto o Braco C reprovou (`LB = 0.527`).
+2. A precisao pessimista (~1.5% no DeepSeek) foi severamente penalizada porque o
+   modelo marcou verificacoes sem erro ("Sem erro") com `status: "CONFIRMADO"`,
+   gerando ~200 emissoes por braco. Corrigir o contrato de emissao (emitir apenas
+   defeitos reais, nunca verificacoes "OK") e habilitar execucao de motores
+   numericos sao as acoes prioritarias para o Round 5.
