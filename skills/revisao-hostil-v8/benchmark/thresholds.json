@@ -4,5 +4,6 @@
   "recall_lower_bound_min": 0.50,
   "specificity_lower_bound_min": 0.70,
   "precision_pessimistic_min": 0.10,
-  "max_span_lines": 10
+  "max_span_lines": 10,
+  "recompute_tolerance_rel": 0.01
 }
