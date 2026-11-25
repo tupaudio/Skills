@@ -141,10 +141,11 @@ responsável (seção 7).
    cega e não deve ser reportada como cega.
 3. Leia `reviewer.notes`. Se a sessão declarar que viu algo da lista da
    seção 2, a rodada é inválida para este protocolo.
-4. Só então rode o benchmark com o adapter `achados_arquivo:achados_arquivo`:
+4. Só então rode o benchmark com o adapter `achados_arquivo:achados_arquivo` (usando o entrypoint por módulo para evitar o duplo import de `bench.BenchError` sem alterar arquivos congelados):
 
 ```bash
-python benchmark/bench.py run --split validacao \
+python -c "import sys; sys.path.insert(0,'benchmark'); import bench; sys.exit(bench.main(sys.argv[1:]))" \
+  run --split validacao \
   --adapter achados_arquivo:achados_arquivo \
   --out benchmark/results/blind_A04_resultado.json
 ```

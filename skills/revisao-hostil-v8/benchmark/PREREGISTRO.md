@@ -69,5 +69,19 @@
   - `adapters/estrutural_json.py`: `2ae5952f47f64d53c171944dec07a0fd380aef69b35c6944cfa6a5b73fd190c5`
   - `adapters/achados_arquivo.py`: `6d13143d50c4c1dbd7e9ecf1f823154968024bec6ad1571fb329e4666605b9a5`
 
+## 9. Registro da Rodada 1 — Revisão Cega (`Gemini 4 Neon (Low)`) e Desvios
+
+- **Modelo e versão:** `Gemini 4 Neon (Low)` (mesma família Gemini do agente orquestrador; registrado como limite)
+- **Session ID:** `0dc5f890-0209-4525-a8de-52c52e257849`
+- **Ferramentas usadas na sessão:** `scripts/auditor.py --engineering-preset` e `scripts/engines/motor_matematico.py`
+- **Flags de cegueira declaradas:** `saw_gabarito=false`, `saw_pareceres=false`, `saw_auditor_results=false` (cegueira autodeclarada, não verificável externamente)
+- **SHA-256 de `blind_A04__gemini4_neon_low.json`:** `c3e6b76c7e411a20ae61afac912dd42adca30697856aa71b3627e6d19cd4dfdf`
+- **Achados por status (`15` total):** `CONFIRMADO=11`, `TRIAGEM=1`, `NAO_VERIFICADO=3`
+- **Desvios registrados da Rodada 1:**
+  1. Primeira tentativa com `python benchmark/bench.py run` falhou com `exit 1` por duplo import de `bench.BenchError` ao bloquear `A03` (`results/blind_A03.json` ausente).
+  2. Execução concluída via entrypoint por módulo (`import bench; bench.main(...)`), sem alterar nenhum arquivo congelado (`lock.json` mantido intacto).
+  3. Todos os modelos da bateria piloto (`Gemini 4 Neon`, `Hermes 3` local, `ChatGPT`, `DeepSeek`) serão avaliados sob o **mesmo `lock.json`** (`0214d45d...`) para manter comparabilidade direta.
+
+
 
 
