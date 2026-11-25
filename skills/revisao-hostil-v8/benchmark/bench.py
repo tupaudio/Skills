@@ -24,7 +24,7 @@ from pathlib import Path
 if __name__ == "__main__":
     sys.modules.setdefault("bench", sys.modules["__main__"])
 
-BENCH_VERSION = "0.2.0"
+BENCH_VERSION = "0.3.0"
 TYPES = ("DEFECT", "NEGATIVE_CONTROL", "INCONCLUSIVE")
 SPLITS = ("calibracao", "validacao")
 DOMAINS = ("cientifico", "proveniencia")
@@ -36,7 +36,35 @@ THRESHOLD_KEYS = (
     "specificity_lower_bound_min",
     "precision_pessimistic_min",
     "max_span_lines",
+    "recompute_tolerance_rel",
 )
+
+
+def _is_finite_num(v) -> bool:
+    return isinstance(v, (int, float)) and not isinstance(v, bool) and math.isfinite(v)
+
+
+def _is_pos_int(v) -> bool:
+    return isinstance(v, int) and not isinstance(v, bool) and v >= 1
+
+
+def validate_thresholds(thr):
+    """Valida todas as chaves de thresholds.json; retorna lista de erros."""
+    errs = []
+    if not isinstance(thr, dict):
+        return ["thresholds.json nao e um objeto JSON"]
+    for k in ("min_defects", "min_negatives", "max_span_lines"):
+        v = thr.get(k)
+        if not _is_pos_int(v):
+            errs.append(f"thresholds.json: {k} deve ser inteiro >= 1 ({v!r})")
+    for k in ("recall_lower_bound_min", "specificity_lower_bound_min", "precision_pessimistic_min"):
+        v = thr.get(k)
+        if not (_is_finite_num(v) and 0.0 <= v <= 1.0):
+            errs.append(f"thresholds.json: {k} deve ser numero em [0, 1] ({v!r})")
+    v = thr.get("recompute_tolerance_rel")
+    if not (_is_finite_num(v) and v > 0.0):
+        errs.append(f"thresholds.json: recompute_tolerance_rel deve ser numero > 0 ({v!r})")
+    return errs
 
 
 class BenchError(Exception):
@@ -205,6 +233,12 @@ def normalize_finding(f, did):
         need(v is None or (isinstance(v, int) and not isinstance(v, bool) and v >= 1),
              f"{k} invalido")
         out[k] = v
+    for k in ("claimed_value", "recomputed_value"):
+        v = f.get(k)
+        need(v is None or _is_finite_num(v), f"{k} invalido (deve ser numero finito ou null): {v!r}")
+        out[k] = float(v) if v is not None else None
+    if f.get("chaves_ignoradas"):
+        out["chaves_ignoradas"] = list(f["chaves_ignoradas"])
     return out
 
 
@@ -329,11 +363,24 @@ def _group(active, detected, neg_flagged, over, keyfn, detected_cat=None):
     return {k: _fmt(v) for k, v in g.items()}, _fmt(zero())
 
 
-def evaluate(docs, cases, findings, split, max_span_lines=None):
+def _within_tol(recomputed, truth, rel_tol):
+    """Retorna True se recomputed esta dentro da tolerancia de truth.
+
+    Regra: se truth == 0, usa tolerancia absoluta <= rel_tol;
+    caso contrario, usa tolerancia relativa |recomputed - truth| / |truth| <= rel_tol.
+    """
+    if truth == 0:
+        return abs(recomputed) <= rel_tol
+    return abs(recomputed - truth) / abs(truth) <= rel_tol
+
+
+def evaluate(docs, cases, findings, split, max_span_lines=None, recompute_tolerance_rel=None):
     need(split in SPLITS, "split invalido")
     if max_span_lines is not None:
-        need(isinstance(max_span_lines, int) and not isinstance(max_span_lines, bool) and max_span_lines >= 1,
-             f"max_span_lines invalido: {max_span_lines!r}")
+        need(_is_pos_int(max_span_lines), f"max_span_lines invalido: {max_span_lines!r}")
+    if recompute_tolerance_rel is not None:
+        need(_is_finite_num(recompute_tolerance_rel) and recompute_tolerance_rel > 0.0,
+             f"recompute_tolerance_rel invalido: {recompute_tolerance_rel!r}")
     ranges, excluded, active = {}, [], []
     for c in cases:
         d = docs[c["document"]]
@@ -355,6 +402,10 @@ def evaluate(docs, cases, findings, split, max_span_lines=None):
 
     detected, neg_flagged, over = defaultdict(list), defaultdict(list), defaultdict(list)
     detected_cat = defaultdict(list)
+    detected_demo = set()
+    confirmado_sem_conta = 0
+    confirmado_fora_tol = 0
+    chaves_ign = set()
     tp, fp, ov_set, unadj, unloc, ign, handled, blocked = (set() for _ in range(8))
     span_dropped = set()
     span_by_doc, span_by_cat = defaultdict(int), defaultdict(int)
@@ -363,6 +414,8 @@ def evaluate(docs, cases, findings, split, max_span_lines=None):
     multi_label = []
 
     for k, f in enumerate(findings):
+        for ck in (f.get("chaves_ignoradas") or ()):
+            chaves_ign.add(ck)
         d = docs.get(f["document"])
         if d is None or d["status"] != "OK":
             blocked.add(k)
@@ -398,6 +451,16 @@ def evaluate(docs, cases, findings, split, max_span_lines=None):
                 detected[c["id"]].append(k)
                 if f["category"] in (c.get("detectable_by") or ()):
                     detected_cat[c["id"]].append(k)
+                tv = c.get("truth_value")
+                if tv is not None and _is_finite_num(tv) and f["status"] == "CONFIRMADO":
+                    rv = f.get("recomputed_value")
+                    if rv is None:
+                        confirmado_sem_conta += 1
+                    elif recompute_tolerance_rel is not None:
+                        if _within_tol(rv, float(tv), float(recompute_tolerance_rel)):
+                            detected_demo.add(c["id"])
+                        else:
+                            confirmado_fora_tol += 1
         if negs:
             hit_types += 1
             fp.add(k)
@@ -420,6 +483,8 @@ def evaluate(docs, cases, findings, split, max_span_lines=None):
     por_dom, _ = _group(active, detected, neg_flagged, over, lambda c: c["domain"], detected_cat)
     tot, empty = _group(active, detected, neg_flagged, over, lambda c: "TOTAL", detected_cat)
     total = tot.get("TOTAL", empty)
+    num_defects = [c for c in active if c["type"] == "DEFECT" and c.get("truth_value") is not None and _is_finite_num(c.get("truth_value"))]
+    total["recall_demonstrado"] = _ratio(len(detected_demo), len(num_defects))
 
     n_tp, n_fp, n_ov, n_un = len(tp), len(fp), len(ov_set), len(unadj)
     labeled_any = tp | fp | ov_set | handled
@@ -441,6 +506,8 @@ def evaluate(docs, cases, findings, split, max_span_lines=None):
             "em_controle_negativo": n_fp,
             "confirmado_em_inconclusivo": n_ov,
             "inconclusivo_tratado": len(handled),
+            "confirmado_sem_conta": confirmado_sem_conta,
+            "confirmado_fora_tolerancia": confirmado_fora_tol,
             "sem_rotulo": n_un,
             "nao_localizado_span": len(span_dropped),
             "nao_localizado_span_por_documento": dict(span_by_doc),
@@ -452,6 +519,7 @@ def evaluate(docs, cases, findings, split, max_span_lines=None):
             "descartados_documento_sem_casos": dict(drop_no_cases),
         },
         "achados_multi_rotulo": multi_label,
+        "chaves_ignoradas": sorted(chaves_ign),
         "precisao_otimista": prec_opt,
         "precisao_pessimista": prec_pes,
         "f1_pessimista": f1,
@@ -459,6 +527,7 @@ def evaluate(docs, cases, findings, split, max_span_lines=None):
         "active_ids": sorted(active_ids),
         "detected_ids": sorted(detected),
         "detected_cat_ids": sorted(detected_cat),
+        "detected_demo_ids": sorted(detected_demo),
         "neg_flagged_ids": sorted(neg_flagged),
     }
 
@@ -527,19 +596,40 @@ def load_adapter(spec, root):
 
 # ---------------------------------------------------------------------- lock
 def _frozen(root, manifest):
+    import os
     files = manifest.get("frozen_files")
     need(isinstance(files, list) and files, "manifest.json sem frozen_files")
-    base = Path(root).resolve().parent
+    root_p = Path(root).resolve()
+    base = root_p.parent
     out = {}
     for rel in files:
-        p = (Path(root) / rel).resolve()
+        raw = root_p / rel
+        need(not raw.is_symlink(), f"link simbolico em frozen_files: {rel}")
+        p = raw.resolve()
         try:
             p.relative_to(base)
         except ValueError:
             raise BenchError(f"frozen_files fora do diretorio da skill: {rel}")
-        need(p.is_file(), f"arquivo congelado ausente: {rel}")
-        out[rel] = sha256_file(p)
-    return out
+        if str(rel).endswith("/"):
+            need(p.is_dir(), f"diretorio congelado ausente: {rel}")
+            for rdir, dirs, fnames in os.walk(p, followlinks=False):
+                rp = Path(rdir)
+                for dn in list(dirs):
+                    dp = rp / dn
+                    need(not dp.is_symlink(), f"link simbolico em diretorio congelado: {dp}")
+                    if dn == "__pycache__":
+                        dirs.remove(dn)
+                for fn in sorted(fnames):
+                    fp = rp / fn
+                    need(not fp.is_symlink(), f"link simbolico em diretorio congelado: {fp}")
+                    if fn.endswith((".pyc", ".pyo")) or fn == ".coverage":
+                        continue
+                    key = Path(os.path.relpath(fp, root_p)).as_posix()
+                    out[key] = sha256_file(fp)
+        else:
+            need(p.is_file(), f"arquivo congelado ausente: {rel}")
+            out[rel] = sha256_file(p)
+    return dict(sorted(out.items()))
 
 
 def _digests(root, cases):
@@ -554,8 +644,8 @@ def _digests(root, cases):
 
 
 def cmd_lock(root, cases, thr):
-    missing = [k for k in THRESHOLD_KEYS if thr.get(k) is None]
-    need(not missing, f"defina os limiares antes do lock: {missing}")
+    errs = validate_thresholds(thr)
+    need(not errs, f"limiares invalidos antes do lock: {errs}")
     lock = _digests(root, cases)
     lock["created_utc"] = datetime.now(timezone.utc).isoformat()
     lock["git"] = git_info(root)
@@ -617,6 +707,9 @@ def main(argv=None):
 
         need(a.repeat >= 1, "--repeat deve ser >= 1")
         max_span = parse_max_span(thr)
+        rel_tol = thr.get("recompute_tolerance_rel")
+        if rel_tol is not None:
+            need(_is_finite_num(rel_tol) and rel_tol > 0.0, f"recompute_tolerance_rel invalido: {rel_tol!r}")
         lock = check_lock(root, cases) if a.split == "validacao" else None
         adapter = load_adapter(a.adapter, root)
         runs = []
@@ -632,7 +725,9 @@ def main(argv=None):
                     d["status"] = "RESULTADO_INCOMPATIVEL"
                     d["motivo"] = str(e)
                     print(f"BLOQUEADO {did}: {e}")
-            runs.append(evaluate(docs, cases, findings, a.split, max_span_lines=max_span))
+            runs.append(evaluate(docs, cases, findings, a.split,
+                                 max_span_lines=max_span,
+                                 recompute_tolerance_rel=rel_tol))
         verdict, reasons = gate(runs[0], thr)
         report = {
             "run_id": str(uuid.uuid4()),

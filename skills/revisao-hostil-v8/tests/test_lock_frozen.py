@@ -20,7 +20,11 @@ class LockFrozenTests(unittest.TestCase):
         (self.tmp / "f.py").write_text("x = 1\n", encoding="utf-8")
         manifest["frozen_files"] = ["f.py"]
         (root / "manifest.json").write_text(json.dumps(manifest), encoding="utf-8")
-        thr = {k: 0.5 for k in bench.THRESHOLD_KEYS}
+        thr = {
+            "min_defects": 1, "min_negatives": 1, "max_span_lines": 10,
+            "recall_lower_bound_min": 0.5, "specificity_lower_bound_min": 0.5,
+            "precision_pessimistic_min": 0.5, "recompute_tolerance_rel": 0.01,
+        }
         (root / "thresholds.json").write_text(json.dumps(thr), encoding="utf-8")
         for c in cases:
             c["split"] = "validacao"

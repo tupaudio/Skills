@@ -20,6 +20,7 @@ Falha fechado: hash divergente, atestacao ausente ou verdadeira, linha fora do
 documento e status desconhecido levantam BenchError.
 """
 import json
+import math
 import re
 from pathlib import Path
 
@@ -28,6 +29,18 @@ from bench import BenchError, need, sha256_file
 ACCEPTED_STATUS = {"TRIAGEM", "CONFIRMADO", "NAO_VERIFICADO"}
 BLIND_FLAGS = ("saw_gabarito", "saw_pareceres", "saw_auditor_results")
 META_KEYS = ("reviewer_model", "session_id")
+KNOWN_FINDING_KEYS = {
+    "line_start", "line_end", "category", "status", "excerpt",
+    "evidence", "claimed_value", "recomputed_value",
+}
+
+
+def _finite_or_none(v, label):
+    if v is None:
+        return None
+    need(isinstance(v, (int, float)) and not isinstance(v, bool) and math.isfinite(v),
+         f"{label} invalido: {v!r}")
+    return float(v)
 
 
 def parse_blind(data, doc_id, doc_sha, n_lines):
@@ -62,9 +75,16 @@ def parse_blind(data, doc_id, doc_sha, n_lines):
              f"achado #{i}: category ausente")
         st = it.get("status")
         need(st in ACCEPTED_STATUS, f"achado #{i}: status invalido ({st!r})")
-        out.append({"line_start": ls, "line_end": le,
-                    "excerpt": it.get("excerpt"),
-                    "category": cat, "status": st})
+        cv = _finite_or_none(it.get("claimed_value"), f"achado #{i}: claimed_value")
+        rv = _finite_or_none(it.get("recomputed_value"), f"achado #{i}: recomputed_value")
+        ignored = sorted(k for k in it.keys() if k not in KNOWN_FINDING_KEYS)
+        entry = {"line_start": ls, "line_end": le,
+                 "excerpt": it.get("excerpt"),
+                 "category": cat, "status": st,
+                 "claimed_value": cv, "recomputed_value": rv}
+        if ignored:
+            entry["chaves_ignoradas"] = ignored
+        out.append(entry)
     return out
 
 

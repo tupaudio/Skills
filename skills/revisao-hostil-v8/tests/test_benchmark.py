@@ -136,8 +136,11 @@ class BenchTests(unittest.TestCase):
         (root / "f.py").write_text("x = 1\n", encoding="utf-8")
         manifest["frozen_files"] = ["f.py"]
         (root / "manifest.json").write_text(json.dumps(manifest), encoding="utf-8")
-        (root / "thresholds.json").write_text(json.dumps(
-            {k: 0.5 for k in bench.THRESHOLD_KEYS}), encoding="utf-8")
+        (root / "thresholds.json").write_text(json.dumps({
+            "min_defects": 1, "min_negatives": 1, "max_span_lines": 10,
+            "recall_lower_bound_min": 0.5, "specificity_lower_bound_min": 0.5,
+            "precision_pessimistic_min": 0.5, "recompute_tolerance_rel": 0.01,
+        }), encoding="utf-8")
         for c in cases:
             c["split"] = "validacao"
         bench.cmd_lock(root, cases, bench.load_json(root / "thresholds.json"))
