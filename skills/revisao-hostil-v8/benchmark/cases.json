@@ -1,0 +1,167 @@
+[
+  {
+    "id": "B04-002",
+    "document": "A04",
+    "type": "DEFECT",
+    "domain": "cientifico",
+    "category": "unidades",
+    "split": "validacao",
+    "anchor": {
+      "line_start": 238,
+      "line_end": 238,
+      "line_sha256": "f2fd4cf7e5308834bf341a654d208788f975c451704c6ff528ce4712827cc5ab"
+    },
+    "rationale": "100 Gbps x 192/280/1440 min dao 144/210/1080 TB decimais; o texto divide por 1,024 (mistura decimal e binario)",
+    "origin": "recalculo independente",
+    "detectable_by": [],
+    "adjudicated": false,
+    "validated_by": "",
+    "evidence": ""
+  },
+  {
+    "id": "B04-003",
+    "document": "A04",
+    "type": "DEFECT",
+    "domain": "cientifico",
+    "category": "resultado_numerico",
+    "split": "validacao",
+    "anchor": {
+      "line_start": 99,
+      "line_end": 99,
+      "line_sha256": "e57177db6567120edfc7abd805ba4f2d601c67a2b5d74608f9571793fd4ba60c"
+    },
+    "rationale": "Recalculo com os parametros da linha 97 da 16,17 kg/kW, nao 16,50",
+    "origin": "recalculo independente",
+    "detectable_by": [],
+    "adjudicated": false,
+    "validated_by": "",
+    "evidence": ""
+  },
+  {
+    "id": "B04-006",
+    "document": "A04",
+    "type": "DEFECT",
+    "domain": "cientifico",
+    "category": "resultado_numerico",
+    "split": "validacao",
+    "anchor": {
+      "line_start": 101,
+      "line_end": 101,
+      "line_sha256": "7e196d609d9f66668eb06faa22ab2af9baaac2b709b6cb47583f3398f97b00cd"
+    },
+    "rationale": "3 min a DoD 70%, eta 0,92 e 160 Wh/kg dao 0,485 kg/kW, nao 1,80",
+    "origin": "recalculo independente",
+    "detectable_by": [],
+    "adjudicated": false,
+    "validated_by": "",
+    "evidence": ""
+  },
+  {
+    "id": "B04-NEG-001",
+    "document": "A04",
+    "type": "NEGATIVE_CONTROL",
+    "domain": "cientifico",
+    "category": "geral",
+    "split": "validacao",
+    "anchor": {
+      "line_start": 97,
+      "line_end": 97,
+      "line_sha256": "5da194d0f0553a391b8f5619e2158fecfa79a8316ba913a010dfd98bdfe3ef18"
+    },
+    "rationale": "5.500 x 10 = 55.000; cerca de 15 orbitas/dia x 365 e aproximadamente 5.500",
+    "origin": "recalculo independente",
+    "adjudicated": false,
+    "validated_by": "",
+    "evidence": ""
+  },
+  {
+    "id": "B04-NEG-002",
+    "document": "A04",
+    "type": "NEGATIVE_CONTROL",
+    "domain": "cientifico",
+    "category": "geral",
+    "split": "validacao",
+    "anchor": {
+      "line_start": 66,
+      "line_end": 66,
+      "line_sha256": "2a850c3dc5118d440925f619c77363d14b0d84b4f3fd3d561d47baa62ad65a20"
+    },
+    "rationale": "360/365,25 = 0,9856 graus/dia",
+    "origin": "recalculo independente",
+    "adjudicated": false,
+    "validated_by": "",
+    "evidence": ""
+  },
+  {
+    "id": "B04-NEG-003",
+    "document": "A04",
+    "type": "NEGATIVE_CONTROL",
+    "domain": "cientifico",
+    "category": "geral",
+    "split": "validacao",
+    "anchor": {
+      "line_start": 86,
+      "line_end": 86,
+      "line_sha256": "4aa2e7abd6602510ee37a7394f53b4d19542f2258e2134109cd1c05e1feb12e6"
+    },
+    "rationale": "1 + 35,7/(58,9*0,90) = 1,67 (valida apenas a aritmetica, nao a fisica)",
+    "origin": "recalculo independente",
+    "adjudicated": false,
+    "validated_by": "",
+    "evidence": ""
+  },
+  {
+    "id": "B04-NEG-004",
+    "document": "A04",
+    "type": "NEGATIVE_CONTROL",
+    "domain": "cientifico",
+    "category": "geral",
+    "split": "validacao",
+    "anchor": {
+      "line_start": 108,
+      "line_end": 108,
+      "line_sha256": "7e779a74f2d223587e923427abab3d9dd43b895afe2240041320524a67166d24"
+    },
+    "rationale": "constante de Stefan-Boltzmann",
+    "origin": "constante fisica",
+    "adjudicated": false,
+    "validated_by": "",
+    "evidence": ""
+  },
+  {
+    "id": "B04-NEG-005",
+    "document": "A04",
+    "type": "NEGATIVE_CONTROL",
+    "domain": "cientifico",
+    "category": "geral",
+    "split": "validacao",
+    "anchor": {
+      "line_start": 145,
+      "line_end": 145,
+      "line_sha256": "5604934baca9b8f2a1900bb5f1353920e0db2f4df51f175b1c163191057e546b"
+    },
+    "rationale": "2,8 x 10 = 28,0 (valida apenas a aritmetica, nao a fisica)",
+    "origin": "recalculo independente",
+    "adjudicated": false,
+    "validated_by": "",
+    "evidence": ""
+  },
+  {
+    "id": "B04-NEG-006",
+    "document": "A04",
+    "type": "NEGATIVE_CONTROL",
+    "domain": "cientifico",
+    "category": "geral",
+    "split": "validacao",
+    "anchor": {
+      "line_start": 205,
+      "line_end": 205,
+      "line_sha256": "91a9463a28b4ea1d5d5792c23279c0934a82d9fadc52f6c0d08aff1d34ce365f"
+    },
+    "rationale": "RTT no zenite (theta_el=90): 2*500 km / 299792,458 km/s = 3,34 ms",
+    "origin": "recalculo independente",
+    "adjudicated": false,
+    "validated_by": "",
+    "evidence": ""
+  }
+]

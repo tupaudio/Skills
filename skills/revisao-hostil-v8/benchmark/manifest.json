@@ -1,0 +1,17 @@
+{
+  "documents": {
+    "A04": {
+      "path": "docs/artigo04.md",
+      "sha256": "1cb5b80eb8d0555a00a013afb7721876661b69ab555abc481ebccd06a1222cc2",
+      "kind": "real",
+      "origin": "pacote recebido"
+    },
+    "A03": {
+      "path": "docs/artigo03.md",
+      "sha256": "d0b7e2c51b0d5067901f38d84235377b35ff5bda1f057603d255c8518f76d5f1",
+      "kind": "real",
+      "origin": "versao 10 paginas; JSON do auditor referencia versao de 20 paginas"
+    }
+  },
+  "frozen_files": ["../scripts/auditor.py", "bench.py", "adapters/estrutural_json.py"]
+}

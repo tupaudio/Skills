@@ -1,0 +1,7 @@
+{
+  "min_defects": null,
+  "min_negatives": null,
+  "recall_lower_bound_min": null,
+  "specificity_lower_bound_min": null,
+  "precision_pessimistic_min": null
+}
