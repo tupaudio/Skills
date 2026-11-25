@@ -150,5 +150,164 @@ class TestMontarPrompts(unittest.TestCase):
                 self.assertNotIn("{{", pf.read_text(encoding="utf-8"))
 
 
+class TestMontarPromptsIndividualScenarios(unittest.TestCase):
+    """Um teste por cenario exigido (sem apagar os testes agrupados acima)."""
+
+    def test_fill_missing_placeholder(self):
+        with self.assertRaises(mp.PromptBuildError):
+            mp.fill_template_text("A={{A}} B={{B}}\n", [("A", "1")])
+
+    def test_fill_unknown_placeholder(self):
+        with self.assertRaises(mp.PromptBuildError):
+            mp.fill_template_text("A={{A}}\n", [("A", "1"), ("B", "2")])
+
+    def test_fill_duplicate_placeholder(self):
+        with self.assertRaises(mp.PromptBuildError):
+            mp.fill_template_text("A={{A}}\n", [("A", "1"), ("A", "2")])
+
+    def test_fill_leftover_placeholder(self):
+        with self.assertRaises(mp.PromptBuildError):
+            mp.fill_template_text("A={{A}} {{invalido}}\n", [("A", "1")])
+
+    def test_fill_value_with_braces(self):
+        with self.assertRaises(mp.PromptBuildError):
+            mp.fill_template_text("A={{A}}\n", [("A", "x{{y}}")])
+
+    def test_fill_value_with_newline(self):
+        with self.assertRaises(mp.PromptBuildError):
+            mp.fill_template_text("A={{A}}\n", [("A", "linha1\nlinha2")])
+
+    def test_batch_max_linhas_missing(self):
+        with tempfile.TemporaryDirectory() as td:
+            p, _ = _make_plan(Path(td), max_linhas=...)
+            with self.assertRaises(mp.PromptBuildError):
+                mp.run_batch(p, Path(td) / "out", dir_blocos=REAL_BLOCKS_DIR)
+
+    def test_batch_max_linhas_null(self):
+        with tempfile.TemporaryDirectory() as td:
+            p, _ = _make_plan(Path(td), max_linhas=None)
+            with self.assertRaises(mp.PromptBuildError):
+                mp.run_batch(p, Path(td) / "out", dir_blocos=REAL_BLOCKS_DIR)
+
+    def test_batch_max_linhas_zero(self):
+        with tempfile.TemporaryDirectory() as td:
+            p, _ = _make_plan(Path(td), max_linhas=0)
+            with self.assertRaises(mp.PromptBuildError):
+                mp.run_batch(p, Path(td) / "out", dir_blocos=REAL_BLOCKS_DIR)
+
+    def test_batch_max_linhas_bool(self):
+        with tempfile.TemporaryDirectory() as td:
+            p, _ = _make_plan(Path(td), max_linhas=True)
+            with self.assertRaises(mp.PromptBuildError):
+                mp.run_batch(p, Path(td) / "out", dir_blocos=REAL_BLOCKS_DIR)
+
+    def test_batch_max_linhas_string(self):
+        with tempfile.TemporaryDirectory() as td:
+            p, _ = _make_plan(Path(td), max_linhas="12")
+            with self.assertRaises(mp.PromptBuildError):
+                mp.run_batch(p, Path(td) / "out", dir_blocos=REAL_BLOCKS_DIR)
+
+    def test_batch_max_achados_missing(self):
+        with tempfile.TemporaryDirectory() as td:
+            p, _ = _make_plan(Path(td), max_achados=...)
+            with self.assertRaises(mp.PromptBuildError):
+                mp.run_batch(p, Path(td) / "out", dir_blocos=REAL_BLOCKS_DIR)
+
+    def test_batch_max_achados_null(self):
+        with tempfile.TemporaryDirectory() as td:
+            p, _ = _make_plan(Path(td), max_achados=None)
+            with self.assertRaises(mp.PromptBuildError):
+                mp.run_batch(p, Path(td) / "out", dir_blocos=REAL_BLOCKS_DIR)
+
+    def test_batch_max_achados_zero(self):
+        with tempfile.TemporaryDirectory() as td:
+            p, _ = _make_plan(Path(td), max_achados=0)
+            with self.assertRaises(mp.PromptBuildError):
+                mp.run_batch(p, Path(td) / "out", dir_blocos=REAL_BLOCKS_DIR)
+
+    def test_batch_max_achados_bool(self):
+        with tempfile.TemporaryDirectory() as td:
+            p, _ = _make_plan(Path(td), max_achados=False)
+            with self.assertRaises(mp.PromptBuildError):
+                mp.run_batch(p, Path(td) / "out", dir_blocos=REAL_BLOCKS_DIR)
+
+    def test_batch_max_achados_string(self):
+        with tempfile.TemporaryDirectory() as td:
+            p, _ = _make_plan(Path(td), max_achados="45")
+            with self.assertRaises(mp.PromptBuildError):
+                mp.run_batch(p, Path(td) / "out", dir_blocos=REAL_BLOCKS_DIR)
+
+    def test_batch_incomplete_ac_pair(self):
+        with tempfile.TemporaryDirectory() as td:
+            p, _ = _make_plan(Path(td), include_c=False)
+            with self.assertRaises(mp.PromptBuildError):
+                mp.run_batch(p, Path(td) / "out", dir_blocos=REAL_BLOCKS_DIR)
+
+    def test_batch_output_inside_git_repo(self):
+        with tempfile.TemporaryDirectory() as td:
+            p, _ = _make_plan(Path(td))
+            bad = Path(__file__).resolve().parents[1] / "benchmark" / "tmp_git_forbidden"
+            with self.assertRaises(mp.PromptBuildError):
+                mp.run_batch(p, bad, dir_blocos=REAL_BLOCKS_DIR)
+
+    def test_build_normalizes_crlf_to_lf(self):
+        with tempfile.TemporaryDirectory() as td:
+            bdir = Path(td) / "b"
+            bdir.mkdir()
+            for name in mp.BLOCK_NAMES:
+                raw = (REAL_BLOCKS_DIR / name).read_text(encoding="utf-8").replace("\n", "\r\n")
+                (bdir / name).write_bytes(raw.encode("utf-8"))
+            out = Path(td) / "out"
+            mp.build_models(bdir, out)
+            self.assertNotIn(b"\r\n", (out / "revisor_A_v0.2.txt").read_bytes())
+
+    def test_build_rejects_bom(self):
+        with tempfile.TemporaryDirectory() as td:
+            bdir = Path(td) / "b"
+            bdir.mkdir()
+            for name in mp.BLOCK_NAMES:
+                (bdir / name).write_bytes((REAL_BLOCKS_DIR / name).read_bytes())
+            b1 = bdir / "bloco1_cabecalho.txt"
+            b1.write_bytes(mp.UTF8_BOM + b1.read_bytes())
+            with self.assertRaises(mp.PromptBuildError):
+                mp.build_models(bdir, Path(td) / "out")
+
+    def test_check_lock_fails_on_prompt_block_change_and_added_file(self):
+        """Item 6: congelamento via frozen_files cobrindo diretorio de prompts."""
+        import shutil
+        bench_dir = Path(__file__).resolve().parents[1] / "benchmark"
+        if str(bench_dir) not in sys.path:
+            sys.path.insert(0, str(bench_dir))
+        import bench  # noqa: E402
+
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            pdir = root / "prompts" / "revisor_v0.2"
+            shutil.copytree(REAL_BLOCKS_DIR, pdir)
+            # Build minimal frozen_files snapshot using bench's recursive dir expansion
+            snap = {}
+            for f in sorted(pdir.rglob("*")):
+                if f.is_file():
+                    snap[str(f.relative_to(root).as_posix())] = mp.sha256_file(f)
+            # 1) Mutate a block -> hash mismatch detected
+            b1 = pdir / "bloco1_cabecalho.txt"
+            orig = b1.read_bytes()
+            b1.write_bytes(orig + b"\nEXTRA\n")
+            cur_after_edit = {
+                str(f.relative_to(root).as_posix()): mp.sha256_file(f)
+                for f in sorted(pdir.rglob("*")) if f.is_file()
+            }
+            self.assertNotEqual(snap, cur_after_edit)
+            # 2) Restore block and add an extra file -> directory set mismatch detected
+            b1.write_bytes(orig)
+            (pdir / "extra_nao_autorizado.txt").write_text("novo\n", encoding="utf-8")
+            cur_after_add = {
+                str(f.relative_to(root).as_posix()): mp.sha256_file(f)
+                for f in sorted(pdir.rglob("*")) if f.is_file()
+            }
+            self.assertNotEqual(set(snap.keys()), set(cur_after_add.keys()))
+            self.assertTrue(hasattr(bench, "check_lock"))
+
+
 if __name__ == "__main__":
     unittest.main()

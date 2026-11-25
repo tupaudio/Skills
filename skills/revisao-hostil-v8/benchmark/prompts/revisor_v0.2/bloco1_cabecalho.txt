@@ -8,11 +8,12 @@ DADOS FIXOS (copie-os literalmente na saida)
 - Sessao (informada pelo operador): {{SESSAO}}
 
 ENTRADA
-O manuscrito vem em um arquivo de texto numerado. Cada linha comeca com o seu
-numero, seguido de dois pontos. O numero e o que voce deve usar em line_start
-e line_end. O prefixo numerico nao faz parte do texto do manuscrito. A
-extracao veio de um PDF, entao equacoes e tabelas podem estar quebradas em
-varias linhas.
+O manuscrito vem em um arquivo de texto numerado. Cada linha comeca com a
+letra L, o numero da linha com quatro digitos e dois pontos (por exemplo,
+L0007:). Em line_start e line_end use esse numero como INTEIRO, sem a letra L
+e sem zeros a esquerda (L0007 vira 7). O prefixo nao faz parte do texto do
+manuscrito. A extracao veio de um PDF, entao equacoes e tabelas podem estar
+quebradas em varias linhas.
 
 REGRAS DE ISOLAMENTO
 1. Use somente o texto fornecido. Nao use internet, busca, navegacao,
