@@ -55,4 +55,19 @@
 - **Escopo:** **(a) piloto descritivo** (aceitar `NOT_VERIFIED` por dados insuficientes; `thresholds.json` definido com `min_defects=10`, `min_negatives=10`, `recall_lower_bound_min=0.50`, `specificity_lower_bound_min=0.70`, `precision_pessimistic_min=0.10`).
 - **Privacidade do campo `evidence`:** o campo `evidence` de `cases.json` é versionado e **não pode conter trecho do artigo**.
 
+## 8. Registro do Lock (2026-11-25)
+
+- **Data UTC:** `2026-11-25T03:05:21.314637+00:00`
+- **Commit HEAD no momento do lock:** `f9ad81c00c9c6958247d75da27d4bbbf119d97f2` (`dirty: false`)
+- **SHA-256 de `benchmark/lock.json` (local, fora do Git):** `0214d45d4dee456617c9f0c2a92ae0b6939925a32feb2c78cc4734fc1472898b`
+- **`validation_cases_sha256`:** `ff25ceccf0b4d1ee80994a334599711e0f36ce0aaede43391f6abdbb681b4f78`
+- **`thresholds_sha256`:** `665319784f030dcbd35e92f71d104498a12be010aafe305b1f4bf44ecc1b7a81`
+- **`manifest_sha256`:** `a5e9b857d1b41d770a781e21358e1b65e6ea951793d9dcaa0e41739c9dc7b6fe`
+- **`frozen_files_sha256`:**
+  - `../scripts/auditor.py`: `bcbf39be01a7188c6f10fac67a6d0406e68aaa60b3999764f2a15f0c9300974c`
+  - `bench.py`: `5c786331e987c9b7913b5dc894369bebd57cc2a2a451d53daf15c26d1aa7ea78`
+  - `adapters/estrutural_json.py`: `2ae5952f47f64d53c171944dec07a0fd380aef69b35c6944cfa6a5b73fd190c5`
+  - `adapters/achados_arquivo.py`: `6d13143d50c4c1dbd7e9ecf1f823154968024bec6ad1571fb329e4666605b9a5`
+
+
 
