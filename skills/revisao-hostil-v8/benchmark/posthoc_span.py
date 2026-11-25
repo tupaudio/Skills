@@ -85,8 +85,8 @@ def run_all(root=ROOT, max_span=5):
     rows = []
 
     sources = [
-        ("builtin:nothing", lambda: _collect_builtin_or_estrutural(docs, bench.builtin_nothing)),
-        ("builtin:every_line", lambda: _collect_builtin_or_estrutural(docs, bench.builtin_every_line)),
+        ("builtin:nothing", lambda: _collect_builtin_or_estrutural(docs, bench.load_adapter("builtin:nothing", root))),
+        ("builtin:every_line", lambda: _collect_builtin_or_estrutural(docs, bench.load_adapter("builtin:every_line", root))),
         ("estrutural_sem_informativos", lambda: _collect_builtin_or_estrutural(docs, ej.estrutural_sem_informativos)),
         ("estrutural", lambda: _collect_builtin_or_estrutural(docs, ej.estrutural)),
         ("Gemini 4 Neon (Low)", lambda: _collect_blind(docs, results_dir / "blind_A04__gemini4_neon_low.json")),
