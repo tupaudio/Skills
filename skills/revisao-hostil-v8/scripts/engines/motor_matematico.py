@@ -1049,10 +1049,123 @@ def run_motor(payload: Any, *, run_id: str | None = None, artefato_alvo: str | N
 
     is_batch = isinstance(inner, list) or (isinstance(inner, dict) and inner.get("operation") == "batch")
     if is_batch:
-        items = inner if isinstance(inner, list) else inner.get("operations", [])
+        if isinstance(inner, dict):
+            raw_ops = inner.get("operations")
+            if not isinstance(raw_ops, list):
+                raw_results: dict[str, Any] = {
+                    "batch": True,
+                    "total_operations": 0,
+                    "succeeded": 0,
+                    "failed": 1,
+                    "results": [
+                        {
+                            "id": inner.get("id") or inner.get("label") or "batch_root",
+                            "operation": "batch",
+                            "success": False,
+                            "status": "error",
+                            "error_type": "ValueError",
+                            "error": f"Campo 'operations' em pedido batch deve ser uma lista, recebido: {type(raw_ops).__name__}.",
+                        }
+                    ],
+                }
+                return sanitize_for_json(
+                    {
+                        "schema_version": SCHEMA_VERSION,
+                        "motor_id": MOTOR_ID,
+                        "motor_version": MOTOR_VERSION,
+                        "run_id": run_id,
+                        "deterministico": True,
+                        "status": "ERRO_VALIDACAO",
+                        "timestamp": utc_now_iso(),
+                        "artefato_alvo": artefato_alvo,
+                        "hash_artefato": None,
+                        "metricas": {
+                            "total_operacoes": 0,
+                            "sucesso": 0,
+                            "falhas": 1,
+                            "solvers_nao_convergidos": 0,
+                            "verificacoes_formula_nao_conclusivas": 0,
+                            "total_achados": 0,
+                        },
+                        "resultados": raw_results,
+                        "achados": [],
+                        "limitacoes": [
+                            "O motor verifica expressões e sistemas fornecidos; não infere premissas físicas ausentes do modelo.",
+                            "Constante de Euler deve ser escrita como 'E' maiúsculo; 'e' minúsculo é tratado como variável simbólica.",
+                        ],
+                    }
+                )
+            items = raw_ops
+        else:
+            items = inner
+
+        if len(items) == 0:
+            raw_results = {
+                "batch": True,
+                "total_operations": 0,
+                "succeeded": 0,
+                "failed": 1,
+                "results": [
+                    {
+                        "id": "batch_empty",
+                        "operation": "batch",
+                        "success": False,
+                        "status": "error",
+                        "error_type": "ValueError",
+                        "error": "Lote vazio: nenhuma operação fornecida para execução.",
+                    }
+                ],
+            }
+            return sanitize_for_json(
+                {
+                    "schema_version": SCHEMA_VERSION,
+                    "motor_id": MOTOR_ID,
+                    "motor_version": MOTOR_VERSION,
+                    "run_id": run_id,
+                    "deterministico": True,
+                    "status": "ERRO_VALIDACAO",
+                    "timestamp": utc_now_iso(),
+                    "artefato_alvo": artefato_alvo,
+                    "hash_artefato": None,
+                    "metricas": {
+                        "total_operacoes": 0,
+                        "sucesso": 0,
+                        "falhas": 1,
+                        "solvers_nao_convergidos": 0,
+                        "verificacoes_formula_nao_conclusivas": 0,
+                        "total_achados": 0,
+                    },
+                    "resultados": raw_results,
+                    "achados": [],
+                    "limitacoes": [
+                        "O motor verifica expressões e sistemas fornecidos; não infere premissas físicas ausentes do modelo.",
+                        "Constante de Euler deve ser escrita como 'E' maiúsculo; 'e' minúsculo é tratado como variável simbólica.",
+                    ],
+                }
+            )
+
         results: list[dict[str, Any]] = []
         for idx, item in enumerate(items, start=1):
-            label = item.get("id") or item.get("label") or f"op_{idx}"
+            if isinstance(item, dict):
+                label = item.get("id") or item.get("label") or f"op_{idx}"
+                op_name = item.get("operation")
+            else:
+                label = f"op_{idx}"
+                op_name = None
+
+            if not isinstance(item, dict):
+                results.append(
+                    {
+                        "id": label,
+                        "operation": None,
+                        "success": False,
+                        "status": "error",
+                        "error_type": "TypeError",
+                        "error": f"Item de lote inválido: esperado dict, recebido {type(item).__name__}.",
+                    }
+                )
+                continue
+
             try:
                 res = execute_single_operation(item)
                 res["id"] = label
@@ -1062,7 +1175,7 @@ def run_motor(payload: Any, *, run_id: str | None = None, artefato_alvo: str | N
                 results.append(
                     {
                         "id": label,
-                        "operation": item.get("operation"),
+                        "operation": op_name,
                         "success": False,
                         "status": "error",
                         "error_type": type(err).__name__,
@@ -1071,7 +1184,7 @@ def run_motor(payload: Any, *, run_id: str | None = None, artefato_alvo: str | N
                 )
         succeeded = sum(1 for r in results if r.get("success"))
         failed = len(results) - succeeded
-        raw_results: dict[str, Any] = {
+        raw_results = {
             "batch": True,
             "total_operations": len(results),
             "succeeded": succeeded,

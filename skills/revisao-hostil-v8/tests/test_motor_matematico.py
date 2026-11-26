@@ -211,6 +211,124 @@ def test_ode_valid_parameters_work_and_validate_in_batch_envelope() -> None:
     assert out["metricas"]["sucesso"] == 2
 
 
+def test_batch_mixed_malformed_items_isolates_failures_and_completes_valid_op() -> None:
+    # Lote misto com uma operação válida e itens None, string, número e lista
+    out = run_motor(
+        {
+            "operation": "batch",
+            "operations": [
+                None,
+                "string_invalida",
+                12345,
+                ["lista_invalida"],
+                {"id": "valid_simplify", "operation": "simplify", "expression": "x + x"},
+            ],
+        }
+    )
+    validate_contract(out, "schema_motor.json")
+
+    res = out["resultados"]
+    assert res["batch"] is True
+    assert res["total_operations"] == 5
+    assert res["succeeded"] == 1
+    assert res["failed"] == 4
+
+    results = res["results"]
+    assert results[0]["id"] == "op_1"
+    assert results[0]["success"] is False
+    assert results[0]["error_type"] == "TypeError"
+
+    assert results[1]["id"] == "op_2"
+    assert results[1]["success"] is False
+
+    assert results[2]["id"] == "op_3"
+    assert results[2]["success"] is False
+
+    assert results[3]["id"] == "op_4"
+    assert results[3]["success"] is False
+
+    assert results[4]["id"] == "valid_simplify"
+    assert results[4]["success"] is True
+    assert results[4]["simplified"] == "2*x"
+
+    assert out["status"] == "PARCIAL"
+    assert out["metricas"]["sucesso"] == 1
+    assert out["metricas"]["falhas"] == 4
+
+
+def test_batch_dict_item_missing_operation_field_fails_gracefully() -> None:
+    # Dicionário de operação sem o campo operation
+    out = run_motor(
+        {
+            "operation": "batch",
+            "operations": [
+                {"id": "missing_op", "foo": "bar"},
+                {"id": "valid_op", "operation": "simplify", "expression": "y + 0"},
+            ],
+        }
+    )
+    validate_contract(out, "schema_motor.json")
+
+    results = out["resultados"]["results"]
+    assert results[0]["id"] == "missing_op"
+    assert results[0]["success"] is False
+    assert results[0]["error_type"] == "ValueError"
+    assert "Operação desconhecida: None" in results[0]["error"]
+
+    assert results[1]["id"] == "valid_op"
+    assert results[1]["success"] is True
+    assert out["status"] == "PARCIAL"
+
+
+def test_batch_operations_field_not_a_list_returns_validation_error() -> None:
+    # Campo operations que não seja lista
+    for bad_ops in ["string_ops", 999, {"k": "v"}, True]:
+        out = run_motor(
+            {
+                "id": "bad_batch_root",
+                "operation": "batch",
+                "operations": bad_ops,
+            }
+        )
+        validate_contract(out, "schema_motor.json")
+        assert out["status"] == "ERRO_VALIDACAO"
+        assert out["metricas"]["falhas"] == 1
+        assert out["metricas"]["sucesso"] == 0
+        assert out["resultados"]["total_operations"] == 0
+        assert out["resultados"]["failed"] == 1
+        assert "deve ser uma lista" in out["resultados"]["results"][0]["error"]
+
+
+def test_batch_empty_is_rejected_as_validation_error() -> None:
+    # Lote vazio tanto em payload dict com operations=[] quanto lista vazia []
+    out_dict = run_motor({"operation": "batch", "operations": []})
+    validate_contract(out_dict, "schema_motor.json")
+    assert out_dict["status"] == "ERRO_VALIDACAO"
+    assert out_dict["metricas"]["falhas"] == 1
+    assert out_dict["metricas"]["sucesso"] == 0
+    assert "Lote vazio" in out_dict["resultados"]["results"][0]["error"]
+
+    out_list = run_motor([])
+    validate_contract(out_list, "schema_motor.json")
+    assert out_list["status"] == "ERRO_VALIDACAO"
+    assert out_list["metricas"]["falhas"] == 1
+    assert out_list["metricas"]["sucesso"] == 0
+    assert "Lote vazio" in out_list["resultados"]["results"][0]["error"]
+
+
+def test_batch_completely_invalid_items_returns_validation_error() -> None:
+    # Lote totalmente inválido
+    out = run_motor([None, 123, "inválido"])
+    validate_contract(out, "schema_motor.json")
+    assert out["status"] == "ERRO_VALIDACAO"
+    assert out["metricas"]["total_operacoes"] == 3
+    assert out["metricas"]["falhas"] == 3
+    assert out["metricas"]["sucesso"] == 0
+    assert out["resultados"]["failed"] == 3
+    assert out["resultados"]["succeeded"] == 0
+
+
+
 
 def test_def_m06_lowercase_e_not_hijacked_as_euler() -> None:
     res_missing = MathematicalFirewall.plug_in_check("a * (1 - e^2)", {"a": 7000.0}, reported_value=6900.0)
