@@ -176,7 +176,9 @@ def test_failed_ode_solver_is_not_reported_as_top_level_ok(
     assert out["metricas"]["sucesso"] == 1
 
 
-def test_formula_numeric_match_at_sample_is_not_symbolic_identity() -> None:
+def test_formula_proven_symbolic_difference_with_numeric_match_remains_discrepancy() -> None:
+    # 1. x versus x**2 com x=0: diferença polinomial simbolicamente comprovada como não nula;
+    # numeric_check dentro da tolerância, mas discrepancy_detected e achado mantidos.
     out = run_motor(
         {
             "operation": "formula",
@@ -190,9 +192,38 @@ def test_formula_numeric_match_at_sample_is_not_symbolic_identity() -> None:
     formula = out["resultados"]
     assert formula["symbolically_equal"] is False
     assert formula["numeric_check"]["within_tolerance"] is True
+    assert formula["status"] == "discrepancy_detected"
+    assert out["status"] == "COM_ACHADOS"
+    assert out["metricas"]["verificacoes_formula_nao_conclusivas"] == 0
+    assert len(out["achados"]) == 1
+    achado = out["achados"][0]
+    validate_contract(achado, "schema_achado.json")
+    assert achado["categoria"] == "discrepancia_matematica"
+    assert "Diferença simbólica polinomial não nula" in achado["descricao"]
+
+
+def test_formula_inconclusive_symbolic_equivalence_with_numeric_match_is_numerically_equal_at_samples() -> None:
+    # 2. sqrt(x**2) versus x em x=0: equivalência simbólica inconclusiva;
+    # coincidência pontual informada sem declarar identidade nem erro confirmado.
+    out = run_motor(
+        {
+            "operation": "formula",
+            "lhs": "sqrt(x**2)",
+            "rhs": "x",
+            "substitutions": {"x": 0},
+        }
+    )
+    validate_contract(out, "schema_motor.json")
+
+    formula = out["resultados"]
+    assert formula["symbolically_equal"] is False
+    assert formula["numeric_check"]["within_tolerance"] is True
+    assert "somente às substituições" in formula["numeric_check"]["scope"]
     assert formula["status"] == "numerically_equal_at_samples"
     assert out["status"] == "PARCIAL"
     assert out["metricas"]["verificacoes_formula_nao_conclusivas"] == 1
+    assert len(out["achados"]) == 0
+
 
 
 def test_formula_numeric_disagreement_remains_a_finding() -> None:

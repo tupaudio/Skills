@@ -391,6 +391,9 @@ class MathematicalFirewall:
                 if not within:
                     result["status"] = "discrepancy_detected"
                     result["note"] = f"Discrepância numérica fora da tolerância (residual={residual:.2e} > tol={tolerance:.2e})."
+                elif initial_status == "discrepancy_detected":
+                    # Preserva a discrepância simbólica comprovada mesmo com coincidência pontual nos pontos fornecidos
+                    result["status"] = "discrepancy_detected"
                 elif result["symbolically_equal"]:
                     result["status"] = "ok"
                 else:
