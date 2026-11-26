@@ -568,10 +568,15 @@ class MathematicalFirewall:
 
         t = sp.Symbol("t")
         states = [sp.Symbol(f"y{i}") for i in range(len(y0_arr))]
+        reserved_symbols = {"t"} | {str(state) for state in states}
         symbols: dict[str, Any] = {"t": t}
         symbols.update({str(state): state for state in states})
         if parameters:
             for k, v in parameters.items():
+                if not isinstance(k, str) or not k.isidentifier():
+                    raise ValueError(f"Chave de parâmetro inválida: '{k}'. Deve ser um identificador válido.")
+                if k in reserved_symbols:
+                    raise ValueError(f"Colisão de parâmetro: '{k}' é um símbolo reservado em ODE IVP ({sorted(reserved_symbols)}).")
                 symbols[k] = sp.Float(require_finite_number(v, name=f"parameters.{k}"))
 
         expressions = [SafeExpressionParser.parse(item, symbols) for item in rhs]
@@ -650,20 +655,27 @@ class MathematicalFirewall:
 
         x = sp.Symbol("x")
         states = [sp.Symbol(f"y{i}") for i in range(n)]
+        bc_ya = [f"ya{i}" for i in range(n)]
+        bc_yb = [f"yb{i}" for i in range(n)]
+        reserved_symbols = {"x"} | {str(state) for state in states} | set(bc_ya) | set(bc_yb)
+
         symbols: dict[str, Any] = {"x": x}
         symbols.update({str(state): state for state in states})
+        bc_symbols = {f"ya{i}": sp.Symbol(f"ya{i}") for i in range(n)}
+        bc_symbols.update({f"yb{i}": sp.Symbol(f"yb{i}") for i in range(n)})
+
         if parameters:
             for k, v in parameters.items():
-                symbols[k] = sp.Float(require_finite_number(v, name=f"parameters.{k}"))
+                if not isinstance(k, str) or not k.isidentifier():
+                    raise ValueError(f"Chave de parâmetro inválida: '{k}'. Deve ser um identificador válido.")
+                if k in reserved_symbols:
+                    raise ValueError(f"Colisão de parâmetro: '{k}' é um símbolo reservado em ODE BVP ({sorted(reserved_symbols)}).")
+                val = sp.Float(require_finite_number(v, name=f"parameters.{k}"))
+                symbols[k] = val
+                bc_symbols[k] = val
 
         rhs_exprs = [SafeExpressionParser.parse(expr, symbols) for expr in rhs]
         rhs_funcs = [sp.lambdify([x] + states, expr, modules="numpy") for expr in rhs_exprs]
-
-        bc_symbols = {f"ya{i}": sp.Symbol(f"ya{i}") for i in range(n)}
-        bc_symbols.update({f"yb{i}": sp.Symbol(f"yb{i}") for i in range(n)})
-        if parameters:
-            for k, v in parameters.items():
-                bc_symbols[k] = sp.Float(require_finite_number(v, name=f"parameters.{k}"))
 
         bc_exprs = [SafeExpressionParser.parse(expr, bc_symbols) for expr in boundary_conditions]
         bc_funcs = [

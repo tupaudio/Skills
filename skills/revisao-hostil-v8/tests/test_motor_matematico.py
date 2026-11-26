@@ -97,6 +97,121 @@ def test_def_m05_ode_ivp_rejects_non_numeric_parameter() -> None:
         )
 
 
+def test_ode_ivp_rejects_parameter_collision_with_t_or_states() -> None:
+    # 1. IVP rejeitar parameters contendo t
+    with pytest.raises(ValueError, match="Colisão de parâmetro: 't' é um símbolo reservado"):
+        MathematicalFirewall.solve_ode_ivp(
+            rhs=["-y0"], t_span=[0, 1], y0=[1.0], parameters={"t": 2.0}
+        )
+
+    # 2. IVP rejeitar parameters contendo um estado, por exemplo y0
+    with pytest.raises(ValueError, match="Colisão de parâmetro: 'y0' é um símbolo reservado"):
+        MathematicalFirewall.solve_ode_ivp(
+            rhs=["-y0"], t_span=[0, 1], y0=[1.0], parameters={"y0": 2.0}
+        )
+
+
+def test_ode_bvp_rejects_parameter_collision_with_x_states_or_bc_vars() -> None:
+    bvp_kwargs = {
+        "rhs": ["y0"],
+        "boundary_conditions": ["ya0"],
+        "interval": [0, 1],
+    }
+
+    # 3. BVP rejeitar parameters contendo x
+    with pytest.raises(ValueError, match="Colisão de parâmetro: 'x' é um símbolo reservado"):
+        MathematicalFirewall.solve_ode_bvp(**bvp_kwargs, parameters={"x": 2.0})
+
+    # 4. BVP rejeitar parameters contendo um estado
+    with pytest.raises(ValueError, match="Colisão de parâmetro: 'y0' é um símbolo reservado"):
+        MathematicalFirewall.solve_ode_bvp(**bvp_kwargs, parameters={"y0": 2.0})
+
+    # 5. BVP rejeitar parameters contendo ya0 ou yb0
+    with pytest.raises(ValueError, match="Colisão de parâmetro: 'ya0' é um símbolo reservado"):
+        MathematicalFirewall.solve_ode_bvp(**bvp_kwargs, parameters={"ya0": 2.0})
+
+    with pytest.raises(ValueError, match="Colisão de parâmetro: 'yb0' é um símbolo reservado"):
+        MathematicalFirewall.solve_ode_bvp(**bvp_kwargs, parameters={"yb0": 2.0})
+
+
+def test_ode_rejects_invalid_parameter_keys_and_non_finite_values() -> None:
+    # 7. chave de parâmetro inválida e valor não finito serem rejeitados
+    with pytest.raises(ValueError, match="Chave de parâmetro inválida"):
+        MathematicalFirewall.solve_ode_ivp(
+            rhs=["-y0"], t_span=[0, 1], y0=[1.0], parameters={"k-1": 1.0}
+        )
+
+    with pytest.raises(ValueError, match="deve ser finito"):
+        MathematicalFirewall.solve_ode_ivp(
+            rhs=["-k*y0"], t_span=[0, 1], y0=[1.0], parameters={"k": float("inf")}
+        )
+
+    with pytest.raises(ValueError, match="deve ser finito"):
+        MathematicalFirewall.solve_ode_ivp(
+            rhs=["-k*y0"], t_span=[0, 1], y0=[1.0], parameters={"k": float("nan")}
+        )
+
+    with pytest.raises(ValueError, match="Chave de parâmetro inválida"):
+        MathematicalFirewall.solve_ode_bvp(
+            rhs=["y0"], boundary_conditions=["ya0"], interval=[0, 1], parameters={"1k": 1.0}
+        )
+
+    with pytest.raises(ValueError, match="deve ser finito"):
+        MathematicalFirewall.solve_ode_bvp(
+            rhs=["y0"], boundary_conditions=["ya0"], interval=[0, 1], parameters={"k": float("inf")}
+        )
+
+
+
+def test_ode_valid_parameters_work_and_validate_in_batch_envelope() -> None:
+    # 6. parâmetros válidos continuarem funcionando em IVP e BVP
+    out = run_motor(
+        {
+            "operation": "batch",
+            "operations": [
+                {
+                    "id": "ivp_valid_param",
+                    "operation": "ode_ivp",
+                    "rhs": ["-alpha*y0"],
+                    "t_span": [0, 1],
+                    "y0": [1.0],
+                    "parameters": {"alpha": 2.0},
+                },
+                {
+                    "id": "bvp_valid_param",
+                    "operation": "ode_bvp",
+                    "rhs": ["y1", "-omega_sq*y0"],
+                    "boundary_conditions": ["ya0", "yb0 - 1"],
+                    "interval": [0, math.pi / 2],
+                    "parameters": {"omega_sq": 1.0},
+                },
+                {
+                    "id": "ivp_collision_caught",
+                    "operation": "ode_ivp",
+                    "rhs": ["-y0"],
+                    "t_span": [0, 1],
+                    "y0": [1.0],
+                    "parameters": {"t": 1.0},
+                },
+            ],
+        }
+    )
+    validate_contract(out, "schema_motor.json")
+
+    results = out["resultados"]["results"]
+    assert results[0]["success"] is True
+    assert results[0]["status"] == "ok"
+    assert results[1]["success"] is True
+    assert results[1]["status"] == "ok"
+    assert results[2]["success"] is False
+    assert results[2]["status"] == "error"
+    assert "Colisão de parâmetro" in results[2]["error"]
+    assert out["status"] == "PARCIAL"
+    assert out["metricas"]["falhas"] == 1
+    assert out["metricas"]["sucesso"] == 2
+
+
+
 def test_def_m06_lowercase_e_not_hijacked_as_euler() -> None:
     res_missing = MathematicalFirewall.plug_in_check("a * (1 - e^2)", {"a": 7000.0}, reported_value=6900.0)
     assert res_missing["status"] == "incomplete_parameters"
