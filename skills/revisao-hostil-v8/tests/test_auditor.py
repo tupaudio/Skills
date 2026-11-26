@@ -5,8 +5,10 @@ from __future__ import annotations
 from pathlib import Path
 
 import docx
+import pypdf
+from pypdf.generic import DecodedStreamObject, DictionaryObject, NameObject
 
-from scripts.auditor import run_auditor
+from scripts.auditor import extract_content, extract_docx_structured, extract_pdf_structured, run_auditor
 from scripts.common.schema_validator import validate_contract
 
 
@@ -67,3 +69,102 @@ def test_docx_forensics_double_blind_and_latex_leak(tmp_path: Path) -> None:
     assert cats.get("double_blind_violation", 0) == 1
     assert cats.get("formatting_leak", 0) == 1
     assert len(report["resultados"]["tables"]) == 1
+
+
+def test_docx_structural_extraction_body_table_header_footer(tmp_path: Path) -> None:
+    doc_path = tmp_path / "structural_test.docx"
+    document = docx.Document()
+
+    # 1. Cabeçalho e rodapé
+    sec = document.sections[0]
+    sec.header.paragraphs[0].text = "Cabeçalho Confidencial Projeto Alfa"
+    sec.footer.paragraphs[0].text = "Rodapé Página 1 de 1 - Rascunho"
+
+    # 2. Corpo do texto
+    document.add_paragraph("Texto corrido do corpo: eficiência de 100% comprovada no ensaio.")
+
+    # 3. Tabela com células normais e célula mesclada
+    tbl = document.add_table(rows=2, cols=2)
+    tbl.cell(0, 0).merge(tbl.cell(0, 1))
+    tbl.cell(0, 0).text = "Cabeçalho da Tabela Mesclado"
+    tbl.rows[1].cells[0].text = "Item A"
+    tbl.rows[1].cells[1].text = "Valor B"
+
+    document.save(str(doc_path))
+
+    # Verifica linhas estruturadas extraídas
+    lines, forensics = extract_docx_structured(doc_path)
+    locations = [loc for loc, _, _ in lines]
+    excerpts = [txt for _, txt, _ in lines]
+
+    assert any("Parágrafo" in loc for loc in locations)
+    assert any("Tabela 1, Linha 1" in loc for loc in locations)
+    assert any("Tabela 1, Linha 2" in loc for loc in locations)
+    assert any("Cabeçalho" in loc for loc in locations)
+    assert any("Rodapé" in loc for loc in locations)
+
+    # Verifica que o texto do cabeçalho mesclado não aparece duplicado na mesma linha
+    table_header_line = next(txt for loc, txt, _ in lines if "Tabela 1, Linha 1" in loc)
+    assert table_header_line.count("Cabeçalho da Tabela Mesclado") == 1
+
+    # Executa o auditor e valida envelope
+    report = run_auditor(doc_path)
+    validate_contract(report, "schema_motor.json")
+    for a in report["achados"]:
+        validate_contract(a, "schema_achado.json")
+
+    # Verifica que pistas foram levantadas do corpo e do cabeçalho
+    achados_locs = [a["localizacao"] for a in report["achados"]]
+    assert any("Parágrafo" in loc for loc in achados_locs)
+    assert len(report["limitacoes"]) >= 3
+
+
+def test_pdf_structural_extraction_body_table_header_footer(tmp_path: Path) -> None:
+    pdf_path = tmp_path / "structural_test.pdf"
+    writer = pypdf.PdfWriter()
+    page = writer.add_blank_page(width=612, height=792)
+
+    # PDF com cabeçalho, corpo, linha de tabela e rodapé
+    stream_data = (
+        b"BT\n/F1 12 Tf\n72 720 Td\n(Cabecalho Oficial do Experimento) Tj\nET\n"
+        b"BT\n/F1 12 Tf\n72 650 Td\n(Corpo do artigo com resultado 100% satisfatorio.) Tj\nET\n"
+        b"BT\n/F1 12 Tf\n72 500 Td\n(Tabela 1 Linha 1 Coluna A | Coluna B) Tj\nET\n"
+        b"BT\n/F1 12 Tf\n72 50 Td\n(Rodape Confidencial - Nao Distribuir) Tj\nET\n"
+    )
+    content_stream = DecodedStreamObject()
+    content_stream.set_data(stream_data)
+
+    font_dict = DictionaryObject({
+        NameObject("/Type"): NameObject("/Font"),
+        NameObject("/Subtype"): NameObject("/Type1"),
+        NameObject("/BaseFont"): NameObject("/Helvetica"),
+    })
+    resources = DictionaryObject({
+        NameObject("/Font"): DictionaryObject({
+            NameObject("/F1"): writer._add_object(font_dict)
+        })
+    })
+    page[NameObject("/Resources")] = resources
+    page[NameObject("/Contents")] = writer._add_object(content_stream)
+
+    with open(pdf_path, "wb") as f:
+        writer.write(f)
+
+    # Verifica extração estruturada
+    lines, meta = extract_pdf_structured(pdf_path)
+    texts = [txt for _, txt, _ in lines]
+    assert any("Cabecalho Oficial" in t for t in texts)
+    assert any("Corpo do artigo" in t for t in texts)
+    assert any("Tabela 1" in t for t in texts)
+    assert any("Rodape Confidencial" in t for t in texts)
+
+    # Executa auditor completo
+    report = run_auditor(pdf_path)
+    validate_contract(report, "schema_motor.json")
+    for a in report["achados"]:
+        validate_contract(a, "schema_achado.json")
+
+    # Verifica achado no corpo da página
+    assert report["status"] == "COM_ACHADOS"
+    assert any(a["categoria"] == "absolute_claim" for a in report["achados"])
+    assert report["metricas"]["total_linhas_estruturadas"] == 4

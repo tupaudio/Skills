@@ -195,9 +195,64 @@ def extract_docx_structured(path: Path) -> tuple[list[tuple[str, str, str]], dic
             t_idx += 1
             table = Table(child, document)
             for r_idx, row in enumerate(table.rows, start=1):
-                cells = [cell.text.strip().replace("\n", " ") for cell in row.cells]
+                seen_cells: set[Any] = set()
+                cells: list[str] = []
+                for cell in row.cells:
+                    if cell._tc not in seen_cells:
+                        seen_cells.add(cell._tc)
+                        cells.append(cell.text.strip().replace("\n", " "))
                 if any(cells):
                     lines.append((f"Tabela {t_idx}, Linha {r_idx}", f"[Tabela {t_idx}] " + " | ".join(cells), "table"))
+
+    # Extração estruturada de cabeçalhos e rodapés de seções (incluindo tabelas internas)
+    seen_hf_elements: set[Any] = set()
+    seen_hf_texts: set[str] = set()
+    for s_idx, section in enumerate(document.sections, start=1):
+        containers = [("Cabeçalho", section.header), ("Rodapé", section.footer)]
+        if getattr(section, "different_first_page_header_footer", False):
+            containers.extend([
+                ("Cabeçalho Primeira Página", section.first_page_header),
+                ("Rodapé Primeira Página", section.first_page_footer),
+            ])
+        if getattr(getattr(document, "settings", None), "odd_and_even_pages_header_footer", False):
+            containers.extend([
+                ("Cabeçalho Par", section.even_page_header),
+                ("Rodapé Par", section.even_page_footer),
+            ])
+
+        for kind, container in containers:
+            elem = getattr(container, "_element", None)
+            if elem is None or elem in seen_hf_elements:
+                continue
+            seen_hf_elements.add(elem)
+            item_idx = 0
+            for child in elem.iterchildren():
+                if isinstance(child, CT_P):
+                    item_idx += 1
+                    para = Paragraph(child, container)
+                    has_omml = "<m:oMath" in child.xml
+                    text = para.text.strip()
+                    if text and text in seen_hf_texts:
+                        continue
+                    if text or has_omml:
+                        if text:
+                            seen_hf_texts.add(text)
+                        omml_tag = " [EQUAÇÃO_OMML_NATIVA]" if has_omml else ""
+                        lines.append((f"Seção {s_idx}, {kind} {item_idx}", f"{text}{omml_tag}".strip(), "header_footer"))
+                elif isinstance(child, CT_Tbl):
+                    item_idx += 1
+                    table = Table(child, container)
+                    for r_idx, row in enumerate(table.rows, start=1):
+                        seen_cells = set()
+                        cells = []
+                        for cell in row.cells:
+                            if cell._tc not in seen_cells:
+                                seen_cells.add(cell._tc)
+                                cells.append(cell.text.strip().replace("\n", " "))
+                        row_text = " | ".join(cells)
+                        if any(cells) and row_text not in seen_hf_texts:
+                            seen_hf_texts.add(row_text)
+                            lines.append((f"Seção {s_idx}, {kind} Tabela {item_idx}, Linha {r_idx}", f"[{kind} Tabela {item_idx}] {row_text}", "table"))
 
     return lines, forensics
 
@@ -494,6 +549,8 @@ def run_auditor(
             "limitacoes": [
                 "A extração automática pode não ler equações rasterizadas em imagens.",
                 "Itens de triagem são pistas localizadas para verificação pelos motores e agentes, não vereditos finais.",
+                "DOCX: extrai parágrafos do corpo, linhas de tabelas (com deduplicação de células mescladas) e cabeçalhos/rodapés de seções.",
+                "PDF: extrai texto corrido plano por página via pypdf (incluindo texto em cabeçalhos, tabelas e rodapés renderizados no content stream); tabelas e layouts colunados não possuem segmentação semântica nativa e dependem do layout de fluxo do PDF.",
             ],
         }
     )

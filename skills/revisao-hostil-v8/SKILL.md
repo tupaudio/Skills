@@ -88,4 +88,5 @@ Dependências em `requirements.txt` (`>=`, sem lock com hashes). Ambiente homolo
 - Os perfis YAML não alimentam o auditor; o único gancho é `--engineering-preset`.
 - Checklists e vocabulários são mínimos (3 a 4 itens); não há perfil de saúde, educação física, computação/ML ou matemática teórica.
 - Não há verificação de referências (existência, DOI, se a fonte sustenta a afirmação), nem recálculo de p-valor a partir da estatística de teste reportada por GRIM/statcheck.
+- **Extração de manuscritos (PDF/DOCX):** Em DOCX, o auditor extrai parágrafos do corpo, linhas de tabelas (com deduplicação de células mescladas) e cabeçalhos/rodapés de seções. Em PDF, a extração via `pypdf` lê texto corrido plano por página (capturando corpo, cabeçalhos, rodapés e linhas de tabelas no content stream); tabelas e layouts colunados não possuem segmentação semântica nativa no PDF.
 - Cobertura de testes de `scripts/` de 82,73% (relatório da 6.6, não reexecutado na revisão que gerou este arquivo).
