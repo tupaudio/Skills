@@ -7,10 +7,12 @@ from types import SimpleNamespace
 
 import numpy as np
 import pytest
+import sympy as sp
 
 import scripts.engines.motor_matematico as motor_module
 
 from scripts.common.schema_validator import validate_contract
+from scripts.common.validation import validate_safe_file_path
 from scripts.engines.motor_matematico import MathematicalFirewall, SafeExpressionParser, run_motor
 
 
@@ -358,6 +360,118 @@ def test_def_s03_ast_security_limits() -> None:
 
     with pytest.raises(ValueError, match="Profundidade máxima"):
         SafeExpressionParser.parse("sin(" * 50 + "1" + ")" * 50)
+
+
+def test_resource_limits_ast_node_count() -> None:
+    # AST node limit: MAX_AST_NODES = 1500
+    # Gera árvore balanceada para testar nós sem atingir a profundidade máxima (40)
+    def build_balanced(n: int) -> str:
+        if n == 1:
+            return "x"
+        left = build_balanced(n // 2)
+        right = build_balanced(n - n // 2)
+        return f"({left} + {right})"
+
+    # Limiar aceito (64 termos ~ 255 nós)
+    expr_ok = build_balanced(64)
+    parsed = SafeExpressionParser.parse(expr_ok, {"x": sp.Symbol("x")})
+    assert parsed is not None
+
+    # Limiar rejeitado (512 termos ~ 2047 nós > 1500 nós)
+    expr_excess = build_balanced(512)
+    with pytest.raises(ValueError, match="Complexidade da expressão excede o limite de nós da AST"):
+        SafeExpressionParser.parse(expr_excess, {"x": sp.Symbol("x")})
+
+
+
+def test_resource_limits_matrix_and_vector_dimensions() -> None:
+    # Matriz quadrada 5x5 aceita
+    mat_ok = [[1.0 if i == j else 0.0 for j in range(5)] for i in range(5)]
+    res = MathematicalFirewall.audit_matrix(mat_ok)
+    assert res["status"] == "ok"
+
+    # Matriz com eixo excedendo MAX_MATRIX_DIMENSION (500)
+    mat_excess = [[0.0] * 501]
+    with pytest.raises(ValueError, match="dimensão máxima permitida no eixo 1"):
+        MathematicalFirewall.audit_matrix(mat_excess)
+
+    with pytest.raises(ValueError, match="dimensão máxima permitida no eixo 1"):
+        MathematicalFirewall.solve_linear_system(mat_excess, [0.0])
+
+
+def test_resource_limits_batch_operations_count() -> None:
+    # Lote de tamanho aceito (ex.: 5 ops)
+    batch_ok = run_motor(
+        {
+            "operation": "batch",
+            "operations": [{"operation": "simplify", "expression": f"x + {i}"} for i in range(5)],
+        }
+    )
+    validate_contract(batch_ok, "schema_motor.json")
+    assert batch_ok["status"] == "OK"
+    assert batch_ok["metricas"]["sucesso"] == 5
+
+    # Lote excedendo MAX_BATCH_OPERATIONS (500)
+    batch_excess = run_motor(
+        {
+            "operation": "batch",
+            "operations": [{"operation": "simplify", "expression": "x"} for _ in range(501)],
+        }
+    )
+    validate_contract(batch_excess, "schema_motor.json")
+    assert batch_excess["status"] == "ERRO_VALIDACAO"
+    assert batch_excess["metricas"]["sucesso"] == 0
+    assert batch_excess["metricas"]["falhas"] == 1
+    assert "excede o limite máximo permitido" in batch_excess["resultados"]["results"][0]["error"]
+
+
+def test_resource_limits_ode_mesh_and_order() -> None:
+    # ODE IVP com dimensão de estados excedendo MAX_ODE_SYSTEM_ORDER (50)
+    with pytest.raises(ValueError, match="excede o número máximo permitido de elementos"):
+        MathematicalFirewall.solve_ode_ivp(
+            rhs=[f"-y{i}" for i in range(51)],
+            t_span=[0, 1],
+            y0=[1.0] * 51,
+        )
+
+    # ODE IVP com t_eval excedendo MAX_ODE_MESH_POINTS (5000)
+    with pytest.raises(ValueError, match="excede o número máximo permitido de elementos"):
+        MathematicalFirewall.solve_ode_ivp(
+            rhs=["-y0"],
+            t_span=[0, 1],
+            y0=[1.0],
+            t_eval=list(np.linspace(0, 1, 5001)),
+        )
+
+    # ODE BVP com ordem excedendo MAX_ODE_SYSTEM_ORDER (50)
+    with pytest.raises(ValueError, match="Ordem do sistema BVP excede o limite máximo"):
+        MathematicalFirewall.solve_ode_bvp(
+            rhs=[f"y{i}" for i in range(51)],
+            boundary_conditions=[f"ya{i}" for i in range(51)],
+            interval=[0, 1],
+        )
+
+    # ODE BVP com mesh excedendo MAX_ODE_MESH_POINTS (5000)
+    with pytest.raises(ValueError, match="excede o número máximo permitido de elementos"):
+        MathematicalFirewall.solve_ode_bvp(
+            rhs=["y0"],
+            boundary_conditions=["ya0"],
+            interval=[0, 1],
+            mesh=list(np.linspace(0, 1, 5001)),
+        )
+
+
+def test_resource_limits_payload_file_size(tmp_path: pytest.TempPathFactory) -> None:
+    # Arquivo JSON excedendo MAX_JSON_PAYLOAD_BYTES (10 MB)
+    large_file = tmp_path / "huge_payload.json"
+    # Criamos um arquivo com tamanho ligeiramente superior a 10 MB usando truncate
+    with open(large_file, "wb") as f:
+        f.seek(10 * 1024 * 1024 + 10)
+        f.write(b" ")
+
+    with pytest.raises(ValueError, match="Arquivo excede o limite"):
+        validate_safe_file_path(large_file, max_bytes=10 * 1024 * 1024)
+
 
 
 @pytest.mark.parametrize(

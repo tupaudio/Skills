@@ -43,12 +43,20 @@ from scipy.integrate import solve_bvp, solve_ivp
 from scripts.common import SCHEMA_VERSION
 from scripts.common.evidence import create_evidence, create_finding, utc_now_iso
 from scripts.common.validation import (
+    MAX_ARRAY_TOTAL_ELEMENTS,
     MAX_AST_DEPTH,
+    MAX_AST_NODES,
+    MAX_BATCH_OPERATIONS,
     MAX_EXPONENT_ABS,
     MAX_EXPRESSION_LENGTH,
+    MAX_JSON_PAYLOAD_BYTES,
+    MAX_MATRIX_DIMENSION,
+    MAX_ODE_MESH_POINTS,
+    MAX_ODE_SYSTEM_ORDER,
     require_finite_array,
     require_finite_number,
     sanitize_for_json,
+    validate_safe_file_path,
 )
 
 MOTOR_ID = "motor_matematico"
@@ -127,6 +135,11 @@ class SafeExpressionParser:
             sym_table.setdefault("inf", sp.oo)
 
         tree = ast.parse(cleaned_expr, mode="eval")
+        node_count = sum(1 for _ in ast.walk(tree))
+        if node_count > MAX_AST_NODES:
+            raise ValueError(
+                f"Complexidade da expressão excede o limite de nós da AST ({node_count} > {MAX_AST_NODES})."
+            )
         return cls._convert(tree.body, sym_table, auto_declare=auto_declare, depth=0)
 
     @classmethod
@@ -497,8 +510,8 @@ class MathematicalFirewall:
 
     @staticmethod
     def solve_linear_system(matrix: Any, vector: Any, singular_tolerance: float = 1e-12) -> dict[str, Any]:
-        A = require_finite_array(matrix, name="matrix", ndim=2)
-        b = require_finite_array(vector, name="vector", ndim=1)
+        A = require_finite_array(matrix, name="matrix", ndim=2, max_axis_dimension=MAX_MATRIX_DIMENSION)
+        b = require_finite_array(vector, name="vector", ndim=1, max_total_elements=MAX_MATRIX_DIMENSION)
 
         if A.shape[0] != b.shape[0]:
             raise ValueError("Dimensões incompatíveis para Ax=b.")
@@ -527,7 +540,7 @@ class MathematicalFirewall:
 
     @staticmethod
     def audit_matrix(matrix: Any, tolerance: float = 1e-10) -> dict[str, Any]:
-        A = require_finite_array(matrix, name="matrix", ndim=2)
+        A = require_finite_array(matrix, name="matrix", ndim=2, max_axis_dimension=MAX_MATRIX_DIMENSION)
 
         result: dict[str, Any] = {
             "operation": "matrix",
@@ -559,12 +572,16 @@ class MathematicalFirewall:
         atol: float = 1e-10,
         max_step: float = np.inf,
     ) -> dict[str, Any]:
-        y0_arr = require_finite_array(y0, name="y0", ndim=1)
+        y0_arr = require_finite_array(y0, name="y0", ndim=1, max_total_elements=MAX_ODE_SYSTEM_ORDER)
         t_span_arr = require_finite_array(t_span, name="t_span", ndim=1)
         if t_span_arr.size != 2 or t_span_arr[0] == t_span_arr[1]:
             raise ValueError("t_span deve conter dois tempos distintos [t0, tf].")
         if len(rhs) != len(y0_arr):
             raise ValueError("Deve haver uma expressão RHS para cada componente de y.")
+        if len(rhs) > MAX_ODE_SYSTEM_ORDER:
+            raise ValueError(
+                f"Ordem do sistema ODE excede o limite máximo permitido ({len(rhs)} > {MAX_ODE_SYSTEM_ORDER})."
+            )
 
         t = sp.Symbol("t")
         states = [sp.Symbol(f"y{i}") for i in range(len(y0_arr))]
@@ -586,7 +603,11 @@ class MathematicalFirewall:
             values = [function(time, *state) for function in functions]
             return np.asarray(values, dtype=float)
 
-        t_eval_arr = None if t_eval is None else require_finite_array(t_eval, name="t_eval", ndim=1)
+        t_eval_arr = (
+            None
+            if t_eval is None
+            else require_finite_array(t_eval, name="t_eval", ndim=1, max_total_elements=MAX_ODE_MESH_POINTS)
+        )
         solution = solve_ivp(
             system,
             (float(t_span_arr[0]), float(t_span_arr[1])),
@@ -625,6 +646,10 @@ class MathematicalFirewall:
         n = len(rhs)
         if len(boundary_conditions) != n:
             raise ValueError("BVP de primeira ordem requer n condições para n estados.")
+        if n > MAX_ODE_SYSTEM_ORDER:
+            raise ValueError(
+                f"Ordem do sistema BVP excede o limite máximo permitido ({n} > {MAX_ODE_SYSTEM_ORDER})."
+            )
 
         interval_arr = require_finite_array(interval, name="interval", ndim=1)
         if interval_arr.size != 2 or interval_arr[0] >= interval_arr[1]:
@@ -633,7 +658,7 @@ class MathematicalFirewall:
         if mesh is None:
             mesh_arr = np.linspace(interval_arr[0], interval_arr[1], 11)
         else:
-            mesh_arr = require_finite_array(mesh, name="mesh", ndim=1)
+            mesh_arr = require_finite_array(mesh, name="mesh", ndim=1, max_total_elements=MAX_ODE_MESH_POINTS)
             if mesh_arr.size < 2 or np.any(np.diff(mesh_arr) <= 0):
                 raise ValueError("mesh deve ter >= 2 pontos estritamente crescentes.")
             if not (
@@ -647,7 +672,12 @@ class MathematicalFirewall:
         if initial_guess is None:
             guess_arr = np.zeros((n, mesh_arr.size), dtype=float)
         else:
-            guess_arr = require_finite_array(initial_guess, name="initial_guess", ndim=2)
+            guess_arr = require_finite_array(
+                initial_guess,
+                name="initial_guess",
+                ndim=2,
+                max_total_elements=MAX_ODE_SYSTEM_ORDER * MAX_ODE_MESH_POINTS,
+            )
             if guess_arr.shape != (n, mesh_arr.size):
                 raise ValueError(
                     f"initial_guess deve ter forma ({n}, {mesh_arr.size}), recebido {guess_arr.shape}."
@@ -1144,6 +1174,51 @@ def run_motor(payload: Any, *, run_id: str | None = None, artefato_alvo: str | N
                 }
             )
 
+        if len(items) > MAX_BATCH_OPERATIONS:
+            raw_results = {
+                "batch": True,
+                "total_operations": len(items),
+                "succeeded": 0,
+                "failed": 1,
+                "results": [
+                    {
+                        "id": "batch_overflow",
+                        "operation": "batch",
+                        "success": False,
+                        "status": "error",
+                        "error_type": "ValueError",
+                        "error": f"Tamanho do lote excede o limite máximo permitido ({len(items)} > {MAX_BATCH_OPERATIONS}).",
+                    }
+                ],
+            }
+            return sanitize_for_json(
+                {
+                    "schema_version": SCHEMA_VERSION,
+                    "motor_id": MOTOR_ID,
+                    "motor_version": MOTOR_VERSION,
+                    "run_id": run_id,
+                    "deterministico": True,
+                    "status": "ERRO_VALIDACAO",
+                    "timestamp": utc_now_iso(),
+                    "artefato_alvo": artefato_alvo,
+                    "hash_artefato": None,
+                    "metricas": {
+                        "total_operacoes": len(items),
+                        "sucesso": 0,
+                        "falhas": 1,
+                        "solvers_nao_convergidos": 0,
+                        "verificacoes_formula_nao_conclusivas": 0,
+                        "total_achados": 0,
+                    },
+                    "resultados": raw_results,
+                    "achados": [],
+                    "limitacoes": [
+                        "O motor verifica expressões e sistemas fornecidos; não infere premissas físicas ausentes do modelo.",
+                        "Constante de Euler deve ser escrita como 'E' maiúsculo; 'e' minúsculo é tratado como variável simbólica.",
+                    ],
+                }
+            )
+
         results: list[dict[str, Any]] = []
         for idx, item in enumerate(items, start=1):
             if isinstance(item, dict):
@@ -1260,11 +1335,17 @@ def main() -> None:
 
     try:
         if args.input:
-            raw_json = Path(args.input).read_text(encoding="utf-8")
+            safe_input_path = validate_safe_file_path(args.input, max_bytes=MAX_JSON_PAYLOAD_BYTES)
+            raw_json = safe_input_path.read_text(encoding="utf-8")
             request = json.loads(raw_json)
-            artefato = str(Path(args.input).resolve())
+            artefato = str(safe_input_path.resolve())
         else:
-            request = json.load(sys.stdin)
+            raw_json = sys.stdin.read(MAX_JSON_PAYLOAD_BYTES + 1)
+            if len(raw_json) > MAX_JSON_PAYLOAD_BYTES:
+                raise ValueError(
+                    f"Entrada stdin excede o limite máximo de {MAX_JSON_PAYLOAD_BYTES} bytes."
+                )
+            request = json.loads(raw_json)
             artefato = "stdin"
 
         output = run_motor(request, run_id=args.run_id, artefato_alvo=artefato)
