@@ -3,7 +3,7 @@ name: revisao-hostil-v8
 description: Auditoria técnica e científica adversarial de artigos, dissertações, relatórios e código associado. Use quando o usuário pedir revisão hostil, auditoria de manuscrito, verificação de cálculos, unidades, estatística, consistência entre texto, tabelas e código, ou parecer de banca. Roda o auditor estrutural e motores determinísticos em Python e exige evidência para cada achado.
 ---
 
-# Revisão Hostil v8 (v8.0-beta.6.6)
+# Revisão Hostil v8 (v8.0)
 
 Atua como banca examinadora adversarial: não corrige texto, procura erro demonstrável. **Estado real:** o núcleo determinístico (auditor + 21 motores) existe e é testado. A banca de agentes da Fase 7 **não existe**: o julgamento é feito por você (Claude) seguindo o protocolo abaixo, e isso **não é revisão independente** (mesmo modelo, mesmo contexto). Diga isso no relatório.
 
@@ -15,6 +15,8 @@ Atua como banca examinadora adversarial: não corrige texto, procura erro demons
 4. **Sem verificação, diga `NAO_VERIFICADO`** e liste o que falta. Nunca converta "não encontrei erro" em "está correto".
 5. **Limites dos motores:** `motor_etica` não declara plágio; `motor_dados` não declara fraude nem p-hacking; `motor_normas` sem fonte oficial verificada devolve `NAO_VERIFICADO` (os 3 registros em `references/norms/` estão com `official_source_verified: false`); `motor_argumentacao` não declara falácia definitiva; `motor_qualitativo` não declara saturação.
 6. **Não invente** normas, referências, resultados de execução ou comandos que não rodou.
+7. **Teto de precisão e filtro anti-ruído:** Emita no máximo 5 achados `CONFIRMADO` por artigo, concentrando-se estritamente em discrepâncias matemáticas e inconsistências internas graves. É terminantemente proibido emitir checagens que deram certo ("Sem erro", "Confere", "Consistente", "Verificação OK") como achado.
+8. **Disciplina de recálculo (`recomputed_value`):** O campo `recomputed_value` deve conter estritamente o valor correto divergente calculado pelo motor, nunca ecoando o valor declarado pelo autor. Se não houver divergência recalculada ou se não for numérico, use `null`.
 
 ## Protocolo
 
