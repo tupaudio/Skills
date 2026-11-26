@@ -53,6 +53,7 @@ from scripts.common.validation import (
     MAX_MATRIX_DIMENSION,
     MAX_ODE_MESH_POINTS,
     MAX_ODE_SYSTEM_ORDER,
+    read_bounded_json,
     require_finite_array,
     require_finite_number,
     sanitize_for_json,
@@ -1068,7 +1069,18 @@ def _extract_findings_from_results(results: list[dict[str, Any]], source_label: 
 
 
 def run_motor(payload: Any, *, run_id: str | None = None, artefato_alvo: str | None = None) -> dict[str, Any]:
-    """Executa operação única ou lote retornando envelope aderente a schema_motor.json."""
+    """Executa operação única ou lote retornando envelope aderente a schema_motor.json.
+
+    Nota de Segurança sobre Limites de Entrada:
+    - Ao receber entrada via CLI ou streams (`read_bounded_json`), o limite de bytes brutos
+      em fio (`MAX_JSON_PAYLOAD_BYTES`) é rigorosamente imposto antes da desserialização.
+    - Se `run_motor` for chamado diretamente como função Python com um objeto já decodificado
+      (dict/list), o tamanho serializado original em bytes não é recuperável a partir do dict.
+      Nesse caso, a proteção contra DoS e esgotamento de memória é garantida através dos limites
+      estruturais correspondentes (`MAX_BATCH_OPERATIONS`, `MAX_ARRAY_TOTAL_ELEMENTS`,
+      `MAX_MATRIX_DIMENSION`, `MAX_ODE_MESH_POINTS`, `MAX_AST_NODES` e `MAX_AST_DEPTH`), cabendo
+      ao chamador externo que realiza I/O aplicar limites de bytes antes de decodificar se aplicável.
+    """
     # Suporta envelope schema_input.json ou payload direto v6.0
     if isinstance(payload, dict) and "payload" in payload and "motor_id" in payload:
         run_id = run_id or payload.get("run_id")
@@ -1334,19 +1346,8 @@ def main() -> None:
     args = parser.parse_args()
 
     try:
-        if args.input:
-            safe_input_path = validate_safe_file_path(args.input, max_bytes=MAX_JSON_PAYLOAD_BYTES)
-            raw_json = safe_input_path.read_text(encoding="utf-8")
-            request = json.loads(raw_json)
-            artefato = str(safe_input_path.resolve())
-        else:
-            raw_json = sys.stdin.read(MAX_JSON_PAYLOAD_BYTES + 1)
-            if len(raw_json) > MAX_JSON_PAYLOAD_BYTES:
-                raise ValueError(
-                    f"Entrada stdin excede o limite máximo de {MAX_JSON_PAYLOAD_BYTES} bytes."
-                )
-            request = json.loads(raw_json)
-            artefato = "stdin"
+        source = args.input if args.input else sys.stdin
+        request, artefato = read_bounded_json(source, max_bytes=MAX_JSON_PAYLOAD_BYTES)
 
         output = run_motor(request, run_id=args.run_id, artefato_alvo=artefato)
         serialized = json.dumps(output, ensure_ascii=False, indent=2, allow_nan=False)

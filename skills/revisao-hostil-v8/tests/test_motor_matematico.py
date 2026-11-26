@@ -2,7 +2,12 @@
 
 from __future__ import annotations
 
+import io
+import json
 import math
+import subprocess
+import sys
+from pathlib import Path
 from types import SimpleNamespace
 
 import numpy as np
@@ -12,7 +17,11 @@ import sympy as sp
 import scripts.engines.motor_matematico as motor_module
 
 from scripts.common.schema_validator import validate_contract
-from scripts.common.validation import validate_safe_file_path
+from scripts.common.validation import (
+    MAX_JSON_PAYLOAD_BYTES,
+    read_bounded_json,
+    validate_safe_file_path,
+)
 from scripts.engines.motor_matematico import MathematicalFirewall, SafeExpressionParser, run_motor
 
 
@@ -642,3 +651,83 @@ def test_formula_inconclusive_symbolic_equivalence_remains_parcial() -> None:
     assert out["status"] == "PARCIAL"
     assert out["metricas"]["verificacoes_formula_nao_conclusivas"] == 1
     assert len(out["achados"]) == 0
+
+
+def test_bounded_json_file_exact_boundaries(tmp_path: Path) -> None:
+    # 1. Arquivo exatamente no limite máximo (MAX_JSON_PAYLOAD_BYTES)
+    target_len = MAX_JSON_PAYLOAD_BYTES
+    prefix = '{"operation": "simplify", "expression": "'
+    suffix = '"}'
+    pad_len = target_len - len(prefix.encode("utf-8")) - len(suffix.encode("utf-8"))
+    assert pad_len > 0
+    valid_exact = prefix + ("a" * pad_len) + suffix
+    exact_file = tmp_path / "exact.json"
+    exact_file.write_bytes(valid_exact.encode("utf-8"))
+    assert exact_file.stat().st_size == MAX_JSON_PAYLOAD_BYTES
+
+    decoded, artefato = read_bounded_json(exact_file, max_bytes=MAX_JSON_PAYLOAD_BYTES)
+    assert decoded["operation"] == "simplify"
+    assert artefato == str(exact_file.resolve())
+
+    # 2. Arquivo com MAX_JSON_PAYLOAD_BYTES + 1 deve ser rejeitado antes de json.load
+    excess_file = tmp_path / "excess.json"
+    excess_file.write_bytes((valid_exact + " ").encode("utf-8"))
+    assert excess_file.stat().st_size == MAX_JSON_PAYLOAD_BYTES + 1
+
+    with pytest.raises(ValueError, match="excede o limite"):
+        read_bounded_json(excess_file, max_bytes=MAX_JSON_PAYLOAD_BYTES)
+
+
+def test_bounded_json_stream_exact_boundaries() -> None:
+    # 1. Stream exatamente no limite máximo
+    target_len = MAX_JSON_PAYLOAD_BYTES
+    prefix = '{"operation": "simplify", "expression": "'
+    suffix = '"}'
+    pad_len = target_len - len(prefix.encode("utf-8")) - len(suffix.encode("utf-8"))
+    valid_exact = prefix + ("b" * pad_len) + suffix
+    assert len(valid_exact.encode("utf-8")) == MAX_JSON_PAYLOAD_BYTES
+
+    stream = io.StringIO(valid_exact)
+    decoded, artefato = read_bounded_json(stream, max_bytes=MAX_JSON_PAYLOAD_BYTES)
+    assert decoded["operation"] == "simplify"
+    assert artefato == "stdin"
+
+    # 2. Stream com MAX_JSON_PAYLOAD_BYTES + 1 deve ser rejeitado imediatamente
+    excess_stream = io.StringIO(valid_exact + "x")
+    with pytest.raises(ValueError, match="Entrada excede o limite máximo permitido"):
+        read_bounded_json(excess_stream, max_bytes=MAX_JSON_PAYLOAD_BYTES)
+
+
+def test_motor_cli_stdin_boundary_and_excess(monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]) -> None:
+    # 1. Validação via CLI: stream dentro do limite máximo
+    target_len = 1000
+    prefix = '{"operation": "simplify", "expression": "'
+    suffix = '"}'
+    pad_len = target_len - len(prefix.encode("utf-8")) - len(suffix.encode("utf-8"))
+    valid_json = prefix + ("c" * pad_len) + suffix
+
+    monkeypatch.setattr(sys, "stdin", io.StringIO(valid_json))
+    monkeypatch.setattr(sys, "argv", ["motor_matematico.py"])
+
+    # Execução não deve levantar exceção não tratada
+    motor_module.main()
+    captured = capsys.readouterr()
+    cli_out = json.loads(captured.out)
+    assert cli_out["status"] in ("OK", "ERRO_VALIDACAO")
+    assert cli_out["motor_id"] == "motor_matematico"
+
+    # 2. Validação via CLI: stream com MAX_JSON_PAYLOAD_BYTES + 1 deve sair com código 1 e erro estruturado
+    oversized = '{"op": "' + ("d" * MAX_JSON_PAYLOAD_BYTES) + '"}'
+    monkeypatch.setattr(sys, "stdin", io.StringIO(oversized))
+    monkeypatch.setattr(sys, "argv", ["motor_matematico.py"])
+
+    with pytest.raises(SystemExit) as exc_info:
+        motor_module.main()
+
+    assert exc_info.value.code == 1
+    err_captured = capsys.readouterr()
+    err_json = json.loads(err_captured.out)
+    assert err_json["status"] == "ERRO_EXECUCAO"
+    assert err_json["deterministico"] is True
+    assert err_json["resultados"]["error_type"] == "ValueError"
+    assert "excede o limite máximo permitido" in err_json["resultados"]["error"]

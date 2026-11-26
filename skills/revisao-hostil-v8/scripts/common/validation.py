@@ -97,3 +97,47 @@ def validate_safe_file_path(path: str | Path, max_bytes: int = 50 * 1024 * 1024)
     if size > max_bytes:
         raise ValueError(f"Arquivo excede o limite de {max_bytes} bytes ({size} bytes): {p}")
     return p.resolve()
+
+
+def read_bounded_json(
+    source: str | Path | Any,
+    max_bytes: int = MAX_JSON_PAYLOAD_BYTES,
+) -> tuple[Any, str]:
+    """Lê e decodifica JSON de arquivo ou stream com limite estrito de bytes antes de carregar."""
+    import json
+
+    if isinstance(source, (str, Path)):
+        safe_path = validate_safe_file_path(source, max_bytes=max_bytes)
+        raw_text = safe_path.read_text(encoding="utf-8")
+        raw_bytes = len(raw_text.encode("utf-8"))
+        if raw_bytes > max_bytes:
+            raise ValueError(
+                f"Conteúdo do arquivo excede o limite máximo de {max_bytes} bytes ({raw_bytes} bytes)."
+            )
+        return json.loads(raw_text), str(safe_path.resolve())
+
+    # Stream (ex.: sys.stdin)
+    # Lê buffer em chunks ou até max_bytes + 1 para abortar imediatamente sem ler tudo
+    buffer = []
+    total_bytes = 0
+    read_chunk_size = min(65536, max_bytes + 1)
+
+    while True:
+        chunk = source.read(read_chunk_size)
+        if not chunk:
+            break
+        if isinstance(chunk, str):
+            chunk_bytes = len(chunk.encode("utf-8"))
+        else:
+            chunk_bytes = len(chunk)
+            chunk = chunk.decode("utf-8")
+
+        total_bytes += chunk_bytes
+        if total_bytes > max_bytes:
+            raise ValueError(
+                f"Entrada excede o limite máximo permitido de {max_bytes} bytes."
+            )
+        buffer.append(chunk)
+
+    raw_text = "".join(buffer)
+    return json.loads(raw_text), "stdin"
