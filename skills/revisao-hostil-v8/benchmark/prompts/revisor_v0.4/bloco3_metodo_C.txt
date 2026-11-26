@@ -1,0 +1,6 @@
+METODO
+Faca uma revisao critica rigorosa do manuscrito, como um revisor tecnico
+exigente. Procure erros numericos, de unidades, estatisticos e de equacoes,
+inconsistencias entre texto, tabelas e resultados, e afirmacoes sem
+sustentacao. Refaca a mao os calculos que puder e mostre a conta em
+"evidence". Nao ha documento adicional de metodo.
