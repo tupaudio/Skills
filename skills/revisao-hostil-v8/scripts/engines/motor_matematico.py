@@ -330,11 +330,13 @@ class MathematicalFirewall:
 
         # Classificação simbólica conservadora
         if difference == 0 or difference.is_zero is True:
-            symbolically_equal = True
+            symbolic_equivalence = "proven_equal"
+            symbolically_equal: bool | None = True
             initial_status = "ok"
             note = None
         elif difference.is_zero is False:
             # Comprovadamente não nula (ex.: constante não zero, -1, etc.)
+            symbolic_equivalence = "proven_different"
             symbolically_equal = False
             initial_status = "discrepancy_detected"
             note = f"Diferença simbólica comprovadamente não nula ({difference})."
@@ -342,24 +344,29 @@ class MathematicalFirewall:
             try:
                 poly = difference.as_poly(*difference.free_symbols)
                 if poly is not None and poly.is_zero is False:
+                    symbolic_equivalence = "proven_different"
                     symbolically_equal = False
                     initial_status = "discrepancy_detected"
                     note = f"Diferença simbólica polinomial não nula ({difference})."
                 else:
-                    symbolically_equal = False
+                    symbolic_equivalence = "inconclusive"
+                    symbolically_equal = None
                     initial_status = "not_symbolically_equal"
                     note = f"Equivalência simbólica inconclusiva ({difference})."
             except Exception:
-                symbolically_equal = False
+                symbolic_equivalence = "inconclusive"
+                symbolically_equal = None
                 initial_status = "not_symbolically_equal"
                 note = f"Equivalência simbólica inconclusiva ({difference})."
         else:
-            symbolically_equal = False
+            symbolic_equivalence = "inconclusive"
+            symbolically_equal = None
             initial_status = "not_symbolically_equal"
             note = f"Equivalência simbólica inconclusiva ({difference})."
 
         result: dict[str, Any] = {
             "operation": "formula",
+            "symbolic_equivalence": symbolic_equivalence,
             "symbolically_equal": symbolically_equal,
             "simplified_difference": str(difference),
             "numeric_check": None,
@@ -394,7 +401,7 @@ class MathematicalFirewall:
                 elif initial_status == "discrepancy_detected":
                     # Preserva a discrepância simbólica comprovada mesmo com coincidência pontual nos pontos fornecidos
                     result["status"] = "discrepancy_detected"
-                elif result["symbolically_equal"]:
+                elif symbolic_equivalence == "proven_equal":
                     result["status"] = "ok"
                 else:
                     result["status"] = "numerically_equal_at_samples"

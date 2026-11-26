@@ -190,6 +190,7 @@ def test_formula_proven_symbolic_difference_with_numeric_match_remains_discrepan
     validate_contract(out, "schema_motor.json")
 
     formula = out["resultados"]
+    assert formula["symbolic_equivalence"] == "proven_different"
     assert formula["symbolically_equal"] is False
     assert formula["numeric_check"]["within_tolerance"] is True
     assert formula["status"] == "discrepancy_detected"
@@ -216,14 +217,14 @@ def test_formula_inconclusive_symbolic_equivalence_with_numeric_match_is_numeric
     validate_contract(out, "schema_motor.json")
 
     formula = out["resultados"]
-    assert formula["symbolically_equal"] is False
+    assert formula["symbolic_equivalence"] == "inconclusive"
+    assert formula["symbolically_equal"] is None
     assert formula["numeric_check"]["within_tolerance"] is True
     assert "somente às substituições" in formula["numeric_check"]["scope"]
     assert formula["status"] == "numerically_equal_at_samples"
     assert out["status"] == "PARCIAL"
     assert out["metricas"]["verificacoes_formula_nao_conclusivas"] == 1
     assert len(out["achados"]) == 0
-
 
 
 def test_formula_numeric_disagreement_remains_a_finding() -> None:
@@ -237,6 +238,8 @@ def test_formula_numeric_disagreement_remains_a_finding() -> None:
     )
     validate_contract(out, "schema_motor.json")
 
+    assert out["resultados"]["symbolic_equivalence"] == "proven_different"
+    assert out["resultados"]["symbolically_equal"] is False
     assert out["resultados"]["status"] == "discrepancy_detected"
     assert out["status"] == "COM_ACHADOS"
     assert len(out["achados"]) == 1
@@ -246,6 +249,7 @@ def test_symbolic_identity_remains_ok_with_numeric_substitution() -> None:
     result = MathematicalFirewall.check_formula(
         "(x+1)^2", "x^2 + 2*x + 1", {"x": 0}
     )
+    assert result["symbolic_equivalence"] == "proven_equal"
     assert result["symbolically_equal"] is True
     assert result["numeric_check"]["within_tolerance"] is True
     assert result["status"] == "ok"
@@ -261,6 +265,7 @@ def test_formula_proven_symbolic_difference_without_substitutions_is_discrepancy
     )
     validate_contract(out, "schema_motor.json")
 
+    assert out["resultados"]["symbolic_equivalence"] == "proven_different"
     assert out["resultados"]["symbolically_equal"] is False
     assert out["resultados"]["numeric_check"] is None
     assert out["resultados"]["status"] == "discrepancy_detected"
@@ -283,7 +288,8 @@ def test_formula_inconclusive_symbolic_equivalence_remains_parcial() -> None:
     )
     validate_contract(out, "schema_motor.json")
 
-    assert out["resultados"]["symbolically_equal"] is False
+    assert out["resultados"]["symbolic_equivalence"] == "inconclusive"
+    assert out["resultados"]["symbolically_equal"] is None
     assert out["resultados"]["numeric_check"] is None
     assert out["resultados"]["status"] == "not_symbolically_equal"
     assert out["status"] == "PARCIAL"
