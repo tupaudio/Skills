@@ -220,12 +220,34 @@ def test_symbolic_identity_remains_ok_with_numeric_substitution() -> None:
     assert result["status"] == "ok"
 
 
-def test_formula_not_symbolically_equal_without_substitutions_is_parcial() -> None:
+def test_formula_proven_symbolic_difference_without_substitutions_is_discrepancy() -> None:
     out = run_motor(
         {
             "operation": "formula",
             "lhs": "x + 1",
             "rhs": "x + 2",
+        }
+    )
+    validate_contract(out, "schema_motor.json")
+
+    assert out["resultados"]["symbolically_equal"] is False
+    assert out["resultados"]["numeric_check"] is None
+    assert out["resultados"]["status"] == "discrepancy_detected"
+    assert out["status"] == "COM_ACHADOS"
+    assert out["metricas"]["verificacoes_formula_nao_conclusivas"] == 0
+    assert len(out["achados"]) == 1
+    achado = out["achados"][0]
+    validate_contract(achado, "schema_achado.json")
+    assert achado["categoria"] == "discrepancia_matematica"
+    assert "comprovadamente não nula" in achado["descricao"]
+
+
+def test_formula_inconclusive_symbolic_equivalence_remains_parcial() -> None:
+    out = run_motor(
+        {
+            "operation": "formula",
+            "lhs": "sqrt(x**2)",
+            "rhs": "x",
         }
     )
     validate_contract(out, "schema_motor.json")

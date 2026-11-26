@@ -327,14 +327,47 @@ class MathematicalFirewall:
         )
 
         difference = sp.simplify(lhs_expr - rhs_expr)
+
+        # Classificação simbólica conservadora
+        if difference == 0 or difference.is_zero is True:
+            symbolically_equal = True
+            initial_status = "ok"
+            note = None
+        elif difference.is_zero is False:
+            # Comprovadamente não nula (ex.: constante não zero, -1, etc.)
+            symbolically_equal = False
+            initial_status = "discrepancy_detected"
+            note = f"Diferença simbólica comprovadamente não nula ({difference})."
+        elif difference.free_symbols:
+            try:
+                poly = difference.as_poly(*difference.free_symbols)
+                if poly is not None and poly.is_zero is False:
+                    symbolically_equal = False
+                    initial_status = "discrepancy_detected"
+                    note = f"Diferença simbólica polinomial não nula ({difference})."
+                else:
+                    symbolically_equal = False
+                    initial_status = "not_symbolically_equal"
+                    note = f"Equivalência simbólica inconclusiva ({difference})."
+            except Exception:
+                symbolically_equal = False
+                initial_status = "not_symbolically_equal"
+                note = f"Equivalência simbólica inconclusiva ({difference})."
+        else:
+            symbolically_equal = False
+            initial_status = "not_symbolically_equal"
+            note = f"Equivalência simbólica inconclusiva ({difference})."
+
         result: dict[str, Any] = {
             "operation": "formula",
-            "symbolically_equal": bool(difference == 0),
+            "symbolically_equal": symbolically_equal,
             "simplified_difference": str(difference),
             "numeric_check": None,
             "tolerance": tolerance,
-            "status": "ok" if difference == 0 else "not_symbolically_equal",
+            "status": initial_status,
         }
+        if note:
+            result["note"] = note
 
         if subs_clean:
             substitution_map = {sp.Symbol(name): sp.Float(value) for name, value in subs_clean.items()}
@@ -357,6 +390,7 @@ class MathematicalFirewall:
                 }
                 if not within:
                     result["status"] = "discrepancy_detected"
+                    result["note"] = f"Discrepância numérica fora da tolerância (residual={residual:.2e} > tol={tolerance:.2e})."
                 elif result["symbolically_equal"]:
                     result["status"] = "ok"
                 else:
