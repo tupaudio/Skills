@@ -3,8 +3,12 @@
 from __future__ import annotations
 
 import math
+from types import SimpleNamespace
 
+import numpy as np
 import pytest
+
+import scripts.engines.motor_matematico as motor_module
 
 from scripts.common.schema_validator import validate_contract
 from scripts.engines.motor_matematico import MathematicalFirewall, SafeExpressionParser, run_motor
@@ -121,3 +125,114 @@ def test_def_s03_ast_security_limits() -> None:
 
     with pytest.raises(ValueError, match="Profundidade máxima"):
         SafeExpressionParser.parse("sin(" * 50 + "1" + ")" * 50)
+
+
+@pytest.mark.parametrize(
+    ("solver_name", "payload", "failed_solution"),
+    [
+        (
+            "solve_ivp",
+            {"operation": "ode_ivp", "rhs": ["-y0"], "t_span": [0, 1], "y0": [1.0]},
+            SimpleNamespace(
+                success=False,
+                message="failed to converge",
+                nfev=1,
+                t=np.array([]),
+                y=np.empty((1, 0)),
+            ),
+        ),
+        (
+            "solve_bvp",
+            {
+                "operation": "ode_bvp",
+                "rhs": ["y0"],
+                "boundary_conditions": ["ya0"],
+                "interval": [0, 1],
+            },
+            SimpleNamespace(
+                success=False,
+                message="failed to converge",
+                x=np.array([0.0, 1.0]),
+                y=np.zeros((1, 2)),
+                rms_residuals=np.array([1.0]),
+            ),
+        ),
+    ],
+)
+def test_failed_ode_solver_is_not_reported_as_top_level_ok(
+    monkeypatch: pytest.MonkeyPatch,
+    solver_name: str,
+    payload: dict,
+    failed_solution: SimpleNamespace,
+) -> None:
+    monkeypatch.setattr(motor_module, solver_name, lambda *args, **kwargs: failed_solution)
+    out = run_motor(payload)
+    validate_contract(out, "schema_motor.json")
+
+    assert out["resultados"]["status"] == "solver_failed"
+    assert out["resultados"]["success"] is True  # operação executada, solver não convergiu
+    assert out["status"] == "PARCIAL"
+    assert out["metricas"]["solvers_nao_convergidos"] == 1
+    assert out["metricas"]["sucesso"] == 1
+
+
+def test_formula_numeric_match_at_sample_is_not_symbolic_identity() -> None:
+    out = run_motor(
+        {
+            "operation": "formula",
+            "lhs": "x",
+            "rhs": "x^2",
+            "substitutions": {"x": 0},
+        }
+    )
+    validate_contract(out, "schema_motor.json")
+
+    formula = out["resultados"]
+    assert formula["symbolically_equal"] is False
+    assert formula["numeric_check"]["within_tolerance"] is True
+    assert formula["status"] == "numerically_equal_at_samples"
+    assert out["status"] == "PARCIAL"
+    assert out["metricas"]["verificacoes_formula_nao_conclusivas"] == 1
+
+
+def test_formula_numeric_disagreement_remains_a_finding() -> None:
+    out = run_motor(
+        {
+            "operation": "formula",
+            "lhs": "x",
+            "rhs": "x + 1",
+            "substitutions": {"x": 0},
+        }
+    )
+    validate_contract(out, "schema_motor.json")
+
+    assert out["resultados"]["status"] == "discrepancy_detected"
+    assert out["status"] == "COM_ACHADOS"
+    assert len(out["achados"]) == 1
+
+
+def test_symbolic_identity_remains_ok_with_numeric_substitution() -> None:
+    result = MathematicalFirewall.check_formula(
+        "(x+1)^2", "x^2 + 2*x + 1", {"x": 0}
+    )
+    assert result["symbolically_equal"] is True
+    assert result["numeric_check"]["within_tolerance"] is True
+    assert result["status"] == "ok"
+
+
+def test_formula_not_symbolically_equal_without_substitutions_is_parcial() -> None:
+    out = run_motor(
+        {
+            "operation": "formula",
+            "lhs": "x + 1",
+            "rhs": "x + 2",
+        }
+    )
+    validate_contract(out, "schema_motor.json")
+
+    assert out["resultados"]["symbolically_equal"] is False
+    assert out["resultados"]["numeric_check"] is None
+    assert out["resultados"]["status"] == "not_symbolically_equal"
+    assert out["status"] == "PARCIAL"
+    assert out["metricas"]["verificacoes_formula_nao_conclusivas"] == 1
+    assert len(out["achados"]) == 0

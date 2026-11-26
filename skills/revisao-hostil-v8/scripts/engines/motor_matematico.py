@@ -353,8 +353,14 @@ class MathematicalFirewall:
                 result["numeric_check"] = {
                     "residual": residual,
                     "within_tolerance": within,
+                    "scope": "Aplica-se somente às substituições numéricas fornecidas; não prova identidade simbólica.",
                 }
-                result["status"] = "ok" if within else "discrepancy_detected"
+                if not within:
+                    result["status"] = "discrepancy_detected"
+                elif result["symbolically_equal"]:
+                    result["status"] = "ok"
+                else:
+                    result["status"] = "numerically_equal_at_samples"
 
         return result
 
@@ -985,7 +991,8 @@ def run_motor(payload: Any, *, run_id: str | None = None, artefato_alvo: str | N
     else:
         inner = payload
 
-    if isinstance(inner, list) or (isinstance(inner, dict) and inner.get("operation") == "batch"):
+    is_batch = isinstance(inner, list) or (isinstance(inner, dict) and inner.get("operation") == "batch")
+    if is_batch:
         items = inner if isinstance(inner, list) else inner.get("operations", [])
         results: list[dict[str, Any]] = []
         for idx, item in enumerate(items, start=1):
@@ -1024,9 +1031,20 @@ def run_motor(payload: Any, *, run_id: str | None = None, artefato_alvo: str | N
         achados = _extract_findings_from_results([res], artefato_alvo or "payload_inline")
         failed = 0
 
+    operation_results = results if is_batch else [res]
+    solver_failures = sum(
+        1 for item in operation_results
+        if item.get("operation") in ("ode_ivp", "ode_bvp") and item.get("status") == "solver_failed"
+    )
+    formula_nonconclusive = sum(
+        1 for item in operation_results
+        if item.get("operation") == "formula"
+        and item.get("status") in ("not_symbolically_equal", "numerically_equal_at_samples")
+    )
+
     if failed > 0 and raw_results.get("succeeded", 0) == 0:
         motor_status = "ERRO_VALIDACAO"
-    elif failed > 0:
+    elif failed > 0 or solver_failures > 0 or formula_nonconclusive > 0:
         motor_status = "PARCIAL"
     elif achados:
         motor_status = "COM_ACHADOS"
@@ -1048,6 +1066,8 @@ def run_motor(payload: Any, *, run_id: str | None = None, artefato_alvo: str | N
                 "total_operacoes": raw_results.get("total_operations", 1),
                 "sucesso": raw_results.get("succeeded", 1),
                 "falhas": failed,
+                "solvers_nao_convergidos": solver_failures,
+                "verificacoes_formula_nao_conclusivas": formula_nonconclusive,
                 "total_achados": len(achados),
             },
             "resultados": raw_results,
