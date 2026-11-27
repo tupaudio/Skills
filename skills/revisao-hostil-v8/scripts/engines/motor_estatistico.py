@@ -516,11 +516,48 @@ def run_motor(payload: Any, *, run_id: str | None = None, artefato_alvo: str | N
                         origem_componente=MOTOR_ID,
                     )
                 )
+            elif (
+                res.get("status") in {"undefined_zero_variance", "degenerate_zero_differences"}
+                and res.get("reported_p") is not None
+            ):
+                ev = create_evidence(
+                    f"EV-EST-{idx:03d}",
+                    "numerica",
+                    artefato_alvo or "payload_inline",
+                    op_id,
+                    f"variancia_nula=True vs p_reportado={res.get('reported_p')}; estatistica e p-valor indefinidos",
+                    valor_observado=res.get("reported_p"),
+                    valor_calculado=None,
+                    motor_origem=MOTOR_ID,
+                )
+                achados.append(
+                    create_finding(
+                        f"ACH-EST-{idx:03d}",
+                        f"Valor-p reportado não verificável devido a variância nula em {op_id}",
+                        "discrepancia_estatistica",
+                        "MODERADO",
+                        "ALTA",
+                        op_id,
+                        "O valor-p reportado não pode ser verificado deterministicamente porque a variância dos dados é nula, tornando a estatística t indefinida.",
+                        [ev],
+                        estado="NAO_VERIFICADO",
+                        portao="G04",
+                        origem_componente=MOTOR_ID,
+                    )
+                )
         except Exception as err:
             results.append({"id": op_id, "operation": item.get("operation"), "success": False, "status": "error", "error": str(err)})
 
     failed = sum(1 for r in results if not r.get("success"))
-    status = "ERRO_VALIDACAO" if failed == len(results) else ("PARCIAL" if failed > 0 else ("COM_ACHADOS" if achados else "OK"))
+    has_unverified = any(a.get("estado") == "NAO_VERIFICADO" for a in achados)
+    if failed == len(results):
+        status = "ERRO_VALIDACAO"
+    elif failed > 0 or has_unverified:
+        status = "PARCIAL"
+    elif achados:
+        status = "COM_ACHADOS"
+    else:
+        status = "OK"
     return sanitize_for_json(
         {
             "schema_version": SCHEMA_VERSION,
