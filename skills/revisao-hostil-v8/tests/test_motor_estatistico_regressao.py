@@ -1,3 +1,4 @@
+import math
 import pytest
 from scripts.common.schema_validator import validate_contract
 from scripts.engines import motor_estatistico
@@ -89,21 +90,48 @@ def test_t_test_zero_variance_without_reported_p():
     assert len(out["achados"]) == 0
 
 
-def test_statistical_power_grid_against_scipy_nct():
+def test_statistical_power_independent_benchmark_cohen_80pct():
+    # Benchmark clássico independente (Cohen, 1988):
+    # d = 0.5 (efeito médio), n = 64 por grupo, alpha = 0.05 bicaudal -> poder ~ 0.8014596
+    # O valor 0.8014596 foi verificado por cálculo exato via scipy.stats.nct:
+    # df = 126, nc = 0.5 * sqrt(32) = 2.828427125, t_crit = 1.9789706
+    # power = sf(1.9789706, 126, nc) + cdf(-1.9789706, 126, nc) = 0.8014596
+    res = statistical_power_two_means(0.5, 64, alpha=0.05)
+    assert abs(res["power"] - 0.8014596) < 1e-6
+    assert res["adequate_80pct"] is True
+
+
+def test_statistical_power_extreme_tail_underflow_fallback():
+    # Em regimes extremos (ex.: d=1.0, n=100, alpha=0.01; df=198, nc=7.071, t_crit=2.6009),
+    # stats.nct.cdf(-t_crit) no SciPy sofre underflow numérico e produz NaN.
+    # O motor trata esse caso via sf para a cauda superior e fallback para 0.0 na cauda inferior,
+    # resultando em valor finito e clipado em [0, 1].
+    res = statistical_power_two_means(1.0, 100, alpha=0.01)
+    assert math.isfinite(res["power"])
+    assert 0.99999 <= res["power"] <= 1.0
+    assert res["adequate_80pct"] is True
+
+
+@pytest.mark.parametrize(
+    "d,n,alpha",
+    [
+        (d, n, alpha)
+        for d in [0.2, 0.5, 0.8, 1.0]
+        for n in [10, 20, 30, 50, 100]
+        for alpha in [0.01, 0.05, 0.10]
+    ],
+)
+def test_statistical_power_grid_against_scipy_nct(d, n, alpha):
     import math
     from scipy import stats
-    # Grade de testes (d, n, alpha) calculando a referência dinamicamente via nct
-    # Tolerância 1e-9: cálculo idêntico da formulação matemática da distribuição t não central
-    for d in [0.2, 0.5, 0.8, 1.0]:
-        for n in [10, 20, 30, 50, 100]:
-            for alpha in [0.01, 0.05, 0.10]:
-                out = motor_estatistico.statistical_power_two_means(d, n, alpha=alpha)
-                df = 2 * n - 2
-                nc = d * (n / 2.0) ** 0.5
-                t_crit = float(stats.t.ppf(1.0 - alpha / 2.0, df=df))
-                p_up = float(stats.nct.sf(t_crit, df=df, nc=nc))
-                p_low_raw = stats.nct.cdf(-t_crit, df=df, nc=nc)
-                p_low = float(p_low_raw) if math.isfinite(p_low_raw) else 0.0
-                expected = float(min(1.0, max(0.0, p_up + p_low)))
-                assert abs(out["power"] - expected) < 1e-9
-                assert out["adequate_80pct"] == bool(expected >= 0.80)
+
+    out = statistical_power_two_means(d, n, alpha=alpha)
+    df = 2 * n - 2
+    nc = d * (n / 2.0) ** 0.5
+    t_crit = float(stats.t.ppf(1.0 - alpha / 2.0, df=df))
+    p_up = float(stats.nct.sf(t_crit, df=df, nc=nc))
+    p_low_raw = stats.nct.cdf(-t_crit, df=df, nc=nc)
+    p_low = float(p_low_raw) if math.isfinite(p_low_raw) else 0.0
+    expected = float(min(1.0, max(0.0, p_up + p_low)))
+    assert abs(out["power"] - expected) < 1e-9
+    assert out["adequate_80pct"] == bool(expected >= 0.80)

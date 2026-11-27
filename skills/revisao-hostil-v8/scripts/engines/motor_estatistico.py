@@ -362,7 +362,13 @@ def permutation_test(sample_a: Any, sample_b: Any, *, n_permutations: int = 2000
 
 
 def statistical_power_two_means(effect_size_d: float, n_per_group: int, *, alpha: float = 0.05) -> dict[str, Any]:
-    """Cálculo exato de poder estatístico para duas amostras independentes via distribuição t não central (SciPy nct)."""
+    """Cálculo exato de poder estatístico para duas amostras independentes via distribuição t não central (SciPy nct).
+
+    Parâmetros:
+      - effect_size_d: d de Cohen (|d| >= 0).
+      - n_per_group: tamanho amostral por grupo individual (n_a = n_b = n_per_group; total N = 2 * n_per_group).
+      - alpha: nível de significância bicaudal (0 < alpha < 1).
+    """
     d = abs(require_finite_number(effect_size_d, "effect_size_d"))
     n = int(require_finite_number(n_per_group, "n_per_group"))
     if n < 2:
