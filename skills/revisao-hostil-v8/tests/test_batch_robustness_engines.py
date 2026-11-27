@@ -65,8 +65,8 @@ from scripts.engines import (
                 "operation": "propagate_gum",
                 "expression": "x + y",
                 "variables": {
-                    "x": {"value": 10.0, "standard_uncertainty": 0.1},
-                    "y": {"value": 5.0, "standard_uncertainty": 0.2},
+                    "x": {"value": 10.0, "u": 0.1},
+                    "y": {"value": 5.0, "u": 0.2},
                 },
             },
             "INC",

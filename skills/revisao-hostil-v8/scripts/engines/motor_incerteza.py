@@ -67,14 +67,30 @@ def propagate_gum(
     u_tot = []
     for name in var_names:
         spec = variables[name]
-        nominals[name] = require_finite_number(spec["value"], f"variables.{name}.value")
-        ua = require_finite_number(spec.get("u_random", 0.0), f"variables.{name}.u_random")
-        ub = require_finite_number(spec.get("u_systematic", 0.0), f"variables.{name}.u_systematic")
-        if "u" in spec and ua == 0.0 and ub == 0.0:
+        if not isinstance(spec, dict):
+            raise ValueError(
+                f"Especificação da variável '{name}' deve ser um objeto/dicionário, recebido {type(spec).__name__}."
+            )
+        nominals[name] = require_finite_number(spec.get("value"), f"variables.{name}.value")
+
+        has_ur = "u_random" in spec
+        has_us = "u_systematic" in spec
+        has_u = "u" in spec
+
+        if not (has_ur or has_us or has_u):
+            raise ValueError(
+                f"Variável '{name}' não possui incerteza informada: esperado campo 'u' ou componentes 'u_random' / 'u_systematic'."
+            )
+
+        ua = require_finite_number(spec.get("u_random", 0.0), f"variables.{name}.u_random") if has_ur else 0.0
+        ub = require_finite_number(spec.get("u_systematic", 0.0), f"variables.{name}.u_systematic") if has_us else 0.0
+
+        if has_u and not has_ur and not has_us:
             ut = require_finite_number(spec["u"], f"variables.{name}.u")
             ua = ut
         else:
             ut = math.hypot(ua, ub)
+
         if ua < 0 or ub < 0 or ut < 0:
             raise ValueError(f"Incertezas da variável '{name}' não podem ser negativas.")
         u_a.append(ua)
@@ -166,20 +182,40 @@ def monte_carlo_propagation(
     draws = []
     for name in var_names:
         spec = variables[name]
+        if not isinstance(spec, dict):
+            raise ValueError(
+                f"Especificação da variável '{name}' deve ser um objeto/dicionário, recebido {type(spec).__name__}."
+            )
         dist = spec.get("dist", "normal").lower()
+        if "value" not in spec:
+            raise ValueError(f"Campo obrigatório 'value' ausente para a variável '{name}'.")
         val = require_finite_number(spec["value"], f"variables.{name}.value")
         if dist == "normal":
+            if "std" not in spec:
+                raise ValueError(
+                    f"Variável '{name}' com distribuição normal requer o campo obrigatório de desvio padrão 'std'."
+                )
             sd = require_finite_number(spec["std"], f"variables.{name}.std")
             if sd < 0:
                 raise ValueError(f"std negativo em '{name}'.")
             draws.append(rng.normal(val, sd, size=n_samples))
         elif dist == "uniform":
+            if "half_width" not in spec:
+                raise ValueError(
+                    f"Variável '{name}' com distribuição uniforme requer o campo obrigatório 'half_width'."
+                )
             half = require_finite_number(spec["half_width"], f"variables.{name}.half_width")
             if half < 0:
                 raise ValueError(f"half_width negativo em '{name}'.")
             draws.append(rng.uniform(val - half, val + half, size=n_samples))
         elif dist == "triangular":
+            if "half_width" not in spec:
+                raise ValueError(
+                    f"Variável '{name}' com distribuição triangular requer o campo obrigatório 'half_width'."
+                )
             half = require_finite_number(spec["half_width"], f"variables.{name}.half_width")
+            if half < 0:
+                raise ValueError(f"half_width negativo em '{name}'.")
             draws.append(rng.triangular(val - half, val, val + half, size=n_samples))
         else:
             raise ValueError(f"Distribuição não suportada em '{name}': {dist}")
