@@ -36,7 +36,7 @@ if str(_REPO_ROOT) not in sys.path:
 
 from scripts.common import SCHEMA_VERSION
 from scripts.common.evidence import create_evidence, create_finding, utc_now_iso
-from scripts.common.validation import sanitize_for_json
+from scripts.common.validation import MAX_JSON_PAYLOAD_BYTES, read_bounded_json, sanitize_for_json
 
 MOTOR_ID = "motor_temporal"
 MOTOR_VERSION = "0.2.0-beta.5.2"
@@ -407,20 +407,23 @@ def run_motor(payload: Any, *, run_id: str | None = None, artefato_alvo: str | N
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Motor temporal (Revisão Hostil v8.0-beta.5.2).")
-    parser.add_argument("--input", "-i")
-    parser.add_argument("--out", "-o")
-    parser.add_argument("--run-id")
+    parser.add_argument("--input", "-i", help="Arquivo JSON de entrada (se omitido, lê de stdin).")
+    parser.add_argument("--out", "-o", help="Arquivo JSON de saída (se omitido, imprime em stdout).")
+    parser.add_argument("--run-id", help="Identificador opcional da campanha.")
     args = parser.parse_args()
 
     try:
-        req = json.loads(Path(args.input).read_text(encoding="utf-8")) if args.input else json.load(sys.stdin)
-        out = run_motor(req, run_id=args.run_id, artefato_alvo=args.input or "stdin")
+        source = args.input if args.input else sys.stdin
+        req, artefato = read_bounded_json(source, max_bytes=MAX_JSON_PAYLOAD_BYTES)
+        out = run_motor(req, run_id=args.run_id, artefato_alvo=artefato)
         text = json.dumps(out, ensure_ascii=False, indent=2, allow_nan=False)
         if args.out:
-            Path(args.out).write_text(text, encoding="utf-8")
+            out_path = Path(args.out)
+            out_path.parent.mkdir(parents=True, exist_ok=True)
+            out_path.write_text(text, encoding="utf-8")
         else:
             print(text)
-        if out.get("status") == "ERRO_VALIDACAO":
+        if isinstance(out, dict) and out.get("status") == "ERRO_VALIDACAO":
             sys.exit(1)
     except Exception as error:
         err_out = json.dumps(
@@ -442,7 +445,6 @@ def main() -> None:
             Path(args.out).write_text(err_out, encoding="utf-8")
         print(err_out)
         sys.exit(1)
-
 
 if __name__ == "__main__":
     main()
