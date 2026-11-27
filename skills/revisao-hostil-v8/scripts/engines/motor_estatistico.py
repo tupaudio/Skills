@@ -36,10 +36,10 @@ from scipy import stats
 
 from scripts.common import SCHEMA_VERSION
 from scripts.common.evidence import create_evidence, create_finding, utc_now_iso
-from scripts.common.validation import require_finite_array, require_finite_number, sanitize_for_json
+from scripts.common.validation import MAX_JSON_PAYLOAD_BYTES, read_bounded_json, require_finite_array, require_finite_number, sanitize_for_json
 
 MOTOR_ID = "motor_estatistico"
-MOTOR_VERSION = "0.2.0-beta.5.3"
+MOTOR_VERSION = "0.3.0-beta.1"
 
 
 def _cohens_d_independent(a: np.ndarray, b: np.ndarray) -> tuple[float | None, float | None, str | None]:
@@ -362,19 +362,41 @@ def permutation_test(sample_a: Any, sample_b: Any, *, n_permutations: int = 2000
 
 
 def statistical_power_two_means(effect_size_d: float, n_per_group: int, *, alpha: float = 0.05) -> dict[str, Any]:
+    """Cálculo exato de poder estatístico para duas amostras independentes via distribuição t não central (SciPy nct).
+
+    Parâmetros:
+      - effect_size_d: d de Cohen (|d| >= 0).
+      - n_per_group: tamanho amostral por grupo individual (n_a = n_b = n_per_group; total N = 2 * n_per_group).
+      - alpha: nível de significância bicaudal (0 < alpha < 1).
+    """
     d = abs(require_finite_number(effect_size_d, "effect_size_d"))
-    if n_per_group < 2:
+    n = int(require_finite_number(n_per_group, "n_per_group"))
+    if n < 2:
         raise ValueError("n_per_group deve ser >= 2.")
-    z_alpha = float(stats.norm.ppf(1.0 - alpha / 2.0))
-    ncp = d * math.sqrt(n_per_group / 2.0)
-    power = float(1.0 - stats.norm.cdf(z_alpha - ncp) + stats.norm.cdf(-z_alpha - ncp))
+    a = require_finite_number(alpha, "alpha")
+    if not (0.0 < a < 1.0):
+        raise ValueError("alpha deve estar estritamente entre 0 e 1.")
+
+    df = 2 * n - 2
+    nc = d * math.sqrt(n / 2.0)
+    t_crit = float(stats.t.ppf(1.0 - a / 2.0, df=df))
+    # Teste bicaudal: P(T > t_crit | nc) + P(T < -t_crit | nc)
+    # Pela simetria da distribuição t não central: P(T < -t_crit | nc) == P(T > t_crit | -nc) == sf(t_crit, df, -nc).
+    # Avaliar sf(t_crit, df, -nc) evita o NaN numérico gerado pelo cdf(-t_crit) do SciPy em caudas inferiores extremas.
+    p_upper = float(stats.nct.sf(t_crit, df=df, nc=nc))
+    p_lower_raw = stats.nct.sf(t_crit, df=df, nc=-nc)
+    nan_fallback_applied = not math.isfinite(p_lower_raw)
+    # Cota teórica: para nc >= 0, a cauda inferior é estritamente <= alpha / 2
+    p_lower = 0.0 if nan_fallback_applied else float(p_lower_raw)
+    power = float(np.clip(p_upper + p_lower, 0.0, 1.0))
     return {
         "operation": "statistical_power",
         "effect_size_d": d,
-        "n_per_group": n_per_group,
-        "alpha": alpha,
+        "n_per_group": n,
+        "alpha": a,
         "power": power,
         "adequate_80pct": bool(power >= 0.80),
+        "nan_fallback_applied": nan_fallback_applied,
         "status": "ok",
     }
 
@@ -472,6 +494,18 @@ def run_motor(payload: Any, *, run_id: str | None = None, artefato_alvo: str | N
     results: list[dict[str, Any]] = []
     achados: list[dict[str, Any]] = []
     for idx, item in enumerate(items, start=1):
+        if not isinstance(item, dict):
+            results.append(
+                {
+                    "id": f"EST_{idx:03d}",
+                    "operation": "unknown",
+                    "success": False,
+                    "status": "error",
+                    "error": f"Item de lote inválido no índice {idx}: esperado objeto/dicionário, recebido {type(item).__name__}.",
+                }
+            )
+            continue
+
         op_id = str(item.get("id") or f"EST_{idx:03d}")
         try:
             res = execute_single_operation(item)
@@ -504,11 +538,67 @@ def run_motor(payload: Any, *, run_id: str | None = None, artefato_alvo: str | N
                         origem_componente=MOTOR_ID,
                     )
                 )
+            elif (
+                res.get("status") in {"undefined_zero_variance", "degenerate_zero_differences"}
+                and res.get("reported_p") is not None
+            ):
+                is_zero_diff = False
+                if res.get("operation") == "t_test_independent":
+                    is_zero_diff = abs(float(res.get("mean_a", 0.0)) - float(res.get("mean_b", 0.0))) <= 1e-15
+                elif res.get("operation") == "t_test_paired":
+                    is_zero_diff = abs(float(res.get("mean_diff", 0.0))) <= 1e-15 or res.get("status") == "degenerate_zero_differences"
+
+                if is_zero_diff:
+                    desc = (
+                        "O valor-p reportado não pode ser verificado deterministicamente porque a variância dos dados "
+                        "é nula e as médias são idênticas, resultando em uma indeterminação (0/0) da estatística t."
+                    )
+                    ev_content = f"variancia_nula=True e diferenca_medias=0.0 (indeterminacao 0/0) vs p_reportado={res.get('reported_p')}"
+                else:
+                    desc = (
+                        "O valor-p reportado não pode ser verificado deterministicamente porque a variância dos dados "
+                        "é nula e as médias são distintas, tornando a estatística t não finita (|t| -> inf)."
+                    )
+                    ev_content = f"variancia_nula=True e diferenca_medias!=0.0 (|t| -> inf) vs p_reportado={res.get('reported_p')}"
+
+                ev = create_evidence(
+                    f"EV-EST-{idx:03d}",
+                    "numerica",
+                    artefato_alvo or "payload_inline",
+                    op_id,
+                    ev_content,
+                    valor_observado=res.get("reported_p"),
+                    valor_calculado=None,
+                    motor_origem=MOTOR_ID,
+                )
+                achados.append(
+                    create_finding(
+                        f"ACH-EST-{idx:03d}",
+                        f"Valor-p reportado não verificável devido a variância nula em {op_id}",
+                        "discrepancia_estatistica",
+                        "MODERADO",
+                        "ALTA",
+                        op_id,
+                        desc,
+                        [ev],
+                        estado="NAO_VERIFICADO",
+                        portao="G04",
+                        origem_componente=MOTOR_ID,
+                    )
+                )
         except Exception as err:
             results.append({"id": op_id, "operation": item.get("operation"), "success": False, "status": "error", "error": str(err)})
 
     failed = sum(1 for r in results if not r.get("success"))
-    status = "ERRO_VALIDACAO" if failed == len(results) else ("PARCIAL" if failed > 0 else ("COM_ACHADOS" if achados else "OK"))
+    has_unverified = any(a.get("estado") == "NAO_VERIFICADO" for a in achados)
+    if failed == len(results):
+        status = "ERRO_VALIDACAO"
+    elif failed > 0 or has_unverified:
+        status = "PARCIAL"
+    elif achados:
+        status = "COM_ACHADOS"
+    else:
+        status = "OK"
     return sanitize_for_json(
         {
             "schema_version": SCHEMA_VERSION,
@@ -532,17 +622,44 @@ def run_motor(payload: Any, *, run_id: str | None = None, artefato_alvo: str | N
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Motor estatístico determinístico (Revisão Hostil v8.0-beta.3).")
-    parser.add_argument("--input", "-i")
-    parser.add_argument("--out", "-o")
+    parser.add_argument("--input", "-i", help="Arquivo JSON de entrada (se omitido, lê de stdin).")
+    parser.add_argument("--out", "-o", help="Arquivo JSON de saída (se omitido, imprime em stdout).")
+    parser.add_argument("--run-id", help="Identificador opcional da campanha.")
     args = parser.parse_args()
-    req = json.loads(Path(args.input).read_text(encoding="utf-8")) if args.input else json.load(sys.stdin)
-    out = run_motor(req, artefato_alvo=args.input or "stdin")
-    text = json.dumps(out, ensure_ascii=False, indent=2, allow_nan=False)
-    if args.out:
-        Path(args.out).write_text(text, encoding="utf-8")
-    else:
-        print(text)
 
+    try:
+        source = args.input if args.input else sys.stdin
+        req, artefato = read_bounded_json(source, max_bytes=MAX_JSON_PAYLOAD_BYTES)
+        out = run_motor(req, run_id=args.run_id, artefato_alvo=artefato)
+        text = json.dumps(out, ensure_ascii=False, indent=2, allow_nan=False)
+        if args.out:
+            out_path = Path(args.out)
+            out_path.parent.mkdir(parents=True, exist_ok=True)
+            out_path.write_text(text, encoding="utf-8")
+        else:
+            print(text)
+        if isinstance(out, dict) and out.get("status") == "ERRO_VALIDACAO":
+            sys.exit(1)
+    except Exception as error:
+        err_out = json.dumps(
+            {
+                "schema_version": SCHEMA_VERSION,
+                "motor_id": MOTOR_ID,
+                "motor_version": MOTOR_VERSION,
+                "deterministico": True,
+                "status": "ERRO_EXECUCAO",
+                "timestamp": utc_now_iso(),
+                "resultados": {"error_type": type(error).__name__, "error": str(error)},
+                "achados": [],
+                "limitacoes": [],
+            },
+            ensure_ascii=False,
+            indent=2,
+        )
+        if args.out:
+            Path(args.out).write_text(err_out, encoding="utf-8")
+        print(err_out)
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

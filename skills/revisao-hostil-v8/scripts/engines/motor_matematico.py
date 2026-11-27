@@ -43,16 +43,25 @@ from scipy.integrate import solve_bvp, solve_ivp
 from scripts.common import SCHEMA_VERSION
 from scripts.common.evidence import create_evidence, create_finding, utc_now_iso
 from scripts.common.validation import (
+    MAX_ARRAY_TOTAL_ELEMENTS,
     MAX_AST_DEPTH,
+    MAX_AST_NODES,
+    MAX_BATCH_OPERATIONS,
     MAX_EXPONENT_ABS,
     MAX_EXPRESSION_LENGTH,
+    MAX_JSON_PAYLOAD_BYTES,
+    MAX_MATRIX_DIMENSION,
+    MAX_ODE_MESH_POINTS,
+    MAX_ODE_SYSTEM_ORDER,
+    read_bounded_json,
     require_finite_array,
     require_finite_number,
     sanitize_for_json,
+    validate_safe_file_path,
 )
 
 MOTOR_ID = "motor_matematico"
-MOTOR_VERSION = "8.0.0-beta.2"
+MOTOR_VERSION = "8.1.0-beta.1"
 
 _trapz = getattr(np, "trapezoid", getattr(np, "trapz", None))
 
@@ -127,6 +136,11 @@ class SafeExpressionParser:
             sym_table.setdefault("inf", sp.oo)
 
         tree = ast.parse(cleaned_expr, mode="eval")
+        node_count = sum(1 for _ in ast.walk(tree))
+        if node_count > MAX_AST_NODES:
+            raise ValueError(
+                f"Complexidade da expressão excede o limite de nós da AST ({node_count} > {MAX_AST_NODES})."
+            )
         return cls._convert(tree.body, sym_table, auto_declare=auto_declare, depth=0)
 
     @classmethod
@@ -327,14 +341,54 @@ class MathematicalFirewall:
         )
 
         difference = sp.simplify(lhs_expr - rhs_expr)
+
+        # Classificação simbólica conservadora
+        if difference == 0 or difference.is_zero is True:
+            symbolic_equivalence = "proven_equal"
+            symbolically_equal: bool | None = True
+            initial_status = "ok"
+            note = None
+        elif difference.is_zero is False:
+            # Comprovadamente não nula (ex.: constante não zero, -1, etc.)
+            symbolic_equivalence = "proven_different"
+            symbolically_equal = False
+            initial_status = "discrepancy_detected"
+            note = f"Diferença simbólica comprovadamente não nula ({difference})."
+        elif difference.free_symbols:
+            try:
+                poly = difference.as_poly(*difference.free_symbols)
+                if poly is not None and poly.is_zero is False:
+                    symbolic_equivalence = "proven_different"
+                    symbolically_equal = False
+                    initial_status = "discrepancy_detected"
+                    note = f"Diferença simbólica polinomial não nula ({difference})."
+                else:
+                    symbolic_equivalence = "inconclusive"
+                    symbolically_equal = None
+                    initial_status = "not_symbolically_equal"
+                    note = f"Equivalência simbólica inconclusiva ({difference})."
+            except Exception:
+                symbolic_equivalence = "inconclusive"
+                symbolically_equal = None
+                initial_status = "not_symbolically_equal"
+                note = f"Equivalência simbólica inconclusiva ({difference})."
+        else:
+            symbolic_equivalence = "inconclusive"
+            symbolically_equal = None
+            initial_status = "not_symbolically_equal"
+            note = f"Equivalência simbólica inconclusiva ({difference})."
+
         result: dict[str, Any] = {
             "operation": "formula",
-            "symbolically_equal": bool(difference == 0),
+            "symbolic_equivalence": symbolic_equivalence,
+            "symbolically_equal": symbolically_equal,
             "simplified_difference": str(difference),
             "numeric_check": None,
             "tolerance": tolerance,
-            "status": "ok" if difference == 0 else "not_symbolically_equal",
+            "status": initial_status,
         }
+        if note:
+            result["note"] = note
 
         if subs_clean:
             substitution_map = {sp.Symbol(name): sp.Float(value) for name, value in subs_clean.items()}
@@ -353,8 +407,18 @@ class MathematicalFirewall:
                 result["numeric_check"] = {
                     "residual": residual,
                     "within_tolerance": within,
+                    "scope": "Aplica-se somente às substituições numéricas fornecidas; não prova identidade simbólica.",
                 }
-                result["status"] = "ok" if within else "discrepancy_detected"
+                if not within:
+                    result["status"] = "discrepancy_detected"
+                    result["note"] = f"Discrepância numérica fora da tolerância (residual={residual:.2e} > tol={tolerance:.2e})."
+                elif initial_status == "discrepancy_detected":
+                    # Preserva a discrepância simbólica comprovada mesmo com coincidência pontual nos pontos fornecidos
+                    result["status"] = "discrepancy_detected"
+                elif symbolic_equivalence == "proven_equal":
+                    result["status"] = "ok"
+                else:
+                    result["status"] = "numerically_equal_at_samples"
 
         return result
 
@@ -447,8 +511,8 @@ class MathematicalFirewall:
 
     @staticmethod
     def solve_linear_system(matrix: Any, vector: Any, singular_tolerance: float = 1e-12) -> dict[str, Any]:
-        A = require_finite_array(matrix, name="matrix", ndim=2)
-        b = require_finite_array(vector, name="vector", ndim=1)
+        A = require_finite_array(matrix, name="matrix", ndim=2, max_axis_dimension=MAX_MATRIX_DIMENSION)
+        b = require_finite_array(vector, name="vector", ndim=1, max_total_elements=MAX_MATRIX_DIMENSION)
 
         if A.shape[0] != b.shape[0]:
             raise ValueError("Dimensões incompatíveis para Ax=b.")
@@ -477,7 +541,7 @@ class MathematicalFirewall:
 
     @staticmethod
     def audit_matrix(matrix: Any, tolerance: float = 1e-10) -> dict[str, Any]:
-        A = require_finite_array(matrix, name="matrix", ndim=2)
+        A = require_finite_array(matrix, name="matrix", ndim=2, max_axis_dimension=MAX_MATRIX_DIMENSION)
 
         result: dict[str, Any] = {
             "operation": "matrix",
@@ -509,19 +573,28 @@ class MathematicalFirewall:
         atol: float = 1e-10,
         max_step: float = np.inf,
     ) -> dict[str, Any]:
-        y0_arr = require_finite_array(y0, name="y0", ndim=1)
+        y0_arr = require_finite_array(y0, name="y0", ndim=1, max_total_elements=MAX_ODE_SYSTEM_ORDER)
         t_span_arr = require_finite_array(t_span, name="t_span", ndim=1)
         if t_span_arr.size != 2 or t_span_arr[0] == t_span_arr[1]:
             raise ValueError("t_span deve conter dois tempos distintos [t0, tf].")
         if len(rhs) != len(y0_arr):
             raise ValueError("Deve haver uma expressão RHS para cada componente de y.")
+        if len(rhs) > MAX_ODE_SYSTEM_ORDER:
+            raise ValueError(
+                f"Ordem do sistema ODE excede o limite máximo permitido ({len(rhs)} > {MAX_ODE_SYSTEM_ORDER})."
+            )
 
         t = sp.Symbol("t")
         states = [sp.Symbol(f"y{i}") for i in range(len(y0_arr))]
+        reserved_symbols = {"t"} | {str(state) for state in states}
         symbols: dict[str, Any] = {"t": t}
         symbols.update({str(state): state for state in states})
         if parameters:
             for k, v in parameters.items():
+                if not isinstance(k, str) or not k.isidentifier():
+                    raise ValueError(f"Chave de parâmetro inválida: '{k}'. Deve ser um identificador válido.")
+                if k in reserved_symbols:
+                    raise ValueError(f"Colisão de parâmetro: '{k}' é um símbolo reservado em ODE IVP ({sorted(reserved_symbols)}).")
                 symbols[k] = sp.Float(require_finite_number(v, name=f"parameters.{k}"))
 
         expressions = [SafeExpressionParser.parse(item, symbols) for item in rhs]
@@ -531,7 +604,11 @@ class MathematicalFirewall:
             values = [function(time, *state) for function in functions]
             return np.asarray(values, dtype=float)
 
-        t_eval_arr = None if t_eval is None else require_finite_array(t_eval, name="t_eval", ndim=1)
+        t_eval_arr = (
+            None
+            if t_eval is None
+            else require_finite_array(t_eval, name="t_eval", ndim=1, max_total_elements=MAX_ODE_MESH_POINTS)
+        )
         solution = solve_ivp(
             system,
             (float(t_span_arr[0]), float(t_span_arr[1])),
@@ -570,6 +647,10 @@ class MathematicalFirewall:
         n = len(rhs)
         if len(boundary_conditions) != n:
             raise ValueError("BVP de primeira ordem requer n condições para n estados.")
+        if n > MAX_ODE_SYSTEM_ORDER:
+            raise ValueError(
+                f"Ordem do sistema BVP excede o limite máximo permitido ({n} > {MAX_ODE_SYSTEM_ORDER})."
+            )
 
         interval_arr = require_finite_array(interval, name="interval", ndim=1)
         if interval_arr.size != 2 or interval_arr[0] >= interval_arr[1]:
@@ -578,7 +659,7 @@ class MathematicalFirewall:
         if mesh is None:
             mesh_arr = np.linspace(interval_arr[0], interval_arr[1], 11)
         else:
-            mesh_arr = require_finite_array(mesh, name="mesh", ndim=1)
+            mesh_arr = require_finite_array(mesh, name="mesh", ndim=1, max_total_elements=MAX_ODE_MESH_POINTS)
             if mesh_arr.size < 2 or np.any(np.diff(mesh_arr) <= 0):
                 raise ValueError("mesh deve ter >= 2 pontos estritamente crescentes.")
             if not (
@@ -592,7 +673,12 @@ class MathematicalFirewall:
         if initial_guess is None:
             guess_arr = np.zeros((n, mesh_arr.size), dtype=float)
         else:
-            guess_arr = require_finite_array(initial_guess, name="initial_guess", ndim=2)
+            guess_arr = require_finite_array(
+                initial_guess,
+                name="initial_guess",
+                ndim=2,
+                max_total_elements=MAX_ODE_SYSTEM_ORDER * MAX_ODE_MESH_POINTS,
+            )
             if guess_arr.shape != (n, mesh_arr.size):
                 raise ValueError(
                     f"initial_guess deve ter forma ({n}, {mesh_arr.size}), recebido {guess_arr.shape}."
@@ -600,20 +686,27 @@ class MathematicalFirewall:
 
         x = sp.Symbol("x")
         states = [sp.Symbol(f"y{i}") for i in range(n)]
+        bc_ya = [f"ya{i}" for i in range(n)]
+        bc_yb = [f"yb{i}" for i in range(n)]
+        reserved_symbols = {"x"} | {str(state) for state in states} | set(bc_ya) | set(bc_yb)
+
         symbols: dict[str, Any] = {"x": x}
         symbols.update({str(state): state for state in states})
+        bc_symbols = {f"ya{i}": sp.Symbol(f"ya{i}") for i in range(n)}
+        bc_symbols.update({f"yb{i}": sp.Symbol(f"yb{i}") for i in range(n)})
+
         if parameters:
             for k, v in parameters.items():
-                symbols[k] = sp.Float(require_finite_number(v, name=f"parameters.{k}"))
+                if not isinstance(k, str) or not k.isidentifier():
+                    raise ValueError(f"Chave de parâmetro inválida: '{k}'. Deve ser um identificador válido.")
+                if k in reserved_symbols:
+                    raise ValueError(f"Colisão de parâmetro: '{k}' é um símbolo reservado em ODE BVP ({sorted(reserved_symbols)}).")
+                val = sp.Float(require_finite_number(v, name=f"parameters.{k}"))
+                symbols[k] = val
+                bc_symbols[k] = val
 
         rhs_exprs = [SafeExpressionParser.parse(expr, symbols) for expr in rhs]
         rhs_funcs = [sp.lambdify([x] + states, expr, modules="numpy") for expr in rhs_exprs]
-
-        bc_symbols = {f"ya{i}": sp.Symbol(f"ya{i}") for i in range(n)}
-        bc_symbols.update({f"yb{i}": sp.Symbol(f"yb{i}") for i in range(n)})
-        if parameters:
-            for k, v in parameters.items():
-                bc_symbols[k] = sp.Float(require_finite_number(v, name=f"parameters.{k}"))
 
         bc_exprs = [SafeExpressionParser.parse(expr, bc_symbols) for expr in boundary_conditions]
         bc_funcs = [
@@ -976,7 +1069,18 @@ def _extract_findings_from_results(results: list[dict[str, Any]], source_label: 
 
 
 def run_motor(payload: Any, *, run_id: str | None = None, artefato_alvo: str | None = None) -> dict[str, Any]:
-    """Executa operação única ou lote retornando envelope aderente a schema_motor.json."""
+    """Executa operação única ou lote retornando envelope aderente a schema_motor.json.
+
+    Nota de Segurança sobre Limites de Entrada:
+    - Ao receber entrada via CLI ou streams (`read_bounded_json`), o limite de bytes brutos
+      em fio (`MAX_JSON_PAYLOAD_BYTES`) é rigorosamente imposto antes da desserialização.
+    - Se `run_motor` for chamado diretamente como função Python com um objeto já decodificado
+      (dict/list), o tamanho serializado original em bytes não é recuperável a partir do dict.
+      Nesse caso, a proteção contra DoS e esgotamento de memória é garantida através dos limites
+      estruturais correspondentes (`MAX_BATCH_OPERATIONS`, `MAX_ARRAY_TOTAL_ELEMENTS`,
+      `MAX_MATRIX_DIMENSION`, `MAX_ODE_MESH_POINTS`, `MAX_AST_NODES` e `MAX_AST_DEPTH`), cabendo
+      ao chamador externo que realiza I/O aplicar limites de bytes antes de decodificar se aplicável.
+    """
     # Suporta envelope schema_input.json ou payload direto v6.0
     if isinstance(payload, dict) and "payload" in payload and "motor_id" in payload:
         run_id = run_id or payload.get("run_id")
@@ -985,11 +1089,170 @@ def run_motor(payload: Any, *, run_id: str | None = None, artefato_alvo: str | N
     else:
         inner = payload
 
-    if isinstance(inner, list) or (isinstance(inner, dict) and inner.get("operation") == "batch"):
-        items = inner if isinstance(inner, list) else inner.get("operations", [])
+    is_batch = isinstance(inner, list) or (isinstance(inner, dict) and inner.get("operation") == "batch")
+    if is_batch:
+        if isinstance(inner, dict):
+            raw_ops = inner.get("operations")
+            if not isinstance(raw_ops, list):
+                raw_results: dict[str, Any] = {
+                    "batch": True,
+                    "total_operations": 0,
+                    "succeeded": 0,
+                    "failed": 1,
+                    "results": [
+                        {
+                            "id": inner.get("id") or inner.get("label") or "batch_root",
+                            "operation": "batch",
+                            "success": False,
+                            "status": "error",
+                            "error_type": "ValueError",
+                            "error": f"Campo 'operations' em pedido batch deve ser uma lista, recebido: {type(raw_ops).__name__}.",
+                        }
+                    ],
+                }
+                return sanitize_for_json(
+                    {
+                        "schema_version": SCHEMA_VERSION,
+                        "motor_id": MOTOR_ID,
+                        "motor_version": MOTOR_VERSION,
+                        "run_id": run_id,
+                        "deterministico": True,
+                        "status": "ERRO_VALIDACAO",
+                        "timestamp": utc_now_iso(),
+                        "artefato_alvo": artefato_alvo,
+                        "hash_artefato": None,
+                        "metricas": {
+                            "total_operacoes": 0,
+                            "sucesso": 0,
+                            "falhas": 1,
+                            "solvers_nao_convergidos": 0,
+                            "verificacoes_formula_nao_conclusivas": 0,
+                            "total_achados": 0,
+                        },
+                        "resultados": raw_results,
+                        "achados": [],
+                        "limitacoes": [
+                            "O motor verifica expressões e sistemas fornecidos; não infere premissas físicas ausentes do modelo.",
+                            "Constante de Euler deve ser escrita como 'E' maiúsculo; 'e' minúsculo é tratado como variável simbólica.",
+                        ],
+                    }
+                )
+            items = raw_ops
+        else:
+            items = inner
+
+        if len(items) == 0:
+            raw_results = {
+                "batch": True,
+                "total_operations": 0,
+                "succeeded": 0,
+                "failed": 1,
+                "results": [
+                    {
+                        "id": "batch_empty",
+                        "operation": "batch",
+                        "success": False,
+                        "status": "error",
+                        "error_type": "ValueError",
+                        "error": "Lote vazio: nenhuma operação fornecida para execução.",
+                    }
+                ],
+            }
+            return sanitize_for_json(
+                {
+                    "schema_version": SCHEMA_VERSION,
+                    "motor_id": MOTOR_ID,
+                    "motor_version": MOTOR_VERSION,
+                    "run_id": run_id,
+                    "deterministico": True,
+                    "status": "ERRO_VALIDACAO",
+                    "timestamp": utc_now_iso(),
+                    "artefato_alvo": artefato_alvo,
+                    "hash_artefato": None,
+                    "metricas": {
+                        "total_operacoes": 0,
+                        "sucesso": 0,
+                        "falhas": 1,
+                        "solvers_nao_convergidos": 0,
+                        "verificacoes_formula_nao_conclusivas": 0,
+                        "total_achados": 0,
+                    },
+                    "resultados": raw_results,
+                    "achados": [],
+                    "limitacoes": [
+                        "O motor verifica expressões e sistemas fornecidos; não infere premissas físicas ausentes do modelo.",
+                        "Constante de Euler deve ser escrita como 'E' maiúsculo; 'e' minúsculo é tratado como variável simbólica.",
+                    ],
+                }
+            )
+
+        if len(items) > MAX_BATCH_OPERATIONS:
+            raw_results = {
+                "batch": True,
+                "total_operations": len(items),
+                "succeeded": 0,
+                "failed": 1,
+                "results": [
+                    {
+                        "id": "batch_overflow",
+                        "operation": "batch",
+                        "success": False,
+                        "status": "error",
+                        "error_type": "ValueError",
+                        "error": f"Tamanho do lote excede o limite máximo permitido ({len(items)} > {MAX_BATCH_OPERATIONS}).",
+                    }
+                ],
+            }
+            return sanitize_for_json(
+                {
+                    "schema_version": SCHEMA_VERSION,
+                    "motor_id": MOTOR_ID,
+                    "motor_version": MOTOR_VERSION,
+                    "run_id": run_id,
+                    "deterministico": True,
+                    "status": "ERRO_VALIDACAO",
+                    "timestamp": utc_now_iso(),
+                    "artefato_alvo": artefato_alvo,
+                    "hash_artefato": None,
+                    "metricas": {
+                        "total_operacoes": len(items),
+                        "sucesso": 0,
+                        "falhas": 1,
+                        "solvers_nao_convergidos": 0,
+                        "verificacoes_formula_nao_conclusivas": 0,
+                        "total_achados": 0,
+                    },
+                    "resultados": raw_results,
+                    "achados": [],
+                    "limitacoes": [
+                        "O motor verifica expressões e sistemas fornecidos; não infere premissas físicas ausentes do modelo.",
+                        "Constante de Euler deve ser escrita como 'E' maiúsculo; 'e' minúsculo é tratado como variável simbólica.",
+                    ],
+                }
+            )
+
         results: list[dict[str, Any]] = []
         for idx, item in enumerate(items, start=1):
-            label = item.get("id") or item.get("label") or f"op_{idx}"
+            if isinstance(item, dict):
+                label = item.get("id") or item.get("label") or f"op_{idx}"
+                op_name = item.get("operation")
+            else:
+                label = f"op_{idx}"
+                op_name = None
+
+            if not isinstance(item, dict):
+                results.append(
+                    {
+                        "id": label,
+                        "operation": None,
+                        "success": False,
+                        "status": "error",
+                        "error_type": "TypeError",
+                        "error": f"Item de lote inválido: esperado dict, recebido {type(item).__name__}.",
+                    }
+                )
+                continue
+
             try:
                 res = execute_single_operation(item)
                 res["id"] = label
@@ -999,7 +1262,7 @@ def run_motor(payload: Any, *, run_id: str | None = None, artefato_alvo: str | N
                 results.append(
                     {
                         "id": label,
-                        "operation": item.get("operation"),
+                        "operation": op_name,
                         "success": False,
                         "status": "error",
                         "error_type": type(err).__name__,
@@ -1008,7 +1271,7 @@ def run_motor(payload: Any, *, run_id: str | None = None, artefato_alvo: str | N
                 )
         succeeded = sum(1 for r in results if r.get("success"))
         failed = len(results) - succeeded
-        raw_results: dict[str, Any] = {
+        raw_results = {
             "batch": True,
             "total_operations": len(results),
             "succeeded": succeeded,
@@ -1024,9 +1287,20 @@ def run_motor(payload: Any, *, run_id: str | None = None, artefato_alvo: str | N
         achados = _extract_findings_from_results([res], artefato_alvo or "payload_inline")
         failed = 0
 
+    operation_results = results if is_batch else [res]
+    solver_failures = sum(
+        1 for item in operation_results
+        if item.get("operation") in ("ode_ivp", "ode_bvp") and item.get("status") == "solver_failed"
+    )
+    formula_nonconclusive = sum(
+        1 for item in operation_results
+        if item.get("operation") == "formula"
+        and item.get("status") in ("not_symbolically_equal", "numerically_equal_at_samples")
+    )
+
     if failed > 0 and raw_results.get("succeeded", 0) == 0:
         motor_status = "ERRO_VALIDACAO"
-    elif failed > 0:
+    elif failed > 0 or solver_failures > 0 or formula_nonconclusive > 0:
         motor_status = "PARCIAL"
     elif achados:
         motor_status = "COM_ACHADOS"
@@ -1048,6 +1322,8 @@ def run_motor(payload: Any, *, run_id: str | None = None, artefato_alvo: str | N
                 "total_operacoes": raw_results.get("total_operations", 1),
                 "sucesso": raw_results.get("succeeded", 1),
                 "falhas": failed,
+                "solvers_nao_convergidos": solver_failures,
+                "verificacoes_formula_nao_conclusivas": formula_nonconclusive,
                 "total_achados": len(achados),
             },
             "resultados": raw_results,
@@ -1070,13 +1346,8 @@ def main() -> None:
     args = parser.parse_args()
 
     try:
-        if args.input:
-            raw_json = Path(args.input).read_text(encoding="utf-8")
-            request = json.loads(raw_json)
-            artefato = str(Path(args.input).resolve())
-        else:
-            request = json.load(sys.stdin)
-            artefato = "stdin"
+        source = args.input if args.input else sys.stdin
+        request, artefato = read_bounded_json(source, max_bytes=MAX_JSON_PAYLOAD_BYTES)
 
         output = run_motor(request, run_id=args.run_id, artefato_alvo=artefato)
         serialized = json.dumps(output, ensure_ascii=False, indent=2, allow_nan=False)

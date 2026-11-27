@@ -34,11 +34,11 @@ import sympy as sp
 
 from scripts.common import SCHEMA_VERSION
 from scripts.common.evidence import create_evidence, create_finding, utc_now_iso
-from scripts.common.validation import require_finite_array, require_finite_number, sanitize_for_json
+from scripts.common.validation import MAX_JSON_PAYLOAD_BYTES, read_bounded_json, require_finite_array, require_finite_number, sanitize_for_json
 from scripts.engines.motor_matematico import SafeExpressionParser
 
 MOTOR_ID = "motor_incerteza"
-MOTOR_VERSION = "0.1.0-beta.3"
+MOTOR_VERSION = "0.2.0-beta.1"
 
 
 def propagate_gum(
@@ -67,14 +67,30 @@ def propagate_gum(
     u_tot = []
     for name in var_names:
         spec = variables[name]
-        nominals[name] = require_finite_number(spec["value"], f"variables.{name}.value")
-        ua = require_finite_number(spec.get("u_random", 0.0), f"variables.{name}.u_random")
-        ub = require_finite_number(spec.get("u_systematic", 0.0), f"variables.{name}.u_systematic")
-        if "u" in spec and ua == 0.0 and ub == 0.0:
+        if not isinstance(spec, dict):
+            raise ValueError(
+                f"Especificação da variável '{name}' deve ser um objeto/dicionário, recebido {type(spec).__name__}."
+            )
+        nominals[name] = require_finite_number(spec.get("value"), f"variables.{name}.value")
+
+        has_ur = "u_random" in spec
+        has_us = "u_systematic" in spec
+        has_u = "u" in spec
+
+        if not (has_ur or has_us or has_u):
+            raise ValueError(
+                f"Variável '{name}' não possui incerteza informada: esperado campo 'u' ou componentes 'u_random' / 'u_systematic'."
+            )
+
+        ua = require_finite_number(spec.get("u_random", 0.0), f"variables.{name}.u_random") if has_ur else 0.0
+        ub = require_finite_number(spec.get("u_systematic", 0.0), f"variables.{name}.u_systematic") if has_us else 0.0
+
+        if has_u and not has_ur and not has_us:
             ut = require_finite_number(spec["u"], f"variables.{name}.u")
             ua = ut
         else:
             ut = math.hypot(ua, ub)
+
         if ua < 0 or ub < 0 or ut < 0:
             raise ValueError(f"Incertezas da variável '{name}' não podem ser negativas.")
         u_a.append(ua)
@@ -166,20 +182,40 @@ def monte_carlo_propagation(
     draws = []
     for name in var_names:
         spec = variables[name]
+        if not isinstance(spec, dict):
+            raise ValueError(
+                f"Especificação da variável '{name}' deve ser um objeto/dicionário, recebido {type(spec).__name__}."
+            )
         dist = spec.get("dist", "normal").lower()
+        if "value" not in spec:
+            raise ValueError(f"Campo obrigatório 'value' ausente para a variável '{name}'.")
         val = require_finite_number(spec["value"], f"variables.{name}.value")
         if dist == "normal":
+            if "std" not in spec:
+                raise ValueError(
+                    f"Variável '{name}' com distribuição normal requer o campo obrigatório de desvio padrão 'std'."
+                )
             sd = require_finite_number(spec["std"], f"variables.{name}.std")
             if sd < 0:
                 raise ValueError(f"std negativo em '{name}'.")
             draws.append(rng.normal(val, sd, size=n_samples))
         elif dist == "uniform":
+            if "half_width" not in spec:
+                raise ValueError(
+                    f"Variável '{name}' com distribuição uniforme requer o campo obrigatório 'half_width'."
+                )
             half = require_finite_number(spec["half_width"], f"variables.{name}.half_width")
             if half < 0:
                 raise ValueError(f"half_width negativo em '{name}'.")
             draws.append(rng.uniform(val - half, val + half, size=n_samples))
         elif dist == "triangular":
+            if "half_width" not in spec:
+                raise ValueError(
+                    f"Variável '{name}' com distribuição triangular requer o campo obrigatório 'half_width'."
+                )
             half = require_finite_number(spec["half_width"], f"variables.{name}.half_width")
+            if half < 0:
+                raise ValueError(f"half_width negativo em '{name}'.")
             draws.append(rng.triangular(val - half, val, val + half, size=n_samples))
         else:
             raise ValueError(f"Distribuição não suportada em '{name}': {dist}")
@@ -236,6 +272,18 @@ def run_motor(payload: Any, *, run_id: str | None = None, artefato_alvo: str | N
     results: list[dict[str, Any]] = []
     achados: list[dict[str, Any]] = []
     for idx, item in enumerate(items, start=1):
+        if not isinstance(item, dict):
+            results.append(
+                {
+                    "id": f"INC_{idx:03d}",
+                    "operation": "unknown",
+                    "success": False,
+                    "status": "error",
+                    "error": f"Item de lote inválido no índice {idx}: esperado objeto/dicionário, recebido {type(item).__name__}.",
+                }
+            )
+            continue
+
         op_id = str(item.get("id") or f"INC_{idx:03d}")
         try:
             res = execute_single_operation(item)
@@ -296,17 +344,44 @@ def run_motor(payload: Any, *, run_id: str | None = None, artefato_alvo: str | N
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Motor de incerteza determinístico (Revisão Hostil v8.0-beta.3).")
-    parser.add_argument("--input", "-i")
-    parser.add_argument("--out", "-o")
+    parser.add_argument("--input", "-i", help="Arquivo JSON de entrada (se omitido, lê de stdin).")
+    parser.add_argument("--out", "-o", help="Arquivo JSON de saída (se omitido, imprime em stdout).")
+    parser.add_argument("--run-id", help="Identificador opcional da campanha.")
     args = parser.parse_args()
-    req = json.loads(Path(args.input).read_text(encoding="utf-8")) if args.input else json.load(sys.stdin)
-    out = run_motor(req, artefato_alvo=args.input or "stdin")
-    text = json.dumps(out, ensure_ascii=False, indent=2, allow_nan=False)
-    if args.out:
-        Path(args.out).write_text(text, encoding="utf-8")
-    else:
-        print(text)
 
+    try:
+        source = args.input if args.input else sys.stdin
+        req, artefato = read_bounded_json(source, max_bytes=MAX_JSON_PAYLOAD_BYTES)
+        out = run_motor(req, run_id=args.run_id, artefato_alvo=artefato)
+        text = json.dumps(out, ensure_ascii=False, indent=2, allow_nan=False)
+        if args.out:
+            out_path = Path(args.out)
+            out_path.parent.mkdir(parents=True, exist_ok=True)
+            out_path.write_text(text, encoding="utf-8")
+        else:
+            print(text)
+        if isinstance(out, dict) and out.get("status") == "ERRO_VALIDACAO":
+            sys.exit(1)
+    except Exception as error:
+        err_out = json.dumps(
+            {
+                "schema_version": SCHEMA_VERSION,
+                "motor_id": MOTOR_ID,
+                "motor_version": MOTOR_VERSION,
+                "deterministico": True,
+                "status": "ERRO_EXECUCAO",
+                "timestamp": utc_now_iso(),
+                "resultados": {"error_type": type(error).__name__, "error": str(error)},
+                "achados": [],
+                "limitacoes": [],
+            },
+            ensure_ascii=False,
+            indent=2,
+        )
+        if args.out:
+            Path(args.out).write_text(err_out, encoding="utf-8")
+        print(err_out)
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

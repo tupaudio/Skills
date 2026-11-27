@@ -1,3 +1,5 @@
+> **Aviso metodológico:** Piloto exploratório. Linguagem como '100%' descreve apenas a amostra do ensaio R4 (11 documentos), sem generalização.
+
 # Pre-registro da Rodada 4 (R4)
 
 Status: PRONTO PARA LOCK (v1.0, preenchido pelo pesquisador em 2026-11-25).
