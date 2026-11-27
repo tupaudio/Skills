@@ -168,6 +168,18 @@ def run_motor(payload: Any, *, run_id: str | None = None, artefato_alvo: str | N
     results: list[dict[str, Any]] = []
     achados: list[dict[str, Any]] = []
     for idx, item in enumerate(items, start=1):
+        if not isinstance(item, dict):
+            results.append(
+                {
+                    "id": f"ETI_{idx:03d}",
+                    "operation": "unknown",
+                    "success": False,
+                    "status": "error",
+                    "error": f"Item de lote inválido no índice {idx}: esperado objeto/dicionário, recebido {type(item).__name__}.",
+                }
+            )
+            continue
+
         op_id = str(item.get("id") or f"ETI_{idx:03d}")
         try:
             res = execute_single_operation(item)

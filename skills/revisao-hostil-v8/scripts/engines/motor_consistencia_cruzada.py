@@ -180,8 +180,19 @@ def run_motor(payload: Any, *, run_id: str | None = None, artefato_alvo: str | N
     results: list[dict[str, Any]] = []
     achados: list[dict[str, Any]] = []
     ach_seq = 0
-    for q in quantities:
-        qid = str(q.get("quantity_id") or q.get("id") or "Q_001")
+    for idx, q in enumerate(quantities, start=1):
+        if not isinstance(q, dict):
+            results.append(
+                {
+                    "quantity_id": f"Q_{idx:03d}",
+                    "success": False,
+                    "status": "error",
+                    "error": f"Item de quantidade inválido no índice {idx}: esperado objeto/dicionário, recebido {type(q).__name__}.",
+                }
+            )
+            continue
+
+        qid = str(q.get("quantity_id") or q.get("id") or f"Q_{idx:03d}")
         try:
             res = check_quantity_consistency(
                 qid,
