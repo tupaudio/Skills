@@ -91,15 +91,25 @@ def test_t_test_zero_variance_without_reported_p():
 
 
 def test_statistical_power_independent_benchmark_cohen_80pct():
-    # Âncora independente de referência da literatura (Cohen 1988 / G*Power):
-    # Para d = 0.5 (efeito médio), n = 64 por grupo (N_total = 128), alpha = 0.05 bicaudal,
-    # o valor tabelado de referência é 0.8015 (arredondamento clássico comumente reportado no G*Power).
-    # O cálculo analítico exato pela distribuição t não central fornece power = 0.8014596...
+    # Âncora de referência: software G*Power (Faul et al., 2007), valor ~0.8015,
+    # não tabela impressa de Cohen (que apresentava 2 casas decimais, 0.80).
+    # O valor 0.80145963... vem da avaliação analítica exata da distribuição t não central do próprio SciPy (scipy.stats.nct),
+    # não constituindo fonte analítica externa independente da formulação nct.
     # Validamos contra a âncora 0.8015 com tolerância metodológica de 5e-4.
     res = statistical_power_two_means(0.5, 64, alpha=0.05)
     assert abs(res["power"] - 0.8015) < 5e-4
     assert res["adequate_80pct"] is True
     assert res["nan_fallback_applied"] is False
+
+
+def test_statistical_power_negative_d_invariance():
+    # O poder de um teste bicaudal para duas médias depende apenas da magnitude |d| (invariância sob inversão de sinal).
+    for d, n, alpha in [(0.5, 64, 0.05), (1.0, 100, 0.01)]:
+        res_pos = statistical_power_two_means(d, n, alpha=alpha)
+        res_neg = statistical_power_two_means(-d, n, alpha=alpha)
+        assert res_pos["power"] == res_neg["power"]
+        assert res_neg["effect_size_d"] == abs(-d)
+        assert res_neg["nan_fallback_applied"] is False
 
 
 def test_statistical_power_extreme_tail_symmetry_evaluation():
@@ -113,6 +123,26 @@ def test_statistical_power_extreme_tail_symmetry_evaluation():
     assert 0.99999 <= res["power"] <= 1.0
     assert res["adequate_80pct"] is True
     assert res["nan_fallback_applied"] is False
+
+
+def test_statistical_power_nan_fallback_branch_coverage(monkeypatch):
+    # Cobre explicitamente o ramo de salvaguarda quando scipy.stats.nct.sf retorna NaN numérico na cauda inferior.
+    from scipy import stats
+
+    original_sf = stats.nct.sf
+
+    def mock_sf(t, df, nc):
+        # Se for a cauda inferior (nc < 0), simula retorno de NaN numérico
+        if nc < 0:
+            return float("nan")
+        return original_sf(t, df=df, nc=nc)
+
+    monkeypatch.setattr(stats.nct, "sf", mock_sf)
+    res = statistical_power_two_means(1.0, 100, alpha=0.01)
+    assert res["nan_fallback_applied"] is True
+    assert math.isfinite(res["power"])
+    assert 0.0 <= res["power"] <= 1.0
+    assert res["adequate_80pct"] is True
 
 
 @pytest.mark.parametrize(
