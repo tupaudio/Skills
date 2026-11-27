@@ -168,3 +168,12 @@ def test_statistical_power_grid_against_scipy_nct(d, n, alpha):
     expected = float(min(1.0, max(0.0, p_up + p_low)))
     assert abs(out["power"] - expected) < 1e-9
     assert out["adequate_80pct"] == bool(expected >= 0.80)
+
+    # Comparação direta contra stats.nct.cdf(-t_crit, df, nc) onde for finito (59 de 60 pontos na grade):
+    p_low_cdf = stats.nct.cdf(-t_crit, df=df, nc=nc)
+    if math.isfinite(p_low_cdf):
+        assert abs(p_low_raw - p_low_cdf) < 1e-12
+    else:
+        # Ponto isolado de instabilidade numérica do cdf do SciPy: d=1.0, n=100, alpha=0.01
+        assert (d, n, alpha) == (1.0, 100, 0.01)
+        assert abs(p_low_raw - 0.0) < 1e-12
