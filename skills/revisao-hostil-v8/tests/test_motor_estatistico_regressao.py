@@ -91,26 +91,28 @@ def test_t_test_zero_variance_without_reported_p():
 
 
 def test_statistical_power_independent_benchmark_cohen_80pct():
-    # Âncora independente da literatura (Cohen 1988 / G*Power):
-    # d = 0.5 (efeito médio), n = 64 por grupo, alpha = 0.05 bicaudal -> poder tabelado de 0.8015.
-    # Esta asserção compara estritamente com a âncora da literatura (0.8015), não com o valor bruto do scipy,
-    # utilizando a tolerância metodológica de 5e-4.
+    # Âncora independente de referência da literatura (Cohen 1988 / G*Power):
+    # Para d = 0.5 (efeito médio), n = 64 por grupo (N_total = 128), alpha = 0.05 bicaudal,
+    # o valor tabelado de referência é 0.8015 (arredondamento clássico comumente reportado no G*Power).
+    # O cálculo analítico exato pela distribuição t não central fornece power = 0.8014596...
+    # Validamos contra a âncora 0.8015 com tolerância metodológica de 5e-4.
     res = statistical_power_two_means(0.5, 64, alpha=0.05)
     assert abs(res["power"] - 0.8015) < 5e-4
     assert res["adequate_80pct"] is True
-    assert res["underflow_fallback_applied"] is False
+    assert res["nan_fallback_applied"] is False
 
 
-def test_statistical_power_extreme_tail_underflow_fallback():
+def test_statistical_power_extreme_tail_symmetry_evaluation():
     # Em regimes extremos (ex.: d=1.0, n=100, alpha=0.01; df=198, nc=7.071, t_crit=2.6009),
-    # stats.nct.cdf(-t_crit) no SciPy sofre underflow numérico e produz NaN.
-    # O motor trata esse caso via sf para a cauda superior e fallback para 0.0 na cauda inferior,
-    # resultando em valor finito, clipado em [0, 1] e registrando explicitamente underflow_fallback_applied=True.
+    # a chamada direta stats.nct.cdf(-t_crit) do SciPy produz NaN numérico.
+    # Avaliando pela forma simétrica stats.nct.sf(t_crit, df, -nc), obtém-se o valor finito 0.0,
+    # mantendo nan_fallback_applied=False sem necessidade de fallback arbitrário.
+    # A cota teórica da cauda inferior para nc >= 0 é estritamente <= alpha / 2 = 0.005.
     res = statistical_power_two_means(1.0, 100, alpha=0.01)
     assert math.isfinite(res["power"])
     assert 0.99999 <= res["power"] <= 1.0
     assert res["adequate_80pct"] is True
-    assert res["underflow_fallback_applied"] is True
+    assert res["nan_fallback_applied"] is False
 
 
 @pytest.mark.parametrize(
@@ -131,7 +133,7 @@ def test_statistical_power_grid_against_scipy_nct(d, n, alpha):
     nc = d * (n / 2.0) ** 0.5
     t_crit = float(stats.t.ppf(1.0 - alpha / 2.0, df=df))
     p_up = float(stats.nct.sf(t_crit, df=df, nc=nc))
-    p_low_raw = stats.nct.cdf(-t_crit, df=df, nc=nc)
+    p_low_raw = stats.nct.sf(t_crit, df=df, nc=-nc)
     p_low = float(p_low_raw) if math.isfinite(p_low_raw) else 0.0
     expected = float(min(1.0, max(0.0, p_up + p_low)))
     assert abs(out["power"] - expected) < 1e-9

@@ -381,11 +381,13 @@ def statistical_power_two_means(effect_size_d: float, n_per_group: int, *, alpha
     nc = d * math.sqrt(n / 2.0)
     t_crit = float(stats.t.ppf(1.0 - a / 2.0, df=df))
     # Teste bicaudal: P(T > t_crit | nc) + P(T < -t_crit | nc)
-    # Usa sf para cauda superior e cdf para cauda inferior, tratando underflow numérico em caudas extremas
+    # Pela simetria da distribuição t não central: P(T < -t_crit | nc) == P(T > t_crit | -nc) == sf(t_crit, df, -nc).
+    # Avaliar sf(t_crit, df, -nc) evita o NaN numérico gerado pelo cdf(-t_crit) do SciPy em caudas inferiores extremas.
     p_upper = float(stats.nct.sf(t_crit, df=df, nc=nc))
-    p_lower_raw = stats.nct.cdf(-t_crit, df=df, nc=nc)
-    underflow_fallback_applied = not math.isfinite(p_lower_raw)
-    p_lower = 0.0 if underflow_fallback_applied else float(p_lower_raw)
+    p_lower_raw = stats.nct.sf(t_crit, df=df, nc=-nc)
+    nan_fallback_applied = not math.isfinite(p_lower_raw)
+    # Cota teórica: para nc >= 0, a cauda inferior é estritamente <= alpha / 2
+    p_lower = 0.0 if nan_fallback_applied else float(p_lower_raw)
     power = float(np.clip(p_upper + p_lower, 0.0, 1.0))
     return {
         "operation": "statistical_power",
@@ -394,7 +396,7 @@ def statistical_power_two_means(effect_size_d: float, n_per_group: int, *, alpha
         "alpha": a,
         "power": power,
         "adequate_80pct": bool(power >= 0.80),
-        "underflow_fallback_applied": underflow_fallback_applied,
+        "nan_fallback_applied": nan_fallback_applied,
         "status": "ok",
     }
 
