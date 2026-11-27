@@ -227,9 +227,11 @@ def pvalue_distribution_screen(p_values: Any, *, min_n: int = 10) -> dict[str, A
     ps = require_finite_array(p_values, name="p_values", ndim=1)
     if np.any((ps < 0) | (ps > 1)):
         raise ValueError("Valores-p devem estar em [0, 1].")
-    n_min = int(require_finite_number(min_n, "min_n"))
-    if n_min < 1:
+    if isinstance(min_n, bool) or not isinstance(min_n, int):
+        raise ValueError(f"'min_n' deve ser um número inteiro (int), recebido: {type(min_n).__name__}.")
+    if min_n < 1:
         raise ValueError("min_n deve ser >= 1.")
+    n_min = min_n
     if ps.size < n_min:
         return {
             "operation": "pvalue_distribution_screen",
@@ -351,7 +353,15 @@ def run_motor(payload: Any, *, run_id: str | None = None, artefato_alvo: str | N
             results.append({"id": op_id, "operation": item.get("operation"), "success": False, "status": "error", "error": str(err)})
 
     failed = sum(1 for r in results if not r.get("success"))
-    status = "ERRO_VALIDACAO" if failed == len(results) else ("PARCIAL" if failed > 0 else ("COM_ACHADOS" if achados else "OK"))
+    has_partial = any(r.get("status") == "sample_too_small" for r in results if r.get("success"))
+    if failed == len(results):
+        status = "ERRO_VALIDACAO"
+    elif failed > 0 or has_partial:
+        status = "PARCIAL"
+    elif achados:
+        status = "COM_ACHADOS"
+    else:
+        status = "OK"
     return sanitize_for_json(
         {
             "schema_version": SCHEMA_VERSION,
