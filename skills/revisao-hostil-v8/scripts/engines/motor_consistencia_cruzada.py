@@ -80,93 +80,201 @@ def check_quantity_consistency(
     if len(observations) < 2:
         raise ValueError(f"Grandeza '{quantity_id}' requer pelo menos 2 observações para comparação cruzada.")
 
-    # Seleciona nó-raiz (maior autoridade: codigo > planilha > tabela > figura > texto)
-    ordered = sorted(
-        observations,
-        key=lambda obs: SOURCE_AUTHORITY_ORDER.get(str(obs.get("source_type", "texto")).lower(), 99),
-    )
-    anchor = ordered[0]
-    anchor_val = require_finite_number(anchor["value"], f"{quantity_id}.anchor.value")
-    anchor_unit = anchor.get("unit")
+    # Mapeia autoridade para cada observação
+    # Fontes conhecidas: codigo/simulacao(0) > planilha/dataset(1) > tabela(2) > figura/grafico(3) > texto(4) > resumo/conclusao(5)
+    # Se source_type for omitido ou desconhecido, recebe autoridade 99 (paritário)
+    def _auth_rank(obs: dict[str, Any]) -> int:
+        st = obs.get("source_type")
+        if not st:
+            return 99
+        return SOURCE_AUTHORITY_ORDER.get(str(st).lower().strip(), 99)
 
-    nodes: list[dict[str, Any]] = []
-    edges: list[dict[str, Any]] = []
-    divergences: list[dict[str, Any]] = []
+    ranks = [_auth_rank(o) for o in observations]
+    min_rank = min(ranks)
+    count_min = ranks.count(min_rank)
+    has_unique_anchor = (count_min == 1 and min_rank < 99)
 
-    anchor_node_id = f"{quantity_id}:{anchor.get('object_id') or anchor.get('location') or 'root'}"
-    nodes.append(
-        {
-            "node_id": anchor_node_id,
-            "role": "anchor",
-            "source_type": anchor.get("source_type"),
-            "location": anchor.get("location"),
-            "object_id": anchor.get("object_id"),
-            "raw_value": anchor_val,
-            "unit": anchor_unit,
-            "normalized_value": anchor_val,
-        }
-    )
+    if has_unique_anchor:
+        # Hierarquia assimétrica válida: âncora estritamente dominante
+        anchor_idx = ranks.index(min_rank)
+        anchor = observations[anchor_idx]
+        other_obs = [obs for i, obs in enumerate(observations) if i != anchor_idx]
 
-    for idx, obs in enumerate(ordered[1:], start=1):
-        val = require_finite_number(obs["value"], f"{quantity_id}.obs[{idx}].value")
-        unit = obs.get("unit")
-        norm_val, unit_ok, unit_err = _to_reference_unit(val, unit, anchor_unit)
-        node_id = f"{quantity_id}:{obs.get('object_id') or obs.get('location') or f'n{idx}'}"
+        anchor_val = require_finite_number(anchor["value"], f"{quantity_id}.anchor.value")
+        anchor_unit = anchor.get("unit")
 
-        # Tolerância de arredondamento por casas decimais declaradas
-        decimals = obs.get("decimals")
-        round_tol = 0.5 * (10.0 ** (-int(decimals))) if decimals is not None else 0.0
-        eff_abs_tol = max(abs_tolerance, round_tol)
+        nodes: list[dict[str, Any]] = []
+        edges: list[dict[str, Any]] = []
+        divergences: list[dict[str, Any]] = []
 
-        abs_err = abs(norm_val - anchor_val)
-        rel_err = abs_err / abs(anchor_val) if abs(anchor_val) > 1e-12 else (0.0 if abs_err <= eff_abs_tol else float("inf"))
-        consistent = bool(unit_ok and (abs_err <= eff_abs_tol or rel_err <= rel_tolerance))
-
+        anchor_node_id = f"{quantity_id}:{anchor.get('object_id') or anchor.get('location') or 'root'}"
         nodes.append(
             {
-                "node_id": node_id,
-                "role": "representation",
+                "node_id": anchor_node_id,
+                "role": "anchor",
+                "source_type": anchor.get("source_type"),
+                "location": anchor.get("location"),
+                "object_id": anchor.get("object_id"),
+                "raw_value": anchor_val,
+                "unit": anchor_unit,
+                "normalized_value": anchor_val,
+            }
+        )
+
+        for idx, obs in enumerate(other_obs, start=1):
+            val = require_finite_number(obs["value"], f"{quantity_id}.obs[{idx}].value")
+            unit = obs.get("unit")
+            norm_val, unit_ok, unit_err = _to_reference_unit(val, unit, anchor_unit)
+            node_id = f"{quantity_id}:{obs.get('object_id') or obs.get('location') or f'n{idx}'}"
+
+            decimals = obs.get("decimals")
+            round_tol = 0.5 * (10.0 ** (-int(decimals))) if decimals is not None else 0.0
+            eff_abs_tol = max(abs_tolerance, round_tol)
+
+            abs_err = abs(norm_val - anchor_val)
+            rel_err = abs_err / abs(anchor_val) if abs(anchor_val) > 1e-12 else (0.0 if abs_err <= eff_abs_tol else float("inf"))
+            consistent = bool(unit_ok and (abs_err <= eff_abs_tol or rel_err <= rel_tolerance))
+
+            nodes.append(
+                {
+                    "node_id": node_id,
+                    "role": "representation",
+                    "source_type": obs.get("source_type"),
+                    "location": obs.get("location"),
+                    "object_id": obs.get("object_id"),
+                    "raw_value": val,
+                    "unit": unit,
+                    "normalized_value": norm_val if unit_ok else None,
+                }
+            )
+            edges.append(
+                {
+                    "from": anchor_node_id,
+                    "to": node_id,
+                    "consistent": consistent,
+                    "abs_error": abs_err if unit_ok else None,
+                    "rel_error_pct": rel_err * 100.0 if unit_ok and rel_err != float("inf") else None,
+                }
+            )
+
+            if not consistent:
+                divergences.append(
+                    {
+                        "type": "asymmetric",
+                        "quantity_id": quantity_id,
+                        "anchor_source": anchor.get("source_type"),
+                        "anchor_location": anchor.get("location"),
+                        "anchor_value": anchor_val,
+                        "anchor_unit": anchor_unit,
+                        "divergent_source": obs.get("source_type"),
+                        "divergent_location": obs.get("location"),
+                        "divergent_object_id": obs.get("object_id"),
+                        "divergent_value": val,
+                        "divergent_unit": unit,
+                        "normalized_divergent_value": norm_val if unit_ok else None,
+                        "reason": unit_err or f"Divergência numérica: {norm_val:g} vs referência {anchor_val:g} ({anchor_unit or 'adim.'}).",
+                    }
+                )
+
+        return {
+            "operation": "check_quantity_consistency",
+            "quantity_id": quantity_id,
+            "anchor": {"source_type": anchor.get("source_type"), "location": anchor.get("location"), "value": anchor_val, "unit": anchor_unit},
+            "graph": {"nodes": nodes, "edges": edges},
+            "divergences": divergences,
+            "consistent": len(divergences) == 0,
+            "status": "ok" if not divergences else "discrepancy_detected",
+        }
+
+    # Caso Paritário / Empate de Autoridade: Simétrico e Invariante à Ordem
+    # Ordena canonicamente as observações por location, object_id e valor bruto
+    canonical_obs = sorted(
+        observations,
+        key=lambda o: (
+            str(o.get("location") or ""),
+            str(o.get("object_id") or ""),
+            str(o.get("source_type") or ""),
+            float(o.get("value") or 0.0),
+        ),
+    )
+
+    # Converte todas para a unidade da primeira observação canônica (ou mantém nativo)
+    base_unit = canonical_obs[0].get("unit")
+    norm_values: list[tuple[float, bool, str | None]] = []
+    for obs in canonical_obs:
+        v = require_finite_number(obs["value"], f"{quantity_id}.obs.value")
+        u = obs.get("unit")
+        nv, ok, err = _to_reference_unit(v, u, base_unit)
+        norm_values.append((nv, ok, err))
+
+    # Agrupa observações por valor normalizado (dentro da tolerância)
+    groups: list[dict[str, Any]] = []
+    for obs, (nv, ok, err) in zip(canonical_obs, norm_values):
+        val_raw = obs["value"]
+        loc = obs.get("location") or "desconhecido"
+        unit = obs.get("unit")
+        st = obs.get("source_type")
+
+        placed = False
+        if ok:
+            for g in groups:
+                rep_val = g["normalized_value"]
+                abs_err = abs(nv - rep_val)
+                rel_err = abs_err / abs(rep_val) if abs(rep_val) > 1e-12 else abs_err
+                if abs_err <= abs_tolerance or rel_err <= rel_tolerance:
+                    g["occurrences"].append({"location": loc, "raw_value": val_raw, "unit": unit, "source_type": st})
+                    placed = True
+                    break
+        if not placed:
+            groups.append(
+                {
+                    "normalized_value": nv if ok else None,
+                    "unit_ok": ok,
+                    "unit_error": err,
+                    "occurrences": [{"location": loc, "raw_value": val_raw, "unit": unit, "source_type": st}],
+                }
+            )
+
+    nodes = []
+    for idx, obs in enumerate(canonical_obs, start=1):
+        nid = f"{quantity_id}:{obs.get('object_id') or obs.get('location') or f'n{idx}'}"
+        nodes.append(
+            {
+                "node_id": nid,
+                "role": "peer",
                 "source_type": obs.get("source_type"),
                 "location": obs.get("location"),
                 "object_id": obs.get("object_id"),
-                "raw_value": val,
-                "unit": unit,
-                "normalized_value": norm_val if unit_ok else None,
-            }
-        )
-        edges.append(
-            {
-                "from": anchor_node_id,
-                "to": node_id,
-                "consistent": consistent,
-                "abs_error": abs_err if unit_ok else None,
-                "rel_error_pct": rel_err * 100.0 if unit_ok and rel_err != float("inf") else None,
+                "raw_value": obs["value"],
+                "unit": obs.get("unit"),
             }
         )
 
-        if not consistent:
-            divergences.append(
-                {
-                    "quantity_id": quantity_id,
-                    "anchor_source": anchor.get("source_type"),
-                    "anchor_location": anchor.get("location"),
-                    "anchor_value": anchor_val,
-                    "anchor_unit": anchor_unit,
-                    "divergent_source": obs.get("source_type"),
-                    "divergent_location": obs.get("location"),
-                    "divergent_object_id": obs.get("object_id"),
-                    "divergent_value": val,
-                    "divergent_unit": unit,
-                    "normalized_divergent_value": norm_val if unit_ok else None,
-                    "reason": unit_err or f"Divergência numérica: {norm_val:g} vs referência {anchor_val:g} ({anchor_unit or 'adim.'}).",
-                }
-            )
+    divergences = []
+    if len(groups) > 1:
+        # Existe divergência entre pares paritários
+        group_summaries = []
+        for g in groups:
+            locs = sorted(set(str(occ["location"]) for occ in g["occurrences"]))
+            val_str = f"{g['normalized_value']:g} ({base_unit or 'adim.'})" if g["unit_ok"] else f"unidade_invalida ({g['unit_error']})"
+            group_summaries.append(f"valor {val_str} em [{', '.join(locs)}]")
+
+        all_locs = sorted(set(str(o.get("location") or "desconhecido") for o in canonical_obs))
+        divergences.append(
+            {
+                "type": "symmetric_peer_conflict",
+                "quantity_id": quantity_id,
+                "locations": all_locs,
+                "groups": groups,
+                "reason": f"Divergência entre fontes paritárias para a mesma grandeza '{quantity_id}': " + "; ".join(group_summaries) + ".",
+            }
+        )
 
     return {
         "operation": "check_quantity_consistency",
         "quantity_id": quantity_id,
-        "anchor": {"source_type": anchor.get("source_type"), "location": anchor.get("location"), "value": anchor_val, "unit": anchor_unit},
-        "graph": {"nodes": nodes, "edges": edges},
+        "anchor": None,
+        "graph": {"nodes": nodes, "edges": []},
         "divergences": divergences,
         "consistent": len(divergences) == 0,
         "status": "ok" if not divergences else "discrepancy_detected",
@@ -204,34 +312,67 @@ def run_motor(payload: Any, *, run_id: str | None = None, artefato_alvo: str | N
             results.append(res)
             for div in res["divergences"]:
                 ach_seq += 1
-                ev = create_evidence(
-                    f"EV-XCS-{ach_seq:03d}",
-                    "numerica",
-                    artefato_alvo or "grafo_consistencia",
-                    f"{div['anchor_location']} <-> {div['divergent_location']}",
-                    div["reason"],
-                    objeto_id=div.get("divergent_object_id"),
-                    valor_observado=div["divergent_value"],
-                    valor_calculado=div["anchor_value"],
-                    motor_origem=MOTOR_ID,
-                )
-                achados.append(
-                    create_finding(
-                        f"ACH-XCS-{ach_seq:03d}",
-                        f"Divergência cruzada em '{qid}' ({div['anchor_source']} vs {div['divergent_source']})",
-                        "divergencia_consistencia_cruzada",
-                        "CRITICO",
-                        "ALTA",
-                        f"{div['divergent_location']}",
+                if div.get("type") == "symmetric_peer_conflict":
+                    # Conflito simétrico de fontes paritárias (sem âncora)
+                    locs_str = ", ".join(div["locations"])
+                    ev = create_evidence(
+                        f"EV-XCS-{ach_seq:03d}",
+                        "numerica",
+                        artefato_alvo or "grafo_consistencia",
+                        locs_str,
                         div["reason"],
-                        [ev],
-                        estado="CONFIRMADO",
-                        portao="G05",
-                        impacto=f"Quebra de rastreabilidade entre {div['anchor_source']} e {div['divergent_source']} (Efeito Dominó).",
-                        acao_recomendada=f"Alinhar '{div['divergent_location']}' com a fonte primária '{div['anchor_location']}' ou documentar a transformação.",
-                        origem_componente=MOTOR_ID,
+                        objeto_id=None,
+                        valor_observado=None,
+                        valor_calculado=None,
+                        motor_origem=MOTOR_ID,
                     )
-                )
+                    achados.append(
+                        create_finding(
+                            f"ACH-XCS-{ach_seq:03d}",
+                            f"Inconsistência interna paritária em '{qid}'",
+                            "divergencia_consistencia_cruzada",
+                            "MAIOR",
+                            "ALTA",
+                            locs_str,
+                            div["reason"],
+                            [ev],
+                            estado="NAO_VERIFICADO",
+                            portao="G05",
+                            impacto=f"Valores divergentes reportados em diferentes locais ({locs_str}) sem hierarquia ou autoridade que defina a fonte primária.",
+                            acao_recomendada=f"Esclarecer a discrepância entre as localizações [{locs_str}] ou declarar a transformação/relação entre os valores reportados.",
+                            origem_componente=MOTOR_ID,
+                        )
+                    )
+                else:
+                    # Divergência assimétrica contra âncora hierárquica dominante
+                    ev = create_evidence(
+                        f"EV-XCS-{ach_seq:03d}",
+                        "numerica",
+                        artefato_alvo or "grafo_consistencia",
+                        f"{div['anchor_location']} <-> {div['divergent_location']}",
+                        div["reason"],
+                        objeto_id=div.get("divergent_object_id"),
+                        valor_observado=div["divergent_value"],
+                        valor_calculado=div["anchor_value"],
+                        motor_origem=MOTOR_ID,
+                    )
+                    achados.append(
+                        create_finding(
+                            f"ACH-XCS-{ach_seq:03d}",
+                            f"Divergência cruzada em '{qid}' ({div['anchor_source']} vs {div['divergent_source']})",
+                            "divergencia_consistencia_cruzada",
+                            "CRITICO",
+                            "ALTA",
+                            f"{div['divergent_location']}",
+                            div["reason"],
+                            [ev],
+                            estado="CONFIRMADO",
+                            portao="G05",
+                            impacto=f"Quebra de rastreabilidade entre {div['anchor_source']} e {div['divergent_source']} (Efeito Dominó).",
+                            acao_recomendada=f"Alinhar '{div['divergent_location']}' com a fonte primária '{div['anchor_location']}' ou documentar a transformação.",
+                            origem_componente=MOTOR_ID,
+                        )
+                    )
         except Exception as err:
             results.append({"quantity_id": qid, "success": False, "status": "error", "error": str(err)})
 
