@@ -362,17 +362,29 @@ def permutation_test(sample_a: Any, sample_b: Any, *, n_permutations: int = 2000
 
 
 def statistical_power_two_means(effect_size_d: float, n_per_group: int, *, alpha: float = 0.05) -> dict[str, Any]:
+    """Cálculo exato de poder estatístico para duas amostras independentes via distribuição t não central (SciPy nct)."""
     d = abs(require_finite_number(effect_size_d, "effect_size_d"))
-    if n_per_group < 2:
+    n = int(require_finite_number(n_per_group, "n_per_group"))
+    if n < 2:
         raise ValueError("n_per_group deve ser >= 2.")
-    z_alpha = float(stats.norm.ppf(1.0 - alpha / 2.0))
-    ncp = d * math.sqrt(n_per_group / 2.0)
-    power = float(1.0 - stats.norm.cdf(z_alpha - ncp) + stats.norm.cdf(-z_alpha - ncp))
+    a = require_finite_number(alpha, "alpha")
+    if not (0.0 < a < 1.0):
+        raise ValueError("alpha deve estar estritamente entre 0 e 1.")
+
+    df = 2 * n - 2
+    nc = d * math.sqrt(n / 2.0)
+    t_crit = float(stats.t.ppf(1.0 - a / 2.0, df=df))
+    # Teste bicaudal: P(T > t_crit | nc) + P(T < -t_crit | nc)
+    # Usa sf para cauda superior e cdf para cauda inferior, tratando underflow numérico em caudas extremas
+    p_upper = float(stats.nct.sf(t_crit, df=df, nc=nc))
+    p_lower_raw = stats.nct.cdf(-t_crit, df=df, nc=nc)
+    p_lower = float(p_lower_raw) if math.isfinite(p_lower_raw) else 0.0
+    power = float(np.clip(p_upper + p_lower, 0.0, 1.0))
     return {
         "operation": "statistical_power",
         "effect_size_d": d,
-        "n_per_group": n_per_group,
-        "alpha": alpha,
+        "n_per_group": n,
+        "alpha": a,
         "power": power,
         "adequate_80pct": bool(power >= 0.80),
         "status": "ok",
