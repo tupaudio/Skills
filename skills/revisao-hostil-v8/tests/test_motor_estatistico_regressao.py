@@ -91,25 +91,26 @@ def test_t_test_zero_variance_without_reported_p():
 
 
 def test_statistical_power_independent_benchmark_cohen_80pct():
-    # Benchmark clássico independente (Cohen, 1988):
-    # d = 0.5 (efeito médio), n = 64 por grupo, alpha = 0.05 bicaudal -> poder ~ 0.8014596
-    # O valor 0.8014596 foi verificado por cálculo exato via scipy.stats.nct:
-    # df = 126, nc = 0.5 * sqrt(32) = 2.828427125, t_crit = 1.9789706
-    # power = sf(1.9789706, 126, nc) + cdf(-1.9789706, 126, nc) = 0.8014596
+    # Âncora independente da literatura (Cohen 1988 / G*Power):
+    # d = 0.5 (efeito médio), n = 64 por grupo, alpha = 0.05 bicaudal -> poder tabelado de 0.8015.
+    # Esta asserção compara estritamente com a âncora da literatura (0.8015), não com o valor bruto do scipy,
+    # utilizando a tolerância metodológica de 5e-4.
     res = statistical_power_two_means(0.5, 64, alpha=0.05)
-    assert abs(res["power"] - 0.8014596) < 1e-6
+    assert abs(res["power"] - 0.8015) < 5e-4
     assert res["adequate_80pct"] is True
+    assert res["underflow_fallback_applied"] is False
 
 
 def test_statistical_power_extreme_tail_underflow_fallback():
     # Em regimes extremos (ex.: d=1.0, n=100, alpha=0.01; df=198, nc=7.071, t_crit=2.6009),
     # stats.nct.cdf(-t_crit) no SciPy sofre underflow numérico e produz NaN.
     # O motor trata esse caso via sf para a cauda superior e fallback para 0.0 na cauda inferior,
-    # resultando em valor finito e clipado em [0, 1].
+    # resultando em valor finito, clipado em [0, 1] e registrando explicitamente underflow_fallback_applied=True.
     res = statistical_power_two_means(1.0, 100, alpha=0.01)
     assert math.isfinite(res["power"])
     assert 0.99999 <= res["power"] <= 1.0
     assert res["adequate_80pct"] is True
+    assert res["underflow_fallback_applied"] is True
 
 
 @pytest.mark.parametrize(

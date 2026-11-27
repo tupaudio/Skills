@@ -384,7 +384,8 @@ def statistical_power_two_means(effect_size_d: float, n_per_group: int, *, alpha
     # Usa sf para cauda superior e cdf para cauda inferior, tratando underflow numérico em caudas extremas
     p_upper = float(stats.nct.sf(t_crit, df=df, nc=nc))
     p_lower_raw = stats.nct.cdf(-t_crit, df=df, nc=nc)
-    p_lower = float(p_lower_raw) if math.isfinite(p_lower_raw) else 0.0
+    underflow_fallback_applied = not math.isfinite(p_lower_raw)
+    p_lower = 0.0 if underflow_fallback_applied else float(p_lower_raw)
     power = float(np.clip(p_upper + p_lower, 0.0, 1.0))
     return {
         "operation": "statistical_power",
@@ -393,6 +394,7 @@ def statistical_power_two_means(effect_size_d: float, n_per_group: int, *, alpha
         "alpha": a,
         "power": power,
         "adequate_80pct": bool(power >= 0.80),
+        "underflow_fallback_applied": underflow_fallback_applied,
         "status": "ok",
     }
 
