@@ -1,4 +1,4 @@
-> **Aviso metodológico:** Piloto exploratório. Linguagem como 'definitivo', 'superioridade' e '100%' descreve apenas a amostra, não há generalização. Números do R6 referem-se ao commit 7677de3. Precisão 7/10 não reconciliada com os 50 achados CONFIRMADO.
+> **Aviso metodológico:** Piloto exploratório. Linguagem como '100%' descreve apenas a amostra do ensaio R4 (11 documentos), sem generalização.
 
 # Pre-registro da Rodada 4 (R4)
 
