@@ -79,11 +79,11 @@ Validação de caminho de arquivo com tamanho máximo de 50 MB e saneamento de v
 
 ## Instalação e testes
 
-Dependências em `requirements.txt` (`>=`, sem lock com hashes). Ambiente homologado pelo projeto: Python 3.14.6, Windows 11. Testes: `python -m pytest`. A consistência deste arquivo com o código é verificada por `tests/test_skill_md_consistency.py`.
+Dependências em `requirements.txt` (`>=`, sem lock com hashes). Ambiente testado pelo projeto: Python 3.14.6, Windows 11. Testes: `python -m pytest`. A consistência deste arquivo com o código é verificada por `tests/test_skill_md_consistency.py`.
 
 ## Limitações conhecidas
 
-- **Nenhum benchmark mede se a skill acha os erros que revisores humanos acharam.** Os resultados existentes constituem piloto exploratório, sem generalização estatística para taxa de detecção global em manuscritos arbitrários. Os testes automatizados provam que o código se comporta como projetado frente a entradas controladas, não a completude do recall.
+- **Nenhum benchmark estabelece taxa de detecção generalizável.** Os resultados existentes constituem piloto exploratório, sem generalização estatística para taxa de detecção global em manuscritos arbitrários. Os resultados do piloto R6 foram obtidos com o código do commit 7677de3 e não se aplicam automaticamente a esta versão. Os testes automatizados provam que o código se comporta como projetado frente a entradas controladas, não a completude do recall.
 - **`motor_matematico`:** Operações simbólicas não possuem timeout rígido em nível de processo ou thread; expressões altamente complexas ou não lineares podem elevar a latência de execução. A operação `proven_different` assume símbolos genéricos em $\mathbb{C}$ sem hipóteses restritivas de domínio (como positividade ou intervalos reais restritos), podendo reportar inequivalência quando a igualdade só se sustentaria sob restrições tácitas do autor.
 - **`motor_dados` (pvalue_distribution_screen):** O limiar padrão `min_n=10` é uma escolha de engenharia para evitar alta variância amostral em conjuntos com poucas observações. Conjuntos com $N < 10$ retornam `status: sample_too_small` (envelope `PARCIAL`) e `investigation_recommended: false` a menos que `min_n` seja configurado explicitamente.
 - **`motor_consistencia_cruzada`:** Em situações de empate de autoridade ou quando `source_type` é ausente em múltiplas observações divergentes, o motor não elege âncora arbitrária nem presume qual valor está correto; emite achado simétrico com `estado: NAO_VERIFICADO`. Apenas quando há autoridade estritamente superior (ex.: `codigo` frente a `texto`), a fonte dominante torna-se âncora e a divergência é classificada como `CONFIRMADO`.
