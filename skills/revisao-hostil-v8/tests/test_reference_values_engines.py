@@ -213,8 +213,8 @@ def test_ml_leakage_audit_exact_intersection() -> None:
 
 
 def test_pvalue_distribution_screen_analytical() -> None:
-    # Razão em [0.04, 0.05]: todos os 6 valores estão no intervalo crítico
-    pvals = [0.041, 0.042, 0.043, 0.044, 0.048, 0.049]
+    # Razão em [0.04, 0.05]: 10 valores para atingir min_n padrão (todos no intervalo crítico)
+    pvals = [0.041, 0.042, 0.043, 0.044, 0.045, 0.046, 0.047, 0.048, 0.049, 0.0495]
     res = motor_dados.pvalue_distribution_screen(pvals)
     assert math.isclose(res["ratio_near_threshold"], 1.0, rel_tol=1e-7)
 

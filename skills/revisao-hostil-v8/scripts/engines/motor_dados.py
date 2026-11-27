@@ -218,13 +218,33 @@ def ml_leakage_audit(
     }
 
 
-def pvalue_distribution_screen(p_values: Any) -> dict[str, Any]:
+def pvalue_distribution_screen(p_values: Any, *, min_n: int = 10) -> dict[str, Any]:
     """Triagem exploratória de concentração de valores-p próximos de 0.05.
     RESTRIÇÃO METODOLÓGICA: nunca declara p-hacking ou fraude; apenas sinaliza investigação.
+    min_n define a quantidade mínima de valores-p exigida para cálculo de razão estável (escolha de engenharia
+    adotada para evitar alta variância amostral em conjuntos com poucas observações).
     """
     ps = require_finite_array(p_values, name="p_values", ndim=1)
     if np.any((ps < 0) | (ps > 1)):
         raise ValueError("Valores-p devem estar em [0, 1].")
+    n_min = int(require_finite_number(min_n, "min_n"))
+    if n_min < 1:
+        raise ValueError("min_n deve ser >= 1.")
+    if ps.size < n_min:
+        return {
+            "operation": "pvalue_distribution_screen",
+            "total_p_values": int(ps.size),
+            "min_n": n_min,
+            "significant_below_0_05": int(np.sum(ps < 0.05)),
+            "in_0_04_to_0_05": int(np.sum((ps >= 0.04) & (ps < 0.05))),
+            "ratio_near_threshold": None,
+            "investigation_recommended": False,
+            "declares_phacking_or_fraud": False,
+            "methodological_note": (
+                f"Amostra insuficiente ({ps.size} < min_n={n_min}) para triagem de distribuição de valores-p."
+            ),
+            "status": "sample_too_small",
+        }
     sig = ps[ps < 0.05]
     near_threshold = ps[(ps >= 0.04) & (ps < 0.05)]
     ratio_near = float(near_threshold.size / sig.size) if sig.size > 0 else 0.0
@@ -232,6 +252,7 @@ def pvalue_distribution_screen(p_values: Any) -> dict[str, Any]:
     return {
         "operation": "pvalue_distribution_screen",
         "total_p_values": int(ps.size),
+        "min_n": n_min,
         "significant_below_0_05": int(sig.size),
         "in_0_04_to_0_05": int(near_threshold.size),
         "ratio_near_threshold": ratio_near,
@@ -271,7 +292,8 @@ def execute_single_operation(request: dict[str, Any]) -> dict[str, Any]:
             test_timestamps=request.get("test_timestamps"),
         )
     if op == "pvalue_distribution_screen":
-        return pvalue_distribution_screen(request["p_values"])
+        min_n = request.get("min_n", 10)
+        return pvalue_distribution_screen(request["p_values"], min_n=min_n)
     raise ValueError(f"Operação de dados desconhecida: {op}")
 
 
