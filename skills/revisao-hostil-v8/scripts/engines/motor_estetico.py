@@ -79,7 +79,59 @@ def analyze_composition(file_path: str | Path) -> dict[str, Any]:
 
 def run_motor(payload: Any, *, run_id: str | None = None, artefato_alvo: str | None = None) -> dict[str, Any]:
     inner = payload["payload"] if isinstance(payload, dict) and "payload" in payload and "motor_id" in payload else payload
-    res = analyze_composition(inner["file_path"])
+
+    if not isinstance(inner, dict) or "file_path" not in inner or not isinstance(inner["file_path"], (str, Path)):
+        return sanitize_for_json(
+            {
+                "schema_version": SCHEMA_VERSION,
+                "motor_id": MOTOR_ID,
+                "motor_version": MOTOR_VERSION,
+                "run_id": run_id,
+                "deterministico": True,
+                "status": "ERRO_VALIDACAO",
+                "timestamp": utc_now_iso(),
+                "artefato_alvo": artefato_alvo,
+                "hash_artefato": None,
+                "metricas": {"tonal_entropy_bits": 0.0, "aspect_ratio": 0.0, "erros": 1},
+                "resultados": {
+                    "error": "Payload inválido: esperado objeto contendo o caminho obrigatório 'file_path'.",
+                    "file": "",
+                    "sha256": None,
+                },
+                "achados": [],
+                "limitacoes": [
+                    "Métricas composicionais são descritivas e não substituem a interpretação estética e hermenêutica do auditor_artistico."
+                ],
+            }
+        )
+
+    try:
+        res = analyze_composition(inner["file_path"])
+    except Exception as exc:
+        return sanitize_for_json(
+            {
+                "schema_version": SCHEMA_VERSION,
+                "motor_id": MOTOR_ID,
+                "motor_version": MOTOR_VERSION,
+                "run_id": run_id,
+                "deterministico": True,
+                "status": "ERRO_VALIDACAO",
+                "timestamp": utc_now_iso(),
+                "artefato_alvo": artefato_alvo or str(inner["file_path"]),
+                "hash_artefato": None,
+                "metricas": {"tonal_entropy_bits": 0.0, "aspect_ratio": 0.0, "erros": 1},
+                "resultados": {
+                    "error": f"Erro ao analisar composição visual: {exc}",
+                    "file": str(inner["file_path"]),
+                    "sha256": None,
+                },
+                "achados": [],
+                "limitacoes": [
+                    "Métricas composicionais são descritivas e não substituem a interpretação estética e hermenêutica do auditor_artistico."
+                ],
+            }
+        )
+
     return sanitize_for_json(
         {
             "schema_version": SCHEMA_VERSION,
@@ -105,14 +157,39 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Motor composicional e estético (Revisão Hostil v8.0-beta.6).")
     parser.add_argument("--input", "-i")
     parser.add_argument("--out", "-o")
+    parser.add_argument("--run-id")
     args = parser.parse_args()
-    req = json.loads(Path(args.input).read_text(encoding="utf-8")) if args.input else json.load(sys.stdin)
-    out = run_motor(req, artefato_alvo=args.input or "stdin")
-    text = json.dumps(out, ensure_ascii=False, indent=2, allow_nan=False)
-    if args.out:
-        Path(args.out).write_text(text, encoding="utf-8")
-    else:
-        print(text)
+
+    try:
+        req = json.loads(Path(args.input).read_text(encoding="utf-8")) if args.input else json.load(sys.stdin)
+        out = run_motor(req, run_id=args.run_id, artefato_alvo=args.input or "stdin")
+        text = json.dumps(out, ensure_ascii=False, indent=2, allow_nan=False)
+        if args.out:
+            Path(args.out).write_text(text, encoding="utf-8")
+        else:
+            print(text)
+        if out.get("status") == "ERRO_VALIDACAO":
+            sys.exit(1)
+    except Exception as error:
+        err_out = json.dumps(
+            {
+                "schema_version": SCHEMA_VERSION,
+                "motor_id": MOTOR_ID,
+                "motor_version": MOTOR_VERSION,
+                "deterministico": True,
+                "status": "ERRO_EXECUCAO",
+                "timestamp": utc_now_iso(),
+                "resultados": {"error_type": type(error).__name__, "error": str(error)},
+                "achados": [],
+                "limitacoes": [],
+            },
+            ensure_ascii=False,
+            indent=2,
+        )
+        if args.out:
+            Path(args.out).write_text(err_out, encoding="utf-8")
+        print(err_out)
+        sys.exit(1)
 
 
 if __name__ == "__main__":

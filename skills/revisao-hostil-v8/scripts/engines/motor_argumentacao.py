@@ -98,6 +98,33 @@ def audit_argument_map(arguments: list[dict[str, Any]]) -> dict[str, Any]:
 
 def run_motor(payload: Any, *, run_id: str | None = None, artefato_alvo: str | None = None) -> dict[str, Any]:
     inner = payload["payload"] if isinstance(payload, dict) and "payload" in payload and "motor_id" in payload else payload
+
+    if not isinstance(inner, dict) or "arguments" not in inner or not isinstance(inner["arguments"], list):
+        return sanitize_for_json(
+            {
+                "schema_version": SCHEMA_VERSION,
+                "motor_id": MOTOR_ID,
+                "motor_version": MOTOR_VERSION,
+                "run_id": run_id,
+                "deterministico": True,
+                "status": "ERRO_VALIDACAO",
+                "timestamp": utc_now_iso(),
+                "artefato_alvo": artefato_alvo,
+                "hash_artefato": None,
+                "metricas": {"argumentos": 0, "candidatos": 0, "erros": 1},
+                "resultados": {
+                    "error": "Payload inválido: esperado objeto contendo a lista obrigatória 'arguments'.",
+                    "arguments_analyzed": 0,
+                    "candidate_issues": [],
+                },
+                "achados": [],
+                "limitacoes": [
+                    "Este motor audita mapas argumentativos já estruturados em JSON; não realiza extração automática de argumentos a partir de prosa livre.",
+                    "O motor não classifica falácias de forma definitiva; os candidatos exigem julgamento do auditor_metodologia ou auditor_adversarial.",
+                ],
+            }
+        )
+
     res = audit_argument_map(inner["arguments"])
 
     achados: list[dict[str, Any]] = []
@@ -152,14 +179,39 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Motor de argumentação (Revisão Hostil v8.0-beta.5).")
     parser.add_argument("--input", "-i")
     parser.add_argument("--out", "-o")
+    parser.add_argument("--run-id")
     args = parser.parse_args()
-    req = json.loads(Path(args.input).read_text(encoding="utf-8")) if args.input else json.load(sys.stdin)
-    out = run_motor(req, artefato_alvo=args.input or "stdin")
-    text = json.dumps(out, ensure_ascii=False, indent=2, allow_nan=False)
-    if args.out:
-        Path(args.out).write_text(text, encoding="utf-8")
-    else:
-        print(text)
+
+    try:
+        req = json.loads(Path(args.input).read_text(encoding="utf-8")) if args.input else json.load(sys.stdin)
+        out = run_motor(req, run_id=args.run_id, artefato_alvo=args.input or "stdin")
+        text = json.dumps(out, ensure_ascii=False, indent=2, allow_nan=False)
+        if args.out:
+            Path(args.out).write_text(text, encoding="utf-8")
+        else:
+            print(text)
+        if out.get("status") == "ERRO_VALIDACAO":
+            sys.exit(1)
+    except Exception as error:
+        err_out = json.dumps(
+            {
+                "schema_version": SCHEMA_VERSION,
+                "motor_id": MOTOR_ID,
+                "motor_version": MOTOR_VERSION,
+                "deterministico": True,
+                "status": "ERRO_EXECUCAO",
+                "timestamp": utc_now_iso(),
+                "resultados": {"error_type": type(error).__name__, "error": str(error)},
+                "achados": [],
+                "limitacoes": [],
+            },
+            ensure_ascii=False,
+            indent=2,
+        )
+        if args.out:
+            Path(args.out).write_text(err_out, encoding="utf-8")
+        print(err_out)
+        sys.exit(1)
 
 
 if __name__ == "__main__":
