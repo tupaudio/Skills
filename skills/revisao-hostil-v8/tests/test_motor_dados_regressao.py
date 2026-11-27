@@ -4,10 +4,10 @@ from scripts.engines.motor_dados import run_motor, pvalue_distribution_screen
 
 
 def test_pvalue_distribution_screen_sample_too_small():
-    # Com 5 observações e min_n padrão de 10: status sample_too_small
+    # Com 6 observações e min_n padrão de 10: status sample_too_small
     payload = {
         "operation": "pvalue_distribution_screen",
-        "p_values": [0.041, 0.042, 0.043, 0.044, 0.045],
+        "p_values": [0.045, 0.048, 0.049, 0.042, 0.047, 0.01],
     }
     out = run_motor(payload)
     errors = validate_contract(out, "schema_motor.json", raise_on_error=False)
@@ -16,7 +16,7 @@ def test_pvalue_distribution_screen_sample_too_small():
     res = out["resultados"]["results"][0]
     assert res["status"] == "sample_too_small"
     assert res["investigation_recommended"] is False
-    assert res["total_p_values"] == 5
+    assert res["total_p_values"] == 6
     assert res["min_n"] == 10
     assert len(out["achados"]) == 0
 

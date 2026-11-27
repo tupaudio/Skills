@@ -168,7 +168,7 @@ def test_data_integrity_missing_leakage_and_ethical_guardrails() -> None:
     assert tab["missingness_mechanism_classified"] is False
 
     # Triagem de valores-p: nunca declara p-hacking/fraude
-    p_screen = motor_dados.pvalue_distribution_screen([0.045, 0.048, 0.049, 0.042, 0.047, 0.01])
+    p_screen = motor_dados.pvalue_distribution_screen([0.045, 0.048, 0.049, 0.042, 0.047, 0.01], min_n=6)
     assert p_screen["investigation_recommended"] is True
     assert p_screen["declares_phacking_or_fraud"] is False
 
