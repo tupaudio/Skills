@@ -167,3 +167,98 @@ def test_batch_isolation_with_invalid_uncertainty_items() -> None:
     assert math.isclose(res[0]["u_combined"], 0.5, rel_tol=1e-7)
     assert res[1]["success"] is False
     assert res[2]["success"] is False
+
+
+@pytest.mark.parametrize(
+    "name,payload,expected_status,expected_success,error_substr",
+    [
+        (
+            "u=0 explicito propagate_gum",
+            {"operation": "propagate_gum", "expression": "x + 1", "variables": {"x": {"value": 10.0, "u": 0.0}}},
+            "OK",
+            True,
+            None,
+        ),
+        (
+            "u=0 explicito monte_carlo",
+            {"operation": "monte_carlo", "expression": "x + 1", "variables": {"x": {"value": 10.0, "dist": "normal", "std": 0.0}}},
+            "OK",
+            True,
+            None,
+        ),
+        (
+            "uniform sem half_width",
+            {"operation": "monte_carlo", "expression": "x + 1", "variables": {"x": {"value": 10.0, "dist": "uniform"}}},
+            "ERRO_VALIDACAO",
+            False,
+            "distribuição uniforme requer o campo obrigatório 'half_width'",
+        ),
+        (
+            "triangular sem half_width",
+            {"operation": "monte_carlo", "expression": "x + 1", "variables": {"x": {"value": 10.0, "dist": "triangular"}}},
+            "ERRO_VALIDACAO",
+            False,
+            "distribuição triangular requer o campo obrigatório 'half_width'",
+        ),
+        (
+            "std negativo normal",
+            {"operation": "monte_carlo", "expression": "x + 1", "variables": {"x": {"value": 10.0, "dist": "normal", "std": -1.0}}},
+            "ERRO_VALIDACAO",
+            False,
+            "std negativo em 'x'",
+        ),
+        (
+            "half_width negativo uniform",
+            {"operation": "monte_carlo", "expression": "x + 1", "variables": {"x": {"value": 10.0, "dist": "uniform", "half_width": -1.0}}},
+            "ERRO_VALIDACAO",
+            False,
+            "half_width negativo em 'x'",
+        ),
+        (
+            "half_width negativo triangular",
+            {"operation": "monte_carlo", "expression": "x + 1", "variables": {"x": {"value": 10.0, "dist": "triangular", "half_width": -1.0}}},
+            "ERRO_VALIDACAO",
+            False,
+            "half_width negativo em 'x'",
+        ),
+        (
+            "std NaN normal",
+            {"operation": "monte_carlo", "expression": "x + 1", "variables": {"x": {"value": 10.0, "dist": "normal", "std": float("nan")}}},
+            "ERRO_VALIDACAO",
+            False,
+            "deve ser finito (não NaN/Inf)",
+        ),
+        (
+            "std Inf normal",
+            {"operation": "monte_carlo", "expression": "x + 1", "variables": {"x": {"value": 10.0, "dist": "normal", "std": float("inf")}}},
+            "ERRO_VALIDACAO",
+            False,
+            "deve ser finito (não NaN/Inf)",
+        ),
+        (
+            "half_width NaN uniform",
+            {"operation": "monte_carlo", "expression": "x + 1", "variables": {"x": {"value": 10.0, "dist": "uniform", "half_width": float("nan")}}},
+            "ERRO_VALIDACAO",
+            False,
+            "deve ser finito (não NaN/Inf)",
+        ),
+        (
+            "half_width Inf uniform",
+            {"operation": "monte_carlo", "expression": "x + 1", "variables": {"x": {"value": 10.0, "dist": "uniform", "half_width": float("inf")}}},
+            "ERRO_VALIDACAO",
+            False,
+            "deve ser finito (não NaN/Inf)",
+        ),
+    ],
+)
+def test_motor_incerteza_eleven_edge_cases(name, payload, expected_status, expected_success, error_substr):
+    out = motor_incerteza.run_motor(payload)
+    errors = validate_contract(out, "schema_motor.json", raise_on_error=False)
+    assert not errors, f"Schema invalido no caso '{name}': {errors}"
+    assert out["status"] == expected_status
+    res = out["resultados"]["results"][0]
+    assert res["success"] is expected_success
+    if expected_success:
+        assert res["status"] == "ok"
+    else:
+        assert error_substr in res["error"]
