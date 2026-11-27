@@ -51,7 +51,7 @@ revisao-hostil-v8/
 
 ## 3. Tipos de Componentes (Regra das 5 Categorias)
 
-1. **Motores Determinísticos (`scripts/engines/`):** calculam, verificam, comparam e produzem resultados 100% reproduzíveis. Nunca emitem vereditos subjetivos de fraude, plágio ou conformidade jurídica sem fonte verificada.
+1. **Motores Determinísticos (`scripts/engines/`):** calculam, verificam, comparam e produzem resultados determinísticos sob a mesma entrada e o mesmo ambiente. Nunca emitem vereditos subjetivos de fraude, plágio ou conformidade jurídica sem fonte verificada.
 2. **Auditores de Extração e Triagem (`scripts/auditor.py` e extratores):** localizam texto estruturado, equações, tabelas, figuras, referências, metadados e pistas com coordenadas exatas.
 3. **Agentes de Julgamento (`agents/`):** subagentes executados em contextos isolados para interpretar problemas, avaliar validade científica/metodológica, confrontar teses (Challenger/Adversarial) e adjudicar conflitos.
 4. **Perfis e Bases de Conhecimento (`references/profiles/`, `norms/`, `vocabulario/`, `checklists/`):** configuram modos de raciocínio, motores obrigatórios/opcionais, portões aplicáveis, fontes normativas e vocabulário canônico.

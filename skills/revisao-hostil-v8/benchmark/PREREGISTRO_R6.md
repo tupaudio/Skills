@@ -1,3 +1,5 @@
+> **Aviso metodológico:** Piloto exploratório. Linguagem como 'definitivo', 'superioridade' e '100%' descreve apenas a amostra, não há generalização. Números do R6 referem-se ao commit 7677de3. Precisão 7/10 não reconciliada com os 50 achados CONFIRMADO.
+
 # Pre-registro e Resultado Agregado — Rodada 6 (Etapa 2)
 
 ## 1. Escopo e configuracao

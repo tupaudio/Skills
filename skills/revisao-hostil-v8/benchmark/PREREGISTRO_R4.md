@@ -1,3 +1,5 @@
+> **Aviso metodológico:** Piloto exploratório. Linguagem como 'definitivo', 'superioridade' e '100%' descreve apenas a amostra, não há generalização. Números do R6 referem-se ao commit 7677de3. Precisão 7/10 não reconciliada com os 50 achados CONFIRMADO.
+
 # Pre-registro da Rodada 4 (R4)
 
 Status: PRONTO PARA LOCK (v1.0, preenchido pelo pesquisador em 2026-11-25).
