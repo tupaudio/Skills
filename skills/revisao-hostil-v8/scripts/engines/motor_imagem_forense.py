@@ -38,7 +38,7 @@ from scripts.common.provenance import sha256_file
 from scripts.common.validation import MAX_JSON_PAYLOAD_BYTES, read_bounded_json, sanitize_for_json, validate_safe_file_path
 
 MOTOR_ID = "motor_imagem_forense"
-MOTOR_VERSION = "0.1.0-beta.4"
+MOTOR_VERSION = "0.1.0-beta.4.1"
 
 
 def _compute_dhash(img: Image.Image, hash_size: int = 8) -> str:

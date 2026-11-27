@@ -36,7 +36,7 @@ from scripts.common.evidence import create_evidence, create_finding, utc_now_iso
 from scripts.common.validation import MAX_JSON_PAYLOAD_BYTES, read_bounded_json, require_finite_number, sanitize_for_json
 
 MOTOR_ID = "motor_dimensional"
-MOTOR_VERSION = "0.1.0-beta.3"
+MOTOR_VERSION = "0.1.0-beta.3.1"
 
 # Vetor dimensional SI-7: (M, L, T, I, Theta, N, J)
 DimVec = tuple[float, float, float, float, float, float, float]

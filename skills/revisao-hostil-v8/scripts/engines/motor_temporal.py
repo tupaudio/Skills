@@ -39,7 +39,7 @@ from scripts.common.evidence import create_evidence, create_finding, utc_now_iso
 from scripts.common.validation import MAX_JSON_PAYLOAD_BYTES, read_bounded_json, sanitize_for_json
 
 MOTOR_ID = "motor_temporal"
-MOTOR_VERSION = "0.2.0-beta.5.2"
+MOTOR_VERSION = "0.2.0-beta.5.3"
 
 _DATE_ONLY_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 _DATETIME_RE = re.compile(r"^\d{4}-\d{2}-\d{2}[T ]\d{2}:\d{2}(?::\d{2}(?:\.\d+)?)?(?:Z|[+-]\d{2}:\d{2})?$")

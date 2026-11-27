@@ -36,7 +36,7 @@ from scripts.common.provenance import sha256_file
 from scripts.common.validation import MAX_JSON_PAYLOAD_BYTES, read_bounded_json, sanitize_for_json, validate_safe_file_path
 
 MOTOR_ID = "motor_estetico"
-MOTOR_VERSION = "0.1.0-beta.6"
+MOTOR_VERSION = "0.1.0-beta.6.1"
 PHI = (1.0 + math.sqrt(5.0)) / 2.0
 
 

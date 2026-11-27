@@ -36,7 +36,7 @@ from scripts.common.evidence import create_evidence, create_finding, utc_now_iso
 from scripts.common.validation import MAX_JSON_PAYLOAD_BYTES, read_bounded_json, sanitize_for_json
 
 MOTOR_ID = "motor_etica"
-MOTOR_VERSION = "0.1.0-beta.5"
+MOTOR_VERSION = "0.1.0-beta.5.1"
 
 DECLARATION_PATTERNS: dict[str, re.Pattern[str]] = {
     "aprovacao_etica": re.compile(r"\b(CEP|CAAE|IRB|comit[êe]\s+de\s+[ée]tica|ethics\s+committee|ethical\s+approval)\b", re.IGNORECASE),

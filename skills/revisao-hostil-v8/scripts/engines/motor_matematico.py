@@ -61,7 +61,7 @@ from scripts.common.validation import (
 )
 
 MOTOR_ID = "motor_matematico"
-MOTOR_VERSION = "8.0.0-beta.2"
+MOTOR_VERSION = "8.1.0-beta.1"
 
 _trapz = getattr(np, "trapezoid", getattr(np, "trapz", None))
 

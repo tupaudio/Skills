@@ -36,7 +36,7 @@ from scripts.common.evidence import create_evidence, create_finding, utc_now_iso
 from scripts.common.validation import MAX_JSON_PAYLOAD_BYTES, read_bounded_json, sanitize_for_json
 
 MOTOR_ID = "motor_linguagem"
-MOTOR_VERSION = "0.1.0-beta.4"
+MOTOR_VERSION = "0.1.0-beta.4.1"
 
 SENTENCE_SPLIT_RE = re.compile(r"(?<=[.!?])\s+")
 ACRONYM_RE = re.compile(r"\b([A-Z]{2,6})\b")

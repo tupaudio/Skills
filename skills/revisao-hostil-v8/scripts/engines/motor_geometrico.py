@@ -38,7 +38,7 @@ from scripts.common.evidence import create_evidence, create_finding, utc_now_iso
 from scripts.common.validation import MAX_JSON_PAYLOAD_BYTES, read_bounded_json, require_finite_array, require_finite_number, sanitize_for_json
 
 MOTOR_ID = "motor_geometrico"
-MOTOR_VERSION = "0.1.0-beta.3"
+MOTOR_VERSION = "0.1.0-beta.3.1"
 
 
 def polygon_2d(vertices: Any, *, reported_area: float | None = None, rel_tolerance: float = 0.01) -> dict[str, Any]:

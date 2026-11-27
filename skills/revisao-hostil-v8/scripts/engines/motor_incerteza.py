@@ -38,7 +38,7 @@ from scripts.common.validation import MAX_JSON_PAYLOAD_BYTES, read_bounded_json,
 from scripts.engines.motor_matematico import SafeExpressionParser
 
 MOTOR_ID = "motor_incerteza"
-MOTOR_VERSION = "0.1.0-beta.3"
+MOTOR_VERSION = "0.2.0-beta.1"
 
 
 def propagate_gum(

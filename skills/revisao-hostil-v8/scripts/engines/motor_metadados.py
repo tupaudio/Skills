@@ -30,7 +30,7 @@ from scripts.common.provenance import sha256_file
 from scripts.common.validation import MAX_JSON_PAYLOAD_BYTES, read_bounded_json, sanitize_for_json
 
 MOTOR_ID = "motor_metadados"
-MOTOR_VERSION = "0.1.0-beta.5"
+MOTOR_VERSION = "0.1.0-beta.5.1"
 
 
 def audit_package_metadata(

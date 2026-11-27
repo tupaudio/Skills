@@ -31,7 +31,7 @@ from scripts.common.evidence import create_evidence, create_finding, utc_now_iso
 from scripts.common.validation import MAX_JSON_PAYLOAD_BYTES, read_bounded_json, require_finite_number, sanitize_for_json
 
 MOTOR_ID = "motor_risco"
-MOTOR_VERSION = "0.1.0-beta.6"
+MOTOR_VERSION = "0.1.0-beta.6.1"
 
 CONTROL_HIERARCHY_RANK = {
     "eliminacao": 1,

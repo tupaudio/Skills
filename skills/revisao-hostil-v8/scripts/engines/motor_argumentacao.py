@@ -35,7 +35,7 @@ from scripts.common.evidence import create_evidence, create_finding, utc_now_iso
 from scripts.common.validation import MAX_JSON_PAYLOAD_BYTES, read_bounded_json, sanitize_for_json
 
 MOTOR_ID = "motor_argumentacao"
-MOTOR_VERSION = "0.1.0-beta.5"
+MOTOR_VERSION = "0.1.0-beta.5.1"
 
 OVERGENERALIZATION_RE = re.compile(
     r"\b(todos\s+os\s+casos|em\s+qualquer\s+cen[áa]rio|universalmente|sem\s+exce[çc][ãa]o|always\s+holds|in\s+all\s+cases)\b",

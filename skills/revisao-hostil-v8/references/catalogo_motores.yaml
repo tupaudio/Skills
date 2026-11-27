@@ -7,7 +7,7 @@ motores:
   # FASE 2 — CORE / LEGADO ESTABILIZADO
   # =========================================================================
   - id: motor_matematico
-    versao: "8.0.0-beta.2"
+    versao: "8.1.0-beta.1"
     categoria: cientifico_universal
     fase_alvo: beta.2
     status: implementado_beta2
@@ -36,7 +36,7 @@ motores:
   # FASE 3 — MOTORES CIENTÍFICOS UNIVERSAIS
   # =========================================================================
   - id: motor_dimensional
-    versao: "0.1.0-beta.3"
+    versao: "0.1.0-beta.3.1"
     categoria: cientifico_universal
     fase_alvo: beta.3
     status: implementado_beta3
@@ -57,7 +57,7 @@ motores:
     perfil_obrigatorio: false
 
   - id: motor_estatistico
-    versao: "0.2.0-beta.5.3"
+    versao: "0.3.0-beta.1"
     categoria: cientifico_universal
     fase_alvo: beta.3
     status: implementado_beta3
@@ -82,7 +82,7 @@ motores:
     perfil_obrigatorio: false
 
   - id: motor_geometrico
-    versao: "0.1.0-beta.3"
+    versao: "0.1.0-beta.3.1"
     categoria: cientifico_universal
     fase_alvo: beta.3
     status: implementado_beta3
@@ -106,7 +106,7 @@ motores:
     perfil_obrigatorio: false
 
   - id: motor_incerteza
-    versao: "0.1.0-beta.3"
+    versao: "0.2.0-beta.1"
     categoria: cientifico_universal
     fase_alvo: beta.3
     status: implementado_beta3
@@ -130,7 +130,7 @@ motores:
     perfil_obrigatorio: false
 
   - id: motor_dados
-    versao: "0.1.0-beta.3"
+    versao: "0.2.0-beta.1"
     categoria: cientifico_universal
     fase_alvo: beta.3
     status: implementado_beta3
@@ -158,7 +158,7 @@ motores:
   # FASE 4 — TEXTO, FIGURAS, IMAGENS E CONSISTÊNCIA CRUZADA
   # =========================================================================
   - id: motor_linguagem
-    versao: "0.1.0-beta.4"
+    versao: "0.1.0-beta.4.1"
     categoria: texto_e_visual
     fase_alvo: beta.4
     status: implementado_beta4
@@ -178,7 +178,7 @@ motores:
     perfil_obrigatorio: false
 
   - id: motor_figuras
-    versao: "0.1.0-beta.4"
+    versao: "0.1.0-beta.4.1"
     categoria: texto_e_visual
     fase_alvo: beta.4
     status: implementado_beta4
@@ -200,7 +200,7 @@ motores:
     perfil_obrigatorio: false
 
   - id: motor_imagem_forense
-    versao: "0.1.0-beta.4"
+    versao: "0.1.0-beta.4.1"
     categoria: texto_e_visual
     fase_alvo: beta.4
     status: implementado_beta4
@@ -222,7 +222,7 @@ motores:
       - "Nunca classificar imagem como adulterada apenas por diferença de compressão ou ausência de metadados."
 
   - id: motor_consistencia_cruzada
-    versao: "0.1.0-beta.4"
+    versao: "0.2.0-beta.1"
     categoria: texto_e_visual
     fase_alvo: beta.4
     status: implementado_beta4
@@ -247,7 +247,7 @@ motores:
   # FASE 5 — INTEGRIDADE CIENTÍFICA E METODOLOGIA
   # =========================================================================
   - id: motor_etica
-    versao: "0.1.0-beta.5"
+    versao: "0.1.0-beta.5.1"
     categoria: integridade_cientifica
     fase_alvo: beta.5
     status: implementado_beta5
@@ -270,7 +270,7 @@ motores:
       - "Presença de número de protocolo CEP/IRB não certifica conformidade ética ou legal."
 
   - id: motor_argumentacao
-    versao: "0.1.0-beta.5"
+    versao: "0.1.0-beta.5.1"
     categoria: integridade_cientifica
     fase_alvo: beta.5
     status: implementado_beta5
@@ -291,7 +291,7 @@ motores:
       - "Apresenta candidatos estruturados para avaliação dos auditores; não classifica falácias de forma definitiva."
 
   - id: motor_evidencia
-    versao: "0.1.0-beta.5"
+    versao: "0.1.0-beta.5.1"
     categoria: integridade_cientifica
     fase_alvo: beta.5
     status: implementado_beta5
@@ -310,7 +310,7 @@ motores:
     perfil_obrigatorio: true
 
   - id: motor_temporal
-    versao: "0.2.0-beta.5.2"
+    versao: "0.2.0-beta.5.3"
     categoria: integridade_cientifica
     fase_alvo: beta.5
     status: implementado_beta5
@@ -330,7 +330,7 @@ motores:
     perfil_obrigatorio: false
 
   - id: motor_nomenclatura
-    versao: "0.1.0-beta.5"
+    versao: "0.1.0-beta.5.1"
     categoria: integridade_cientifica
     fase_alvo: beta.5
     status: implementado_beta5
@@ -349,7 +349,7 @@ motores:
     perfil_obrigatorio: false
 
   - id: motor_metadados
-    versao: "0.1.0-beta.5"
+    versao: "0.1.0-beta.5.1"
     categoria: integridade_cientifica
     fase_alvo: beta.5
     status: implementado_beta5
@@ -367,7 +367,7 @@ motores:
     perfil_obrigatorio: false
 
   - id: motor_reprodutibilidade
-    versao: "0.1.0-beta.5"
+    versao: "0.1.0-beta.5.1"
     categoria: integridade_cientifica
     fase_alvo: beta.5
     status: implementado_beta5
@@ -386,7 +386,7 @@ motores:
     perfil_obrigatorio: false
 
   - id: motor_qualitativo
-    versao: "0.1.0-beta.5"
+    versao: "0.1.0-beta.5.1"
     categoria: especializado_perfil
     fase_alvo: beta.5
     status: implementado_beta5
@@ -412,7 +412,7 @@ motores:
   # FASE 6 — NORMAS E MOTORES ESPECIALIZADOS POR DOMÍNIO
   # =========================================================================
   - id: motor_normas
-    versao: "0.1.0-beta.6"
+    versao: "0.1.0-beta.6.1"
     categoria: normativo
     fase_alvo: beta.6
     status: implementado_beta6
@@ -435,7 +435,7 @@ motores:
       - "Se versão vigente ou aplicabilidade não puder ser confirmada, retornar NAO_VERIFICADO."
 
   - id: motor_risco
-    versao: "0.1.0-beta.6"
+    versao: "0.1.0-beta.6.1"
     categoria: especializado_perfil
     fase_alvo: beta.6
     status: implementado_beta6
@@ -454,7 +454,7 @@ motores:
     perfil_obrigatorio: true
 
   - id: motor_estetico
-    versao: "0.1.0-beta.6"
+    versao: "0.1.0-beta.6.1"
     categoria: especializado_perfil
     fase_alvo: beta.6
     status: implementado_beta6

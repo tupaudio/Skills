@@ -41,27 +41,27 @@ Estados dos achados (`scripts/common/evidence.py`): `ABERTO`, `EM_ANALISE`, `CON
 
 | Motor | Versão | Verifica | Operações |
 | --- | --- | --- | --- |
-| `motor_argumentacao` | `0.1.0-beta.5` | Estrutura de argumentos e candidatos a falácia | `audit_argument_map` |
-| `motor_consistencia_cruzada` | `0.1.0-beta.4` | Mesma grandeza em código × texto × tabela | `check_quantity_consistency` |
-| `motor_dados` | `0.1.0-beta.3` | Outliers, qualidade tabular, amostra × valores reportados, vazamento em ML, distribuição de p-valores | `detect_outliers`, `ml_leakage_audit`, `pvalue_distribution_screen`, `sample_vs_reported`, `tabular_quality` |
-| `motor_dimensional` | `0.1.0-beta.3` | Homogeneidade dimensional, conversão de unidades, potência × energia | `convert_unit`, `equation_homogeneity`, `expression_dimension`, `power_vs_energy` |
-| `motor_estatistico` | `0.2.0-beta.5.3` | Testes t, ANOVA, Mann-Whitney, TOST, IC, bootstrap, permutação, poder, comparações múltiplas | `anova_oneway`, `assumptions_check`, `autocorrelation`, `bootstrap_ci`, `confidence_interval`, `mann_whitney`, `multiple_comparisons`, `permutation_test`, `statistical_power`, `t_test_independent`, `t_test_paired`, `tost_equivalence` |
-| `motor_estetico` | `0.1.0-beta.6` | Análise composicional (perfil artes) | `analyze_composition` |
-| `motor_etica` | `0.1.0-beta.5` | Triagem de declarações éticas e similaridade textual (nunca declara plágio) | `check_text_similarity`, `screen_ethics_declarations` |
-| `motor_evidencia` | `0.1.0-beta.5` | Qualidade de evidência por framework (ex.: GRADE) | `evaluate_evidence_framework` |
-| `motor_figuras` | `0.1.0-beta.4` | Inventário e inspeção de figuras | `build_visual_inventory`, `inspect_figure` |
-| `motor_geometrico` | `0.1.0-beta.3` | Sólidos 3D, polígonos, malhas, rotações, tolerâncias, fator de forma | `aabb_collision_3d`, `mesh_quality`, `polygon_2d`, `shell_mass_consistency`, `solid_3d`, `tolerance_stackup`, `validate_rotation_matrix`, `view_factor_coaxial_disks` |
-| `motor_imagem_forense` | `0.1.0-beta.4` | Metadados e duplicatas de imagem | `check_image_duplicates`, `inspect_image_forensics` |
-| `motor_incerteza` | `0.1.0-beta.3` | Propagação GUM e Monte Carlo | `monte_carlo`, `propagate_gum` |
-| `motor_linguagem` | `0.1.0-beta.4` | Linguagem científica (afirmações absolutas, hedging) | `analyze_language` (entrada: `{"text": ...}`) |
-| `motor_matematico` | `8.0.0-beta.2` | Verificação simbólica/numérica (plug-in de fórmula, derivada, integral, EDO, matrizes, AHP, MPC) | `ahp_matrix`, `differentiate`, `energy_profile`, `formula`, `integrate`, `linear_system`, `matrix`, `mpc_feasibility`, `ode_bvp`, `ode_ivp`, `ode_symbolic`, `plug_in`, `simplify` |
-| `motor_metadados` | `0.1.0-beta.5` | Metadados do pacote e anonimato | `audit_package_metadata` |
-| `motor_nomenclatura` | `0.1.0-beta.5` | Símbolos definidos × usados | `audit_nomenclature` |
-| `motor_normas` | `0.1.0-beta.6` | Citação normativa; sem fonte oficial verificada devolve NAO_VERIFICADO | `verify_norm_citation` |
-| `motor_qualitativo` | `0.1.0-beta.5` | Kappa de Cohen e alfa de Krippendorff | `cohens_kappa`, `krippendorff_alpha_nominal` |
-| `motor_reprodutibilidade` | `0.1.0-beta.5` | Dados, scripts e ambiente declarados | `audit_reproducibility` |
-| `motor_risco` | `0.1.0-beta.6` | Matriz de risco e índice de exposição ocupacional | `evaluate_exposure_index`, `evaluate_risk_matrix` |
-| `motor_temporal` | `0.2.0-beta.5.2` | Cronologia e precedência de eventos | `check_chronology` |
+| `motor_argumentacao` | `0.1.0-beta.5.1` | Estrutura de argumentos e candidatos a falácia | `audit_argument_map` |
+| `motor_consistencia_cruzada` | `0.2.0-beta.1` | Mesma grandeza em código × texto × tabela | `check_quantity_consistency` |
+| `motor_dados` | `0.2.0-beta.1` | Outliers, qualidade tabular, amostra × valores reportados, vazamento em ML, distribuição de p-valores | `detect_outliers`, `ml_leakage_audit`, `pvalue_distribution_screen`, `sample_vs_reported`, `tabular_quality` |
+| `motor_dimensional` | `0.1.0-beta.3.1` | Homogeneidade dimensional, conversão de unidades, potência × energia | `convert_unit`, `equation_homogeneity`, `expression_dimension`, `power_vs_energy` |
+| `motor_estatistico` | `0.3.0-beta.1` | Testes t, ANOVA, Mann-Whitney, TOST, IC, bootstrap, permutação, poder, comparações múltiplas | `anova_oneway`, `assumptions_check`, `autocorrelation`, `bootstrap_ci`, `confidence_interval`, `mann_whitney`, `multiple_comparisons`, `permutation_test`, `statistical_power`, `t_test_independent`, `t_test_paired`, `tost_equivalence` |
+| `motor_estetico` | `0.1.0-beta.6.1` | Análise composicional (perfil artes) | `analyze_composition` |
+| `motor_etica` | `0.1.0-beta.5.1` | Triagem de declarações éticas e similaridade textual (nunca declara plágio) | `check_text_similarity`, `screen_ethics_declarations` |
+| `motor_evidencia` | `0.1.0-beta.5.1` | Qualidade de evidência por framework (ex.: GRADE) | `evaluate_evidence_framework` |
+| `motor_figuras` | `0.1.0-beta.4.1` | Inventário e inspeção de figuras | `build_visual_inventory`, `inspect_figure` |
+| `motor_geometrico` | `0.1.0-beta.3.1` | Sólidos 3D, polígonos, malhas, rotações, tolerâncias, fator de forma | `aabb_collision_3d`, `mesh_quality`, `polygon_2d`, `shell_mass_consistency`, `solid_3d`, `tolerance_stackup`, `validate_rotation_matrix`, `view_factor_coaxial_disks` |
+| `motor_imagem_forense` | `0.1.0-beta.4.1` | Metadados e duplicatas de imagem | `check_image_duplicates`, `inspect_image_forensics` |
+| `motor_incerteza` | `0.2.0-beta.1` | Propagação GUM e Monte Carlo | `monte_carlo`, `propagate_gum` |
+| `motor_linguagem` | `0.1.0-beta.4.1` | Linguagem científica (afirmações absolutas, hedging) | `analyze_language` (entrada: `{"text": ...}`) |
+| `motor_matematico` | `8.1.0-beta.1` | Verificação simbólica/numérica (plug-in de fórmula, derivada, integral, EDO, matrizes, AHP, MPC) | `ahp_matrix`, `differentiate`, `energy_profile`, `formula`, `integrate`, `linear_system`, `matrix`, `mpc_feasibility`, `ode_bvp`, `ode_ivp`, `ode_symbolic`, `plug_in`, `simplify` |
+| `motor_metadados` | `0.1.0-beta.5.1` | Metadados do pacote e anonimato | `audit_package_metadata` |
+| `motor_nomenclatura` | `0.1.0-beta.5.1` | Símbolos definidos × usados | `audit_nomenclature` |
+| `motor_normas` | `0.1.0-beta.6.1` | Citação normativa; sem fonte oficial verificada devolve NAO_VERIFICADO | `verify_norm_citation` |
+| `motor_qualitativo` | `0.1.0-beta.5.1` | Kappa de Cohen e alfa de Krippendorff | `cohens_kappa`, `krippendorff_alpha_nominal` |
+| `motor_reprodutibilidade` | `0.1.0-beta.5.1` | Dados, scripts e ambiente declarados | `audit_reproducibility` |
+| `motor_risco` | `0.1.0-beta.6.1` | Matriz de risco e índice de exposição ocupacional | `evaluate_exposure_index`, `evaluate_risk_matrix` |
+| `motor_temporal` | `0.2.0-beta.5.3` | Cronologia e precedência de eventos | `check_chronology` |
 
 Todos têm CLI. Motores do catálogo ainda **planejados** (Fase 8): `motor_integracao`, `motor_meta`.
 
