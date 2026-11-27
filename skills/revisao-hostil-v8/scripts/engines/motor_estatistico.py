@@ -520,12 +520,31 @@ def run_motor(payload: Any, *, run_id: str | None = None, artefato_alvo: str | N
                 res.get("status") in {"undefined_zero_variance", "degenerate_zero_differences"}
                 and res.get("reported_p") is not None
             ):
+                is_zero_diff = False
+                if res.get("operation") == "t_test_independent":
+                    is_zero_diff = abs(float(res.get("mean_a", 0.0)) - float(res.get("mean_b", 0.0))) <= 1e-15
+                elif res.get("operation") == "t_test_paired":
+                    is_zero_diff = abs(float(res.get("mean_diff", 0.0))) <= 1e-15 or res.get("status") == "degenerate_zero_differences"
+
+                if is_zero_diff:
+                    desc = (
+                        "O valor-p reportado não pode ser verificado deterministicamente porque a variância dos dados "
+                        "é nula e as médias são idênticas, resultando em uma indeterminação (0/0) da estatística t."
+                    )
+                    ev_content = f"variancia_nula=True e diferenca_medias=0.0 (indeterminacao 0/0) vs p_reportado={res.get('reported_p')}"
+                else:
+                    desc = (
+                        "O valor-p reportado não pode ser verificado deterministicamente porque a variância dos dados "
+                        "é nula e as médias são distintas, tornando a estatística t não finita (|t| -> inf)."
+                    )
+                    ev_content = f"variancia_nula=True e diferenca_medias!=0.0 (|t| -> inf) vs p_reportado={res.get('reported_p')}"
+
                 ev = create_evidence(
                     f"EV-EST-{idx:03d}",
                     "numerica",
                     artefato_alvo or "payload_inline",
                     op_id,
-                    f"variancia_nula=True vs p_reportado={res.get('reported_p')}; estatistica e p-valor indefinidos",
+                    ev_content,
                     valor_observado=res.get("reported_p"),
                     valor_calculado=None,
                     motor_origem=MOTOR_ID,
@@ -538,7 +557,7 @@ def run_motor(payload: Any, *, run_id: str | None = None, artefato_alvo: str | N
                         "MODERADO",
                         "ALTA",
                         op_id,
-                        "O valor-p reportado não pode ser verificado deterministicamente porque a variância dos dados é nula, tornando a estatística t indefinida.",
+                        desc,
                         [ev],
                         estado="NAO_VERIFICADO",
                         portao="G04",
