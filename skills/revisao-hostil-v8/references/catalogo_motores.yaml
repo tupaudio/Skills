@@ -222,7 +222,7 @@ motores:
       - "Nunca classificar imagem como adulterada apenas por diferença de compressão ou ausência de metadados."
 
   - id: motor_consistencia_cruzada
-    versao: "0.3.0-beta.1"
+    versao: "0.4.0-beta.1"
     categoria: texto_e_visual
     fase_alvo: beta.4
     status: implementado_beta4

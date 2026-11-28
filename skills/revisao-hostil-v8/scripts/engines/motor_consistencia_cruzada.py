@@ -37,7 +37,7 @@ from scripts.common.validation import MAX_JSON_PAYLOAD_BYTES, read_bounded_json,
 from scripts.engines.motor_dimensional import convert_unit
 
 MOTOR_ID = "motor_consistencia_cruzada"
-MOTOR_VERSION = "0.3.0-beta.1"
+MOTOR_VERSION = "0.4.0-beta.1"
 
 # Ordem canônica de autoridade da fonte (menor índice = mais próximo do cálculo original)
 SOURCE_AUTHORITY_ORDER = {
@@ -99,8 +99,15 @@ def check_quantity_consistency(
                 f"Observação {idx} da grandeza '{quantity_id}' possui source_type desconhecido: {st!r}. "
                 f"Tipos aceitos: {accepted_types}."
             )
+        loc = obs.get("location")
+        if not isinstance(loc, str) or not loc.strip():
+            raise ValueError(
+                f"Observação {idx} da grandeza '{quantity_id}' possui location inválido: {loc!r}. "
+                f"Para grandezas com 2 ou mais observações, location deve ser string não vazia."
+            )
         obs_copy = dict(obs)
         obs_copy["source_type"] = st_clean
+        obs_copy["location"] = loc.strip()
         normalized_observations.append(obs_copy)
 
     observations = normalized_observations

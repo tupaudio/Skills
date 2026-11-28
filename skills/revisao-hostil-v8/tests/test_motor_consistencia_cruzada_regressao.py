@@ -332,3 +332,164 @@ def test_observation_non_dict_rejected_in_batch_partial():
     res_str = out["resultados"]["quantities"][2]
     assert res_str["success"] is False
     assert "Observação 2 da grandeza 'Q_obs_str' inválida: esperado dict, recebido str." in res_str["error"]
+
+
+def test_location_required_invalid_values_both_orders():
+    """Com 2+ observações, location ausente, None, vazio, espaços ou não-string gera erro nas duas ordens."""
+    casos_invalidos = [
+        ("ausente", None, False),
+        ("none", None, True),
+        ("vazio", "", True),
+        ("espacos", "   ", True),
+        ("nao_string", 123, True),
+    ]
+    for nome, bad_val, incluir_chave in casos_invalidos:
+        obs_ok = {"location": "p.1", "value": 10.0, "source_type": "texto"}
+        obs_bad = {"value": 12.0, "source_type": "texto"}
+        if incluir_chave:
+            obs_bad["location"] = bad_val
+        expected_repr = repr(bad_val)
+
+        # Ordem 1: inválida na posição 2
+        out1 = motor_consistencia_cruzada.run_motor(
+            {"quantities": [{"quantity_id": f"Q_{nome}_1", "observations": [obs_ok, obs_bad]}]}
+        )
+        validate_contract(out1, "schema_motor.json")
+        assert out1["status"] == "ERRO_VALIDACAO"
+        err1 = out1["resultados"]["quantities"][0]["error"]
+        assert "Observação 2" in err1
+        assert expected_repr in err1
+        assert "location deve ser string não vazia" in err1
+
+        # Ordem 2: inválida na posição 1
+        out2 = motor_consistencia_cruzada.run_motor(
+            {"quantities": [{"quantity_id": f"Q_{nome}_2", "observations": [obs_bad, obs_ok]}]}
+        )
+        validate_contract(out2, "schema_motor.json")
+        assert out2["status"] == "ERRO_VALIDACAO"
+        err2 = out2["resultados"]["quantities"][0]["error"]
+        assert "Observação 1" in err2
+        assert expected_repr in err2
+        assert "location deve ser string não vazia" in err2
+
+
+def test_location_batch_partial_and_all_invalid():
+    """Lote misto (válida + sem location) => PARCIAL preservando a válida; todas inválidas => ERRO_VALIDACAO."""
+    p_misto = {
+        "quantities": [
+            {
+                "quantity_id": "Q_ok",
+                "observations": [
+                    {"location": "sim.py", "value": 10.0, "source_type": "codigo"},
+                    {"location": "artigo.tex", "value": 10.0, "source_type": "texto"},
+                ],
+            },
+            {
+                "quantity_id": "Q_sem_loc",
+                "observations": [
+                    {"value": 10.0, "source_type": "codigo"},
+                    {"location": "artigo.tex", "value": 12.0, "source_type": "texto"},
+                ],
+            },
+        ]
+    }
+    out_misto = motor_consistencia_cruzada.run_motor(p_misto)
+    validate_contract(out_misto, "schema_motor.json")
+    assert out_misto["status"] == "PARCIAL"
+    assert out_misto["metricas"]["sucesso"] == 1
+    assert out_misto["metricas"]["falhas"] == 1
+    assert out_misto["resultados"]["quantities"][0]["success"] is True
+    assert out_misto["resultados"]["quantities"][1]["success"] is False
+
+    p_todas_inv = {
+        "quantities": [
+            {
+                "quantity_id": "Q_inv1",
+                "observations": [
+                    {"location": "", "value": 10.0, "source_type": "texto"},
+                    {"location": "p.2", "value": 10.0, "source_type": "texto"},
+                ],
+            },
+            {
+                "quantity_id": "Q_inv2",
+                "observations": [
+                    {"location": "p.1", "value": 10.0, "source_type": "texto"},
+                    {"location": 123, "value": 10.0, "source_type": "texto"},
+                ],
+            },
+        ]
+    }
+    out_inv = motor_consistencia_cruzada.run_motor(p_todas_inv)
+    validate_contract(out_inv, "schema_motor.json")
+    assert out_inv["status"] == "ERRO_VALIDACAO"
+    assert out_inv["metricas"]["sucesso"] == 0
+    assert out_inv["metricas"]["falhas"] == 2
+
+
+def test_cases_a_to_d_with_location_no_none_or_desconhecido():
+    """Casos A-D com location preenchida: nenhum achado contém 'None' ou 'desconhecido' e estados preservados."""
+    casos = [
+        (
+            "A",
+            [
+                {"location": "sim_a.py", "source_type": "codigo", "value": 10.0},
+                {"location": "sim_b.py", "source_type": "codigo", "value": 12.0},
+                {"location": "artigo.tex", "source_type": "texto", "value": 10.0},
+            ],
+            "NAO_VERIFICADO",
+            1,
+        ),
+        (
+            "B",
+            [
+                {"location": "sim.py", "source_type": "codigo", "value": 10.0},
+                {"location": "sec1.tex", "source_type": "texto", "value": 10.0},
+                {"location": "sec2.tex", "source_type": "texto", "value": 12.0},
+            ],
+            "CONFIRMADO",
+            1,
+        ),
+        (
+            "C",
+            [
+                {"location": "sim_a.py", "source_type": "codigo", "value": 10.0},
+                {"location": "sim_b.py", "source_type": "codigo", "value": 12.0},
+                {"location": "artigo.tex", "source_type": "texto", "value": 15.0},
+            ],
+            "NAO_VERIFICADO",
+            1,
+        ),
+        (
+            "D",
+            [
+                {"location": "sim.py", "source_type": "codigo", "value": 10.0},
+                {"location": "tab.csv", "source_type": "tabela", "value": 12.0},
+                {"location": "artigo.tex", "source_type": "texto", "value": 15.0},
+            ],
+            "CONFIRMADO",
+            2,
+        ),
+    ]
+    for nome, obs, estado_esperado, qtd_esperada in casos:
+        for ordem in (obs, list(reversed(obs))):
+            out = motor_consistencia_cruzada.run_motor(
+                {"quantities": [{"quantity_id": f"potencia_{nome}", "observations": ordem}]}
+            )
+            validate_contract(out, "schema_motor.json")
+            assert out["status"] == "COM_ACHADOS"
+            assert len(out["achados"]) == qtd_esperada
+            for ach in out["achados"]:
+                assert ach["estado"] == estado_esperado
+                for campo in ("localizacao", "descricao", "impacto", "acao_recomendada"):
+                    assert "None" not in ach[campo], f"Caso {nome}: 'None' em {campo}: {ach[campo]}"
+                    assert "desconhecido" not in ach[campo], f"Caso {nome}: 'desconhecido' em {campo}: {ach[campo]}"
+
+
+def test_single_observation_without_location_still_fails_by_len():
+    """1 observação sem location continua falhando primeiro por len < 2 (ordem de validação)."""
+    out = motor_consistencia_cruzada.run_motor(
+        {"quantities": [{"quantity_id": "Q_one", "observations": [{"value": 10.0, "source_type": "texto"}]}]}
+    )
+    validate_contract(out, "schema_motor.json")
+    assert out["status"] == "ERRO_VALIDACAO"
+    assert "requer pelo menos 2 observações para comparação cruzada" in out["resultados"]["quantities"][0]["error"]

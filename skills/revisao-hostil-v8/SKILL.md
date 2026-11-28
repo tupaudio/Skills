@@ -46,7 +46,7 @@ Estados dos achados (`scripts/common/evidence.py`): `ABERTO`, `EM_ANALISE`, `CON
 | Motor | Versão | Verifica | Operações |
 | --- | --- | --- | --- |
 | `motor_argumentacao` | `0.1.0-beta.5.1` | Estrutura de argumentos e candidatos a falácia | `audit_argument_map` |
-| `motor_consistencia_cruzada` | `0.3.0-beta.1` | Mesma grandeza em código × texto × tabela | `check_quantity_consistency` |
+| `motor_consistencia_cruzada` | `0.4.0-beta.1` | Mesma grandeza em código × texto × tabela | `check_quantity_consistency` |
 | `motor_dados` | `0.2.0-beta.1` | Outliers, qualidade tabular, amostra × valores reportados, vazamento em ML, distribuição de p-valores | `detect_outliers`, `ml_leakage_audit`, `pvalue_distribution_screen`, `sample_vs_reported`, `tabular_quality` |
 | `motor_dimensional` | `0.1.0-beta.3.1` | Homogeneidade dimensional, conversão de unidades, potência × energia | `convert_unit`, `equation_homogeneity`, `expression_dimension`, `power_vs_energy` |
 | `motor_estatistico` | `0.3.0-beta.1` | Testes t, ANOVA, Mann-Whitney, TOST, IC, bootstrap, permutação, poder, comparações múltiplas | `anova_oneway`, `assumptions_check`, `autocorrelation`, `bootstrap_ci`, `confidence_interval`, `mann_whitney`, `multiple_comparisons`, `permutation_test`, `statistical_power`, `t_test_independent`, `t_test_paired`, `tost_equivalence` |
