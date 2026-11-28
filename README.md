@@ -79,7 +79,7 @@ Skills/
 | **Fase 6 (`v8.0-beta.6` → `v8.0-beta.6.6`)** | 7 perfis-piloto YAML, 8 schemas JSON fechados (`additionalProperties: false`), SemVer 2.0.0 `fullmatch()`, parser fail-closed de `requirements.txt` + detecção de conflitos (incl. `~=`), bloqueio efetivo de dependências (`packaging`), cabeçalho estrito `RUN_ID=` (`validate_artifact_run_id`) + inventário independente (`build_expected_checksum_inventory`) + segurança de caminhos, `motor_normas`, `motor_risco`, `motor_estetico` (21/23, 178 testes em venv limpo) | Concluída |
 | **Consolidação dos Motores (`v8.1.0-beta.1`)** | Fortalecimento dos 21 motores determinísticos: precedência de equivalência simbólica comprovada em fórmulas, convergência e validação estrita de identificadores em EDOs, obrigatoriedade de `source_type` reconhecido e validação de `dict` em consistência cruzada, poder estatístico exato via `scipy.stats.nct.sf`, envelopes estruturados e isolamento de falhas por item em lotes, limites defensivos de recursos (AST, matrizes, EDOs), leitura delimitada (`read_bounded_json`) e 524 testes `pytest` aprovados | Concluída |
 | **Fase 7 (`v8.0-beta.7`)** | Banca multiagente independente, Challenger, Adversarial e Adjudicador | Planejada |
-| **Fase 8 (`v8.0-beta.8`)** | `motor_integracao`, `motor_meta`, `orchestrator.py` e `SKILL.md` v8.0 | Planejada |
+| **Fase 8 (`v8.0-beta.8`)** | `motor_integracao`, `motor_meta` e orquestrador automatizado (`orchestrator.py`); o `SKILL.md` atual é um protocolo executado manualmente | Planejada |
 | **Fase 9 + 10 (`v8.0-rc.1` → `v8.0.0`)** | Benchmark experimental, revisão adversarial externa, instalação limpa e congelamento | Planejada |
 
 ---
@@ -122,7 +122,7 @@ python scripts/auditor.py caminho/para/manuscrito.tex --out relatorio_auditor.js
 python scripts/engines/motor_matematico.py --input payload.json --out resultado_motor.json
 ```
 
-> **Nota sobre a `revisao-hostil-v8`:** os 21 motores implementados (de 23 catalogados; 2 planejados para a Fase 8), os 7 perfis-piloto YAML, os 8 contratos JSON fechados e o `auditor.py` já podem ser executados diretamente via Python/CLI com parser fail-closed de `requirements.txt`, bloqueio efetivo de dependências e validação estrita de cabeçalho `RUN_ID=` + inventário independente `SHA256SUMS`; o `SKILL.md` orquestrador da v8.0 será integrado na **Fase 8**. Para uso em agentes hoje, utilize `skills/revisao-hostil-v8/` ou `skills/alucinacao-off/` (v2.1.0 homologada).
+> **Nota sobre a `revisao-hostil-v8`:** os 21 motores implementados (de 23 catalogados; 2 planejados para a Fase 8), os 7 perfis-piloto YAML, os 8 contratos JSON fechados e o `auditor.py` já podem ser executados diretamente via Python/CLI com parser fail-closed de `requirements.txt`, bloqueio efetivo de dependências e validação estrita de cabeçalho `RUN_ID=` + inventário independente `SHA256SUMS`. O `SKILL.md` atual é um protocolo executado manualmente; o orquestrador automatizado (`orchestrator.py`) é da **Fase 8**. Para uso em agentes hoje, utilize `skills/revisao-hostil-v8/` ou `skills/alucinacao-off/` (v2.1.0 homologada).
 
 ---
 
