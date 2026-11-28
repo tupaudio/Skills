@@ -37,7 +37,7 @@ from scripts.common.validation import MAX_JSON_PAYLOAD_BYTES, read_bounded_json,
 from scripts.engines.motor_dimensional import convert_unit
 
 MOTOR_ID = "motor_consistencia_cruzada"
-MOTOR_VERSION = "0.2.0-beta.1"
+MOTOR_VERSION = "0.3.0-beta.1"
 
 # Ordem canônica de autoridade da fonte (menor índice = mais próximo do cálculo original)
 SOURCE_AUTHORITY_ORDER = {
@@ -80,19 +80,37 @@ def check_quantity_consistency(
     if len(observations) < 2:
         raise ValueError(f"Grandeza '{quantity_id}' requer pelo menos 2 observações para comparação cruzada.")
 
+    accepted_types = list(SOURCE_AUTHORITY_ORDER.keys())
+    normalized_observations: list[dict[str, Any]] = []
+    for idx, obs in enumerate(observations, start=1):
+        if not isinstance(obs, dict):
+            raise ValueError(
+                f"Observação {idx} da grandeza '{quantity_id}' inválida: esperado dict, recebido {type(obs).__name__}."
+            )
+        st = obs.get("source_type")
+        if not isinstance(st, str):
+            raise ValueError(
+                f"Observação {idx} da grandeza '{quantity_id}' possui source_type inválido: {st!r}. "
+                f"Para grandezas com 2 ou mais observações, source_type deve ser string reconhecida entre: {accepted_types}."
+            )
+        st_clean = st.strip().lower()
+        if st_clean not in SOURCE_AUTHORITY_ORDER:
+            raise ValueError(
+                f"Observação {idx} da grandeza '{quantity_id}' possui source_type desconhecido: {st!r}. "
+                f"Tipos aceitos: {accepted_types}."
+            )
+        obs_copy = dict(obs)
+        obs_copy["source_type"] = st_clean
+        normalized_observations.append(obs_copy)
+
+    observations = normalized_observations
+
     # Mapeia autoridade para cada observação
     # Fontes conhecidas: codigo/simulacao(0) > planilha/dataset(1) > tabela(2) > figura/grafico(3) > texto(4) > resumo/conclusao(5)
-    # Se source_type for omitido ou desconhecido, recebe autoridade 99 (paritário)
-    def _auth_rank(obs: dict[str, Any]) -> int:
-        st = obs.get("source_type")
-        if not st:
-            return 99
-        return SOURCE_AUTHORITY_ORDER.get(str(st).lower().strip(), 99)
-
-    ranks = [_auth_rank(o) for o in observations]
+    ranks = [SOURCE_AUTHORITY_ORDER[o["source_type"]] for o in observations]
     min_rank = min(ranks)
     count_min = ranks.count(min_rank)
-    has_unique_anchor = (count_min == 1 and min_rank < 99)
+    has_unique_anchor = (count_min == 1)
 
     if has_unique_anchor:
         # Hierarquia assimétrica válida: âncora estritamente dominante

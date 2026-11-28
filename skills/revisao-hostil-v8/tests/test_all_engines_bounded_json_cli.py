@@ -69,8 +69,8 @@ def valid_fixtures(tmp_path_factory: pytest.TempPathFactory) -> dict[str, Any]:
                 {
                     "quantity_id": "Q_001",
                     "observations": [
-                        {"location": "p.1", "value": 10.0, "unit": "m"},
-                        {"location": "p.2", "value": 10.0, "unit": "m"},
+                        {"source_type": "texto", "location": "p.1", "value": 10.0, "unit": "m"},
+                        {"source_type": "texto", "location": "p.2", "value": 10.0, "unit": "m"},
                     ],
                 }
             ]
