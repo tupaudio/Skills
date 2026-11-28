@@ -1,8 +1,10 @@
-# Changelog — Branch fix/motor-matematico-ode-formula e fix/consistencia-exigir-source-type (Merge em main)
+# Changelog — Revisão Hostil v8
 
 Consolidação das correções, limites defensivos e fortalecimento dos 21 motores determinísticos da Skill Revisão Hostil v8.
 
 ---
+
+## v8.1.0-beta.1 (2026-11-27)
 
 ### 1. motor_matematico (`8.0.0-beta.2` -> `8.1.0-beta.1`)
 - **Divergência Simbólica Comprovada e Precedência** (`91d93db`, `26e82ff`, `7c8f698`):
@@ -38,24 +40,24 @@ Consolidação das correções, limites defensivos e fortalecimento dos 21 motor
 *(Merge `3708234` trouxe `0.2.0-beta.1`; commit `c9152a1` trouxe `0.3.0-beta.1`)*
 - **Obrigatoriedade de `source_type` Reconhecido e Validação de Observações** (`c9152a1`):
   - Com 2 ou mais observações em uma grandeza, `source_type` reconhecido passou a ser estritamente obrigatório em cada uma delas (`c9152a1`).
-  - Tipo ausente, `None`, não-string ou desconhecido gera erro da grandeza com mensagem indicando o índice da observação, o valor recebido e os 10 tipos aceitos (as 10 chaves de `SOURCE_AUTHORITY_ORDER`: `"codigo"`, `"tabela"`, `"grafico"`, `"imagem"`, `"texto"`, `"equacao"`, `"apendice"`, `"metadado"`, `"suplemento"`, `"outro"`).
+  - Tipo ausente, `None`, não-string ou desconhecido gera erro da grandeza com mensagem indicando o índice da observação, o valor recebido e os 10 tipos aceitos (as 10 chaves reais de `SOURCE_AUTHORITY_ORDER`: `codigo`, `simulacao`, `planilha`, `dataset`, `tabela`, `figura`, `grafico`, `texto`, `resumo`, `conclusao`).
   - Cada observação deve ser obrigatoriamente um dicionário (`isinstance(obs, dict)`); item que não seja `dict` gera erro da grandeza com índice e tipo recebido.
   - Uma única observação continua falhando com `ValueError` devido à exigência de `len < 2` (comportamento preservado).
 - **Lógica Simétrica em Empate de Autoridade** (`05693de`):
-  - Em `check_quantity_consistency`, quando há empate no menor rank de autoridade (`count_min > 1`) entre tipos válidos, o motor opera de forma simétrica: gera arestas bidirecionais entre todos os pares e emite achado com estado `NAO_VERIFICADO` (portão `G05`);
+  - Em `check_quantity_consistency`, quando há empate no menor rank de autoridade (`count_min > 1`) entre tipos válidos, o motor opera de forma simétrica: não elege âncora (`anchor: null`), gera arestas vazias no grafo e emite achado com estado `NAO_VERIFICADO` (portão `G05`);
   - Quando há uma única âncora estritamente dominante (ex.: `codigo` frente a `texto`), a divergência é assimétrica e gera achado com estado `CONFIRMADO` (portão `G05`).
 - **Isolamento de Itens em Lista** (`4efbde9`):
   - Em `run_motor`, validação estrita de tipo para cada grandeza na lista `quantities` (`if not isinstance(q, dict)`), anexando resultado de erro para o índice inválido e prosseguindo o laço sem interromper a execução das demais grandezas.
-- **Invariância de Ordem e Comportamento dos Grafos**:
-  - A invariância de ordem de entrada das observações aplica-se integralmente aos achados (`achados`): estado (`CONFIRMADO` ou `NAO_VERIFICADO`), localização e descrição permanecem idênticos independentemente da ordem.
-  - Em `graph.nodes` e `graph.edges`, a ordem dos elementos depende da topologia:
-    - No caso de âncora dominante única assimétrica, nós e arestas refletem a ordem de inserção das observações não-âncora;
-    - No caso simétrico de empate de autoridade mínima, `graph.nodes` é canônico e invariante, e `graph.edges` é vazio.
-- **Comportamento Observado em Casos Típicos com 3 Observações** (`c9152a1`):
-  - *Caso A (`codigo=10, codigo=12, texto=10`)*: O texto entra no agrupamento e o achado emitido é `NAO_VERIFICADO`.
-  - *Caso B (`codigo=10, texto=10, texto=12`)*: Âncora dominante única `codigo=10`; a fonte consistente fica em conformidade e a divergente gera achado `CONFIRMADO`.
-  - *Caso C (`codigo=10, codigo=12, texto=15`)*: Todas as três observações entram no agrupamento paritário simétrico (`NAO_VERIFICADO`), com `texto=15` figurando como terceiro valor distinto na justificativa e nos grupos.
-  - *Caso D (`codigo=10, tabela=12, texto=15`)*: Âncora dominante estrita `codigo=10`, gerando dois achados assimétricos `CONFIRMADO` (um contra a tabela e outro contra o texto).
+- **Invariância de Ordem e Comportamento dos Grafos e Achados** (`c9152a1`):
+  - *Casos simétricos (empate no rank mínimo)*:
+    - *Caso A (`codigo=10, codigo=12, texto=10`)*: Ambas as ordens de entrada produzem `nodes` e `edges` rigorosamente idênticos (`edges: []`), e achado único paritário `NAO_VERIFICADO` perfeitamente idêntico. O `texto=10` entra no agrupamento com `codigo=10`.
+    - *Caso C (`codigo=10, codigo=12, texto=15`)*: Ambas as ordens produzem `nodes` e `edges` idênticos (`edges: []`), e achado único `NAO_VERIFICADO` idêntico, com `texto=15` figurando como terceiro grupo distinto na justificativa.
+  - *Casos assimétricos (âncora dominante única)*:
+    - *Caso B (`codigo=10, texto=10, texto=12`)*: A âncora é `codigo=10`. A fonte com valor 10 fica em conformidade e a com valor 12 gera achado `CONFIRMADO`. Em `graph.nodes` e `graph.edges`, a ordem dos nós filhos e das arestas reflete a ordem de entrada das observações não-âncora (`n1: 10, n2: 12` vs `n1: 12, n2: 10`), mas o achado gerado é exatamente o mesmo em ambas as ordens.
+    - *Caso D (`codigo=10, tabela=12, texto=15`)*: A âncora é estritamente `codigo=10`, gerando dois achados `CONFIRMADO` (um contra a tabela e outro contra o texto). Em `graph.nodes` e `graph.edges`, a ordem dos nós e arestas segue a sequência das observações na entrada; a lista `achados` reflete a ordem de detecção das divergências (ordem 1 emite tabela depois texto; ordem 2 emite texto depois tabela), sendo o conjunto de achados equivalente como multiconjunto.
+  - *Identificadores*: os ids dos achados (`ACH-XCS-00N`) e das evidências (`EV-XCS-00N`) seguem a ordem de detecção. No Caso D eles trocam de dono conforme a ordem de entrada (ordem 1: `ACH-XCS-001` = tabela; ordem 2: `ACH-XCS-001` = texto). O conjunto de achados é equivalente ignorando `id`, `evidencia_id` e `timestamp`.
+- **Limitações conhecidas**:
+  - Sem `location` nas observações, os achados assimétricos saem com `localizacao: "None"` e `acao_recomendada: "Alinhar 'None' com a fonte primária 'None' ou documentar a transformação."`; nos casos simétricos, a localização sai como `"desconhecido"`. Os casos A–D acima foram rodados sem `location`; uma nova execução com `location` preenchida reproduziu as mesmas conclusões de invariância e produziu localização e ação recomendada com os nomes das fontes. Informe `location` em cada observação.
 - **Leitura Delimitada e CLI** (`df8a7ca`):
   - Em `main()`, adoção de `read_bounded_json` com teto `MAX_JSON_PAYLOAD_BYTES` e tratamento de saída padronizada.
 
