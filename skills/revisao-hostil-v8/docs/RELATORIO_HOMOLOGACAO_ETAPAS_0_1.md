@@ -50,7 +50,7 @@ A divergência histórica entre "16 agentes" e "17 agentes" foi reconciliada dir
 
 ## 5. Auditoria de Limpeza do Repositório Git
 - Consulta `git ls-files skills/revisao-hostil-v8 | Select-String -Pattern "__pycache__|\.pyc$|\.coverage$|venv"` retornou **0 arquivos versionados** no índice Git.
-- Os artefatos gerados existiam apenas na pasta local espelho (`C:\ZZ - Antigravity\revisao-hostil-v8`), não no repositório Git.
+- Os artefatos gerados existiam apenas na pasta local espelho (`<WORKSPACE>\revisao-hostil-v8`), não no repositório Git.
 - O `.gitignore` adicionado protege `__pycache__/`, `*.pyc`, `.coverage`, `.pytest_cache/`, `venv*/`, `.venv/` sem ocultar nenhum arquivo-fonte ou fixture.
 
 ---

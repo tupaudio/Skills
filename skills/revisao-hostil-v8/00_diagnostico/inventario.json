@@ -4,11 +4,11 @@
   "baseline_detected": {
     "version": "6.0",
     "note": "A versão v7.1 existia apenas conceitualmente e nunca foi implementada. A base real preservada é a v6.0.",
-    "source_directory": "C:/Users/dafnh/.gemini/config/skills/revisao-hostil",
-    "frozen_directory": "c:/ZZ - Antigravity/revisao-hostil-v8/versions/v6.0-legacy"
+    "source_directory": "<USER_HOME>/.gemini/config/skills/revisao-hostil",
+    "frozen_directory": "<WORKSPACE>/revisao-hostil-v8/versions/v6.0-legacy"
   },
   "workspace_audit": {
-    "development_root": "c:/ZZ - Antigravity/revisao-hostil-v8",
+    "development_root": "<WORKSPACE>/revisao-hostil-v8",
     "git_initialized": false,
     "legacy_agents_dir_found": false,
     "legacy_workflows_dir_found": false,
@@ -50,13 +50,13 @@
   "cross_file_references": [
     {
       "from": "SKILL.md",
-      "to": "C:\\Users\\dafnh\\.gemini\\config\\skills\\revisao-hostil\\scripts\\auditor.py",
+      "to": "<USER_HOME>\\.gemini\\config\\skills\\revisao-hostil\\scripts\\auditor.py",
       "line": 72,
       "issue": "Caminho absoluto específico da máquina"
     },
     {
       "from": "SKILL.md",
-      "to": "C:\\Users\\dafnh\\.gemini\\config\\skills\\revisao-hostil\\scripts\\motor_matematico.py",
+      "to": "<USER_HOME>\\.gemini\\config\\skills\\revisao-hostil\\scripts\\motor_matematico.py",
       "line": 97,
       "issue": "Caminho absoluto específico da máquina"
     }

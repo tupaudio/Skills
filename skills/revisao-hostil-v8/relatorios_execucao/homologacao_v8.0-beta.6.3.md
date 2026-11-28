@@ -94,7 +94,7 @@ Manutenção corretiva sobre `v8.0-beta.6.2` para encerrar `ACH-B6.2-002` (parse
 - **Build do SO:** `10.0.26300`
 - **Plataforma completa:** `Windows-11-10.0.26300-SP0`
 - **Arquitetura:** `AMD64`
-- **Ambiente virtual:** `C:\Users\dafnh\.gemini\antigravity\brain\d4ef86c0-a49f-4a11-9b77-a243d5779eda\scratch\venv_b63`
+- **Ambiente virtual:** `<USER_HOME>\.gemini\antigravity\brain\d4ef86c0-a49f-4a11-9b77-a243d5779eda\scratch\venv_b63`
 - **Ferramentas de teste:** `pytest==9.2.0`, `pytest-cov==7.1.0`, `coverage==7.17.5`, `packaging==26.4`
 
 ## 12. Versões das dependências instaladas no ambiente

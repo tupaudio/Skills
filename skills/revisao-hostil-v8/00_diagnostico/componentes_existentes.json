@@ -30,7 +30,7 @@
     },
     {
       "id": "legacy_pycache",
-      "path": "C:/Users/dafnh/.gemini/config/skills/revisao-hostil/scripts/__pycache__",
+      "path": "<USER_HOME>/.gemini/config/skills/revisao-hostil/scripts/__pycache__",
       "category": "artefato_compilacao",
       "classification": "descartavel",
       "rationale": "Bytecode gerado automaticamente pelo Python 3.14; não deve ser versionado nem empacotado."

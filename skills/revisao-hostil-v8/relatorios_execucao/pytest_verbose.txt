@@ -1,8 +1,8 @@
 RUN_ID=BETA6.6-20261124T022833Z-85ef1fff
 ============================= test session starts =============================
-platform win32 -- Python 3.14.6, pytest-9.2.0, pluggy-1.7.0 -- C:\Users\dafnh\.gemini\antigravity\brain\d4ef86c0-a49f-4a11-9b77-a243d5779eda\scratch\venv_b66\Scripts\python.exe
+platform win32 -- Python 3.14.6, pytest-9.2.0, pluggy-1.7.0 -- <USER_HOME>\.gemini\antigravity\brain\d4ef86c0-a49f-4a11-9b77-a243d5779eda\scratch\venv_b66\Scripts\python.exe
 cachedir: .pytest_cache
-rootdir: C:\ZZ - Antigravity\tupaudio-Skills\skills\revisao-hostil-v8
+rootdir: <REPO_ROOT>\skills\revisao-hostil-v8
 configfile: pytest.ini
 testpaths: tests
 plugins: cov-7.1.0
@@ -229,6 +229,6 @@ scripts\engines\motor_risco.py                     87     18    79%   27, 58, 60
 scripts\engines\motor_temporal.py                 169     20    88%   35, 53, 93, 97, 186, 194, 235, 237, 243, 372-382, 386
 -----------------------------------------------------------------------------
 TOTAL                                            4093    707    83%
-Coverage JSON written to file C:\Users\dafnh\AppData\Local\Temp\tmpg_gp87fg\coverage.json
+Coverage JSON written to file <USER_HOME>\AppData\Local\Temp\tmpg_gp87fg\coverage.json
 ============================ 178 passed in 22.17s =============================
 

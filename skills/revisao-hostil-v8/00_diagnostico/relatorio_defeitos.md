@@ -1,7 +1,7 @@
 # Relatório Forense de Defeitos — Base v6.0 (Fase 0)
 
 **Data:** 2026-11-23  
-**Base auditada:** `versions/v6.0-legacy/` (cópia imutável da v6.0 instalada em `C:\Users\dafnh\.gemini\config\skills\revisao-hostil`)  
+**Base auditada:** `versions/v6.0-legacy/` (cópia imutável da v6.0 instalada em `<USER_HOME>\.gemini\config\skills\revisao-hostil`)  
 **Compilação sintática (`python -m py_compile`):** APROVADA (`exit code 0` em ambos os scripts).
 
 ---
@@ -36,6 +36,6 @@
 
 | ID | Gravidade | Localização | Defeito Comprovado | Ação Planejada |
 | :--- | :--- | :--- | :--- | :--- |
-| **DEF-S01** | `ALTA` | `SKILL.md` (L72, L97) | Caminhos absolutos Windows hardcoded (`C:\Users\dafnh\.gemini\config\skills\revisao-hostil\scripts\...`), quebrando instalação limpa e portabilidade. | Usar caminhos relativos à raiz da skill / resolução dinâmica no orquestrador. |
+| **DEF-S01** | `ALTA` | `SKILL.md` (L72, L97) | Caminhos absolutos Windows hardcoded (`<USER_HOME>\.gemini\config\skills\revisao-hostil\scripts\...`), quebrando instalação limpa e portabilidade. | Usar caminhos relativos à raiz da skill / resolução dinâmica no orquestrador. |
 | **DEF-S02** | `MÉDIA` | Ambiente Python | `PyYAML` e `jsonschema` não estão instalados no ambiente atual (`Python 3.14.6`), sendo pré-requisitos para os contratos JSON e perfis YAML da Fase 2/6. | Registrar em `pyproject.toml`/`requirements.txt` na Fase 2 e validar em instalação limpa (Fase 10). |
 | **DEF-S03** | `BAIXA` | Segurança | `SafeExpressionParser` já evita `eval`/`exec` (ponto positivo), mas não limita profundidade da AST nem expoentes gigantes (ex.: `9**9**9`), criando risco de DoS local com manuscritos maliciosos. | Adicionar limite de profundidade AST, tamanho máximo de expressão e teto de expoente em `SafeExpressionParser`. |
