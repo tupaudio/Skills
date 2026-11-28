@@ -69,6 +69,22 @@ def _to_reference_unit(value: float, unit: str | None, ref_unit: str | None) -> 
     return value, False, conv.get("error") or f"Unidades incompatíveis: {unit} vs {ref_unit}"
 
 
+def _build_node_ids(quantity_id: str, ordered_obs: list[dict[str, Any]]) -> list[str]:
+    base_ids = [f"{quantity_id}:{obs.get('object_id') or obs.get('location')}" for obs in ordered_obs]
+    totals: dict[str, int] = {}
+    for bid in base_ids:
+        totals[bid] = totals.get(bid, 0) + 1
+    seen: dict[str, int] = {}
+    node_ids: list[str] = []
+    for bid in base_ids:
+        if totals[bid] == 1:
+            node_ids.append(bid)
+        else:
+            seen[bid] = seen.get(bid, 0) + 1
+            node_ids.append(f"{bid}#{seen[bid]}")
+    return node_ids
+
+
 def check_quantity_consistency(
     quantity_id: str,
     observations: list[dict[str, Any]],
@@ -132,7 +148,8 @@ def check_quantity_consistency(
         edges: list[dict[str, Any]] = []
         divergences: list[dict[str, Any]] = []
 
-        anchor_node_id = f"{quantity_id}:{anchor.get('object_id') or anchor.get('location') or 'root'}"
+        node_ids = _build_node_ids(quantity_id, [anchor] + other_obs)
+        anchor_node_id = node_ids[0]
         nodes.append(
             {
                 "node_id": anchor_node_id,
@@ -146,11 +163,10 @@ def check_quantity_consistency(
             }
         )
 
-        for idx, obs in enumerate(other_obs, start=1):
+        for idx, (obs, node_id) in enumerate(zip(other_obs, node_ids[1:]), start=1):
             val = require_finite_number(obs["value"], f"{quantity_id}.obs[{idx}].value")
             unit = obs.get("unit")
             norm_val, unit_ok, unit_err = _to_reference_unit(val, unit, anchor_unit)
-            node_id = f"{quantity_id}:{obs.get('object_id') or obs.get('location') or f'n{idx}'}"
 
             decimals = obs.get("decimals")
             round_tol = 0.5 * (10.0 ** (-int(decimals))) if decimals is not None else 0.0
@@ -260,9 +276,9 @@ def check_quantity_consistency(
                 }
             )
 
+    node_ids = _build_node_ids(quantity_id, canonical_obs)
     nodes = []
-    for idx, obs in enumerate(canonical_obs, start=1):
-        nid = f"{quantity_id}:{obs.get('object_id') or obs.get('location') or f'n{idx}'}"
+    for obs, nid in zip(canonical_obs, node_ids):
         nodes.append(
             {
                 "node_id": nid,
@@ -370,11 +386,16 @@ def run_motor(payload: Any, *, run_id: str | None = None, artefato_alvo: str | N
                     )
                 else:
                     # Divergência assimétrica contra âncora hierárquica dominante
+                    anchor_loc_label = div["anchor_location"]
+                    div_loc_label = div["divergent_location"]
+                    if anchor_loc_label == div_loc_label:
+                        anchor_loc_label = f"{anchor_loc_label} ({div['anchor_source']})"
+                        div_loc_label = f"{div_loc_label} ({div['divergent_source']})"
                     ev = create_evidence(
                         f"EV-XCS-{ach_seq:03d}",
                         "numerica",
                         artefato_alvo or "grafo_consistencia",
-                        f"{div['anchor_location']} <-> {div['divergent_location']}",
+                        f"{anchor_loc_label} <-> {div_loc_label}",
                         div["reason"],
                         objeto_id=div.get("divergent_object_id"),
                         valor_observado=div["divergent_value"],
@@ -394,7 +415,7 @@ def run_motor(payload: Any, *, run_id: str | None = None, artefato_alvo: str | N
                             estado="CONFIRMADO",
                             portao="G05",
                             impacto=f"Quebra de rastreabilidade entre {div['anchor_source']} e {div['divergent_source']} (Efeito Dominó).",
-                            acao_recomendada=f"Alinhar '{div['divergent_location']}' com a fonte primária '{div['anchor_location']}' ou documentar a transformação.",
+                            acao_recomendada=f"Alinhar '{div_loc_label}' com a fonte primária '{anchor_loc_label}' ou documentar a transformação.",
                             origem_componente=MOTOR_ID,
                         )
                     )
