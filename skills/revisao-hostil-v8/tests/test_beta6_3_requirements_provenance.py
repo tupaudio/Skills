@@ -421,7 +421,7 @@ def test_b63_consistency_detects_all_divergences(tmp_path: Path, tamper_case: st
     elif tamper_case == "python_version_mismatch":
         m["test_results"]["python_version"] = "3.11.0"
     elif tamper_case == "os_name_mismatch":
-        m["test_results"]["os_name"] = "Linux"
+        m["test_results"]["os_name"] = "Windows" if m["test_results"]["os_name"] == "Linux" else "Linux"
     elif tamper_case == "os_build_mismatch":
         m["test_results"]["os_build"] = "10.0.19045"
     elif tamper_case == "test_count_report_mismatch":
