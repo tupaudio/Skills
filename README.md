@@ -1,9 +1,9 @@
 # Skills do Antigravity — Tupã Audio & Academic Framework
 
 [![Status](https://img.shields.io/badge/Antigravity-Skills%20Repository-blue)](https://github.com/tupaudio/Skills)
-[![Revisão Hostil](https://img.shields.io/badge/Revis%C3%A3o%20Hostil-v8.1.0--beta.2-orange)](./skills/revisao-hostil-v8)
+[![Revisão Hostil](https://img.shields.io/badge/Revis%C3%A3o%20Hostil-v8.1.0--beta.3-orange)](./skills/revisao-hostil-v8)
 [![Alucinação-OFF](https://img.shields.io/badge/Alucina%C3%A7%C3%A3o--OFF-v2.1.0-green)](./skills/alucinacao-off)
-[![Tests](https://img.shields.io/badge/pytest-524%20passed-brightgreen)](#como-rodar-os-testes-da-revisao-hostil-v8)
+[![Tests](https://img.shields.io/badge/pytest-534%20passed-brightgreen)](#como-rodar-os-testes-da-revisao-hostil-v8)
 
 Repositório oficial de **Skills autorais para o Google Antigravity**, focadas em **rigor epistêmico radical**, **auditoria científica e técnica determinística** e **verificação orientada a evidências**.
 
@@ -15,14 +15,14 @@ Repositório oficial de **Skills autorais para o Google Antigravity**, focadas e
 | :--- | :---: | :--- | :--- |
 | **`alucinacao-off`** | `v2.1.0` | [`skills/alucinacao-off/`](./skills/alucinacao-off) | Honestidade epistêmica e rigor técnico (taxonomia de 8 categorias, protocolo de lacunas críticas, 9 módulos disciplinares, modo criativo explícito e homologação comportamental 18/18 em [`homologacao_v2.1.md`](./skills/alucinacao-off/homologacao_v2.1.md)). |
 | **`revisao-hostil`** | `v6.0` | [`skills/revisao-hostil/`](./skills/revisao-hostil) | Versão estável legada de produção para revisão científica crítica e forense (`.tex`, `.docx`, `.pdf`, `.md`, `.txt`) com `auditor.py`, `motor_matematico.py` (*Zero-Trust Numerical Plug-In*) e 10 Portões de Qualidade. |
-| **`revisao-hostil-v8`** | `v8.1.0-beta.2` | [`skills/revisao-hostil-v8/`](./skills/revisao-hostil-v8) | Plataforma modular multidisciplinar em desenvolvimento incremental, orientada a contratos JSON fechados (8 schemas), com **21 motores implementados** (de 23 catalogados; 2 planejados para a Fase 8), **7 perfis-piloto YAML**, parser fail-closed de `requirements.txt`, bloqueio efetivo de dependências/versões (`packaging`), validação estrita de cabeçalho `RUN_ID=` (`validate_artifact_run_id`) + inventário independente (`build_expected_checksum_inventory`), máquina formal de 10 estados e **524 testes `pytest` aprovados** em ambiente limpo. |
+| **`revisao-hostil-v8`** | `v8.1.0-beta.3` | [`skills/revisao-hostil-v8/`](./skills/revisao-hostil-v8) | Plataforma modular multidisciplinar em desenvolvimento incremental, orientada a contratos JSON fechados (8 schemas), com **21 motores implementados** (de 23 catalogados; 2 planejados para a Fase 8), **7 perfis-piloto YAML**, parser fail-closed de `requirements.txt`, bloqueio efetivo de dependências/versões (`packaging`), validação estrita de cabeçalho `RUN_ID=` (`validate_artifact_run_id`) + inventário independente (`build_expected_checksum_inventory`), máquina formal de 10 estados e **534 testes `pytest` aprovados** em ambiente limpo. |
 
 ---
 
 ## Estado e Limitações (`revisao-hostil-v8`)
 
 - **Classificação:** Beta para uso pessoal. Não é instrumento validado para avaliação de conformidade ou certificação.
-- **Evidência empírica e benchmark:** Os resultados existentes constituem piloto exploratório e descritivo. Os resultados do piloto R6 foram obtidos no commit histórico `7677de3` e correspondem a uma precisão reportada de 70% (7/10) sobre 10 predições avaliadas em 15 artigos, valor não reconciliado com o total de 50 achados `CONFIRMADO` gerados na ocasião, não sendo generalizável nem aplicável a esta versão dos motores. A suíte automatizada (524 testes) atesta conformidade dos motores contra entradas controladas, não completude de detecção (recall) em manuscritos arbitrários.
+- **Evidência empírica e benchmark:** Os resultados existentes constituem piloto exploratório e descritivo. Os resultados do piloto R6 foram obtidos no commit histórico `7677de3` e correspondem a uma precisão reportada de 70% (7/10) sobre 10 predições avaliadas em 15 artigos, valor não reconciliado com o total de 50 achados `CONFIRMADO` gerados na ocasião, não sendo generalizável nem aplicável a esta versão dos motores. A suíte automatizada (534 testes) atesta conformidade dos motores contra entradas controladas, não completude de detecção (recall) em manuscritos arbitrários.
 - **Validação prática:** A validação prática em ambiente real ainda não foi realizada.
 - **Operações simbólicas:** No `motor_matematico`, operações simbólicas não possuem timeout rígido em nível de processo ou thread; expressões de alta complexidade ou fortemente não-lineares podem elevar substancialmente a latência de execução. A operação `proven_different` assume símbolos genéricos em $\mathbb{C}$ sem hipóteses restritivas de domínio (como positividade ou intervalos reais restritos), podendo reportar inequivalência quando a igualdade dependeria de restrições tácitas do autor.
 - **Segurança de caminhos:** Validação de caminho com tamanho máximo delimitado e saneamento numérico em `scripts/common/validation.py`, mas opera sem raiz autorizada restrita (*chroot/sandbox* nativo).
@@ -47,7 +47,7 @@ Skills/
     │   └── scripts/
     │       ├── auditor.py
     │       └── motor_matematico.py
-    └── revisao-hostil-v8/                # v8.1.0-beta.1
+    └── revisao-hostil-v8/                # v8.1.0-beta.3
         ├── 00_diagnostico/               # Inventário, defeitos da v6.0 e SHA256SUMS
         ├── docs/                         # ARQUITETURA_V8.md e critérios de aceitação
         ├── references/                   # 8 JSON Schemas fechados, 7 perfis-piloto YAML, normas, vocabulários e checklists
@@ -57,7 +57,7 @@ Skills/
         │   ├── common/                   # Validador de schemas, SemVer 2.0.0, parser fail-closed + packaging, estados e evidência
         │   ├── engines/                  # 21 motores determinísticos implementados (23 catalogados; 2 da Fase 8 planejados)
         │   └── tools/                    # Ferramentas auxiliares de inventário e manifesto
-        ├── tests/                        # Suíte pytest (524 testes: unitários, integração, negativos, adversariais, regressão e valores de referência)
+        ├── tests/                        # Suíte pytest (534 testes: unitários, integração, negativos, adversariais, regressão e valores de referência)
         ├── versions/v6.0-legacy/         # Base legada congelada com SHA256SUMS
         ├── pytest.ini
         ├── requirements.txt

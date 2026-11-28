@@ -3,7 +3,7 @@ name: revisao-hostil-v8
 description: Auditoria técnica e científica adversarial de artigos, dissertações, relatórios e código associado. Use quando o usuário pedir revisão hostil, auditoria de manuscrito, verificação de cálculos, unidades, estatística, consistência entre texto, tabelas e código, ou parecer de banca. Roda o auditor estrutural e motores determinísticos em Python e exige evidência para cada achado.
 ---
 
-# Revisão Hostil v8 (v8.1.0-beta.2)
+# Revisão Hostil v8 (v8.1.0-beta.3)
 
 Atua como banca examinadora adversarial: não corrige texto, procura erro demonstrável. **Estado real:** o núcleo determinístico (auditor + 21 motores) existe e é testado. A banca de agentes da Fase 7 **não existe**: o julgamento é feito por você (Claude) seguindo o protocolo abaixo, e isso **não é revisão independente** (mesmo modelo, mesmo contexto). Diga isso no relatório.
 
@@ -46,7 +46,7 @@ Estados dos achados (`scripts/common/evidence.py`): `ABERTO`, `EM_ANALISE`, `CON
 | Motor | Versão | Verifica | Operações |
 | --- | --- | --- | --- |
 | `motor_argumentacao` | `0.1.0-beta.5.1` | Estrutura de argumentos e candidatos a falácia | `audit_argument_map` |
-| `motor_consistencia_cruzada` | `0.3.0-beta.1` | Mesma grandeza em código × texto × tabela | `check_quantity_consistency` |
+| `motor_consistencia_cruzada` | `0.4.0-beta.1` | Mesma grandeza em código × texto × tabela | `check_quantity_consistency` |
 | `motor_dados` | `0.2.0-beta.1` | Outliers, qualidade tabular, amostra × valores reportados, vazamento em ML, distribuição de p-valores | `detect_outliers`, `ml_leakage_audit`, `pvalue_distribution_screen`, `sample_vs_reported`, `tabular_quality` |
 | `motor_dimensional` | `0.1.0-beta.3.1` | Homogeneidade dimensional, conversão de unidades, potência × energia | `convert_unit`, `equation_homogeneity`, `expression_dimension`, `power_vs_energy` |
 | `motor_estatistico` | `0.3.0-beta.1` | Testes t, ANOVA, Mann-Whitney, TOST, IC, bootstrap, permutação, poder, comparações múltiplas | `anova_oneway`, `assumptions_check`, `autocorrelation`, `bootstrap_ci`, `confidence_interval`, `mann_whitney`, `multiple_comparisons`, `permutation_test`, `statistical_power`, `t_test_independent`, `t_test_paired`, `tost_equivalence` |
@@ -87,14 +87,16 @@ Dependências em `requirements.txt` (`>=`, sem lock com hashes). Ambiente testad
 
 ## Como interpretar os estados
 
-`PARCIAL`, `NAO_VERIFICADO`, `sample_too_small`, `inconclusive`, `numerically_equal_at_samples` e `solver_failed` significam **"não verificado"**; nunca aprovação e nunca erro confirmado. Na consistência cruzada com fontes de mesma autoridade, `NAO_VERIFICADO` indica divergência real entre valores, sem saber qual deles está correto.
+- `PARCIAL`, `NAO_VERIFICADO`, `sample_too_small`, `inconclusive`, `numerically_equal_at_samples` e `solver_failed` significam **"não verificado"**; nunca aprovação e nunca erro confirmado. Na consistência cruzada com fontes de mesma autoridade, `NAO_VERIFICADO` indica divergência real entre valores, sem saber qual deles está correto.
+- `ERRO_VALIDACAO` = entrada rejeitada; `ERRO_EXECUCAO` = falha de execução ou limite excedido. Em ambos a verificação **não** ocorreu; não indicam erro no manuscrito.
+- `PARCIAL` em lote = pelo menos um item falhou ou ficou inconclusivo; os demais resultados são válidos.
 
 ## Limitações conhecidas
 
 - **Nenhum benchmark estabelece taxa de detecção generalizável.** Os resultados existentes constituem piloto exploratório, sem generalização estatística para taxa de detecção global em manuscritos arbitrários. Os resultados do piloto R6 foram obtidos com o código do commit 7677de3 e não se aplicam automaticamente a esta versão. Os testes automatizados provam que o código se comporta como projetado frente a entradas controladas, não a completude do recall.
 - **`motor_matematico`:** Operações simbólicas não possuem timeout rígido em nível de processo ou thread; expressões altamente complexas ou não lineares podem elevar a latência de execução. A operação `proven_different` assume símbolos genéricos em $\mathbb{C}$ sem hipóteses restritivas de domínio (como positividade ou intervalos reais restritos), podendo reportar inequivalência quando a igualdade só se sustentaria sob restrições tácitas do autor.
 - **`motor_dados` (pvalue_distribution_screen):** O limiar padrão `min_n=10` é uma escolha de engenharia para evitar alta variância amostral em conjuntos com poucas observações. Conjuntos com $N < 10$ retornam `status: sample_too_small` (envelope `PARCIAL`) e `investigation_recommended: false` a menos que `min_n` seja configurado explicitamente.
-- **`motor_consistencia_cruzada`:** Para grandezas com 2 ou mais observações, exige `source_type` reconhecido (`codigo`, `simulacao`, `planilha`, `dataset`, `tabela`, `figura`, `grafico`, `texto`, `resumo`, `conclusao`) em cada observação; ausente, None, não-string ou desconhecido gera erro da grandeza com status `error`. Com 2 ou mais observações, deve-se informar `location` em cada uma; sem `location`, o achado sai com localização `"None"` (assimétrico) ou `"desconhecido"` (empate) (limitação conhecida; correção no código fica para depois). Em situações de empate de autoridade (mesmo rank entre fontes conhecidas), o motor opera de forma simétrica e emite achado com `estado: NAO_VERIFICADO`. Apenas quando há uma única âncora estritamente dominante (ex.: `codigo` frente a `texto`), a fonte dominante torna-se âncora e a divergência é classificada como `CONFIRMADO`.
+- **`motor_consistencia_cruzada`:** Para grandezas com 2 ou mais observações, exige `source_type` reconhecido (`codigo`, `simulacao`, `planilha`, `dataset`, `tabela`, `figura`, `grafico`, `texto`, `resumo`, `conclusao`) e `location` string não vazia em cada observação; ausente, `None`, vazio ou não-string gera erro da grandeza com status `error`. Em situações de empate de autoridade (mesmo rank entre fontes conhecidas), o motor opera de forma simétrica e emite achado com `estado: NAO_VERIFICADO`. Apenas quando há uma única âncora estritamente dominante (ex.: `codigo` frente a `texto`), a fonte dominante torna-se âncora e a divergência é classificada como `CONFIRMADO`.
 - **`motor_estatistico` (statistical_power):** O cálculo de poder estatístico (`statistical_power_two_means`) utiliza formulação exata bicaudal baseada na distribuição t não central (`scipy.stats.nct`), onde $n$ (`n_per_group`) representa estritamente o tamanho amostral de cada grupo individual ($N_{\text{total}} = 2n$). A cauda inferior é avaliada por simetria via `sf(t_crit, df, -nc)`, contornando instabilidades numéricas (`NaN`) em caudas extremas; registra o campo `nan_fallback_applied`, mantendo fallback 0.0 apenas como salvaguarda defensiva.
 - O auditor tem regras "genéricas" com viés de engenharia/simulação: `comprov*`, `proof of`, `eliminat*`, `never/always/sempre/nunca` geram falso positivo em matemática, direito e texto comum. Trate como pista fraca.
 - Os perfis YAML não alimentam o auditor; o único gancho é `--engineering-preset`.
