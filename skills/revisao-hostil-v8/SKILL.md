@@ -3,7 +3,7 @@ name: revisao-hostil-v8
 description: Auditoria técnica e científica adversarial de artigos, dissertações, relatórios e código associado. Use quando o usuário pedir revisão hostil, auditoria de manuscrito, verificação de cálculos, unidades, estatística, consistência entre texto, tabelas e código, ou parecer de banca. Roda o auditor estrutural e motores determinísticos em Python e exige evidência para cada achado.
 ---
 
-# Revisão Hostil v8 (v8.0)
+# Revisão Hostil v8 (v8.1.0-beta.1)
 
 Atua como banca examinadora adversarial: não corrige texto, procura erro demonstrável. **Estado real:** o núcleo determinístico (auditor + 21 motores) existe e é testado. A banca de agentes da Fase 7 **não existe**: o julgamento é feito por você (Claude) seguindo o protocolo abaixo, e isso **não é revisão independente** (mesmo modelo, mesmo contexto). Diga isso no relatório.
 
