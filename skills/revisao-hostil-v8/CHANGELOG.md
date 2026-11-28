@@ -4,6 +4,24 @@ Consolidação das correções, limites defensivos e fortalecimento dos 21 motor
 
 ---
 
+## v8.1.0-beta.2 (2026-11-28)
+
+- `SKILL.md` (regra 7): separação entre modo dissertação (padrão, priorização por gravidade sem teto fixo e aviso de omissões) e modo benchmark R6 (teto de 5 `CONFIRMADO`), mantendo a proibição de emitir checagens bem-sucedidas como achado.
+- `SKILL.md` (segurança): corrigido o escopo de `hash_artefato` para registrar que apenas `auditor.py` e `motor_estetico` emitem SHA-256 do artefato e os demais motores retornam `null`.
+- `SKILL.md`: adicionada seção "Como interpretar os estados" (`PARCIAL`, `NAO_VERIFICADO`, `sample_too_small`, `inconclusive`, `numerically_equal_at_samples` e `solver_failed` significam "não verificado", nunca aprovação nem erro confirmado).
+- `SKILL.md` (`motor_consistencia_cruzada`): documentada a recomendação de informar `location` em cada observação (com 2+ observações), pois sem `location` o achado sai com localização `"None"` (assimétrico) ou `"desconhecido"` (empate).
+- `SKILL.md`: registrado que o CI roda em Ubuntu e Windows, Python 3.12 e 3.14 (GitHub Actions).
+- `README.md`: esclarecido que o `SKILL.md` atual é um protocolo executado manualmente e que o orquestrador automatizado (`orchestrator.py`) é da Fase 8.
+- `relatorios_execucao/LEIA-ME.md`: criado aviso de que os relatórios da pasta são históricos da `v8.0-beta.6.6` (178 testes, 82,73% de cobertura) e não refletem esta versão.
+- Saneamento de caminhos locais (`<USER_HOME>`, `<REPO_ROOT>` e `<WORKSPACE>`) em `00_diagnostico/{arvore_atual.txt,componentes_existentes.json,inventario.json,relatorio_defeitos.md}`, `relatorios_execucao/{homologacao_v8.0-beta.6.3.md,homologacao_v8.0-beta.6.4.md,homologacao_v8.0-beta.6.5.md,homologacao_v8.0-beta.6.6.md,pytest_verbose.txt,run_manifest.json}`, `docs/RELATORIO_HOMOLOGACAO_ETAPAS_0_1.md` e `docs/fase7_rev20/reports/pytest-results.xml`, preservando JSON/XML válidos.
+- Os hashes em `run_manifest.json` e nos `homologacao_*.md` são os dos arquivos originais e não conferem com os atuais; os `SHA256SUMS` da raiz e de `00_diagnostico` foram regenerados ao final desta versão.
+- Workflow do GitHub Actions (Ubuntu e Windows, Python 3.12 e 3.14) e ajuste do teste `os_name_mismatch` (`47f9f0a`).
+- Rótulos atualizados para `v8.1.0-beta.2` em `SKILL.md`, `references/catalogo_motores.yaml` e `README.md` (sem alterar `MOTOR_VERSION` nem a tabela de versões dos motores).
+- **Nota sobre `v8.1.0-beta.1`:** a tag `v8.1.0-beta.1` aponta para `5899a09`, anterior ao ajuste de teste do CI (`47f9f0a`); nesse commit o job Ubuntu falhava em `test_b63_consistency_detects_all_divergences[os_name_mismatch]`.
+- **Limitações conhecidas:** `location` ausente em `motor_consistencia_cruzada` gera achado com localização `"None"` (assimétrico) ou `"desconhecido"` (empate); `benchmark/cases.json` contém o gabarito do benchmark dentro do repositório; continuam no HEAD com o nome do autor e/ou caminhos locais: `benchmark/cases.json` (travado por `validation_cases_sha256` da R3 e lido em `bench.py`), `benchmark/PREREGISTRO_R3.md` (mantido coerente com `cases.json`), `skills/revisao-hostil/SKILL.md` (skill v6.0 mantida intacta), `versions/v6.0-legacy/SKILL.md` (cópia imutável com `SHA256SUMS` próprio), `benchmark/posthoc_r3.py`, `benchmark/prepare_blind_dir.py` e `benchmark/PREREGISTRO.md`; e-mail do autor e caminhos locais permanecem em commits e tags já publicados (histórico do Git); 53 arquivos da skill não constam no `SHA256SUMS` raiz (`CHANGELOG.md`, `benchmark/*`, parte de `tests/*`, `00_diagnostico/SHA256SUMS` e `versions/v6.0-legacy/SHA256SUMS`), decisão registrada para revisão em uma versão futura.
+
+---
+
 ## v8.1.0-beta.1 (2026-11-27)
 
 ### 1. motor_matematico (`8.0.0-beta.2` -> `8.1.0-beta.1`)
